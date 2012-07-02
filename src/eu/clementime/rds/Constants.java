@@ -69,9 +69,9 @@ public final class Constants  {
 //	public static final int CLICK_INFO = 6;
 //	public static final int CLICK_AGAIN_INVENTORY = 7;
 //	
-//	public static final int MOVE_LEFT_ARROW_POSX = 10;
-//	public static final int MOVE_RIGHT_ARROW_POSX = 480-45;
-//	public static final int MOVE_ARROWS_POSY = 320-80;
+	public static final int MOVE_LEFT_ARROW_POSX = 10;
+	public static final int MOVE_RIGHT_ARROW_POSX = -45; // from right (to remove from screen width)
+	public static final int MOVE_ARROWS_POSY = -80; // from screen bottom (to remove from screen height)
 //
 //	/*                  */
 //	/* INVENTORY SCREEN */
