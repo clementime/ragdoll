@@ -9,10 +9,10 @@ public final class Constants  {
 //	public static final float LOOP_LOG_INTERVAL = 2;
 	
 	public static final int BACKGROUND_MAX_HEIGHT = 320;
-//	
-//	public static final float MASK_ALPHA_LAYER = 0.4f;
-//	public static final float INV_ALPHA_LAYER = 0.8f;
-//	public static final float INVBOX_ALPHA_LAYER = 0.3f;
+	
+	public static final float MASK_ALPHA_LAYER = 0.4f;
+	public static final float INV_ALPHA_LAYER = 0.8f;
+	public static final float INVBOX_ALPHA_LAYER = 0.3f;
 	public static final String DEFAULT_IMAGE = "default_img";
 	public static final String ANIMATION_IMAGE_PREFIX = "anim_";
 //	public static final int NO_END_LOOP = 1000;
@@ -68,50 +68,51 @@ public final class Constants  {
 	public static final int CLICK_TALK = 5;
 	public static final int CLICK_INFO = 6;
 	public static final int CLICK_AGAIN_INVENTORY = 7;
+	public static final int CLICK_DOLL = 8;
 	
 	public static final int MOVE_LEFT_ARROW_POSX = 10;
 	public static final int MOVE_RIGHT_ARROW_POSX = -45; // from right (to remove from screen width)
 	public static final int MOVE_ARROWS_POSY = -80; // from screen bottom (to remove from screen height)
-//
-//	/*                  */
-//	/* INVENTORY SCREEN */
-//	/*                  */
-//	public static final int INVENTORY_BAG_POSX = 20;
-//	public static final int INVENTORY_BAG_POSY = 20;
-//
-//	public static final int INVENTORY_POSX_NORMALVIEW = 0;
-//	public static final int INVENTORY_POSY_NORMALVIEW = 320-85;
-//	public static final int POSX_ZOOMVIEW = 2;
-//	public static final int POSY_ZOOMVIEW = 46;
-//	public static final int INVENTORY_POSX_ZOOMVIEW = 2;
-//	public static final int INVENTORY_POSY_ZOOMVIEW = 6;
-//	public static final int INVENTORY_POSX_ZOOM_ITEM = 238;
-//	public static final int INVENTORY_POSY_ZOOM_ITEM = 94;
-//	public static final int INVENTORY_POSX_ZOOM_TEXT = 30;
-//	public static final int INVENTORY_POSY_ZOOM_TEXT = 190;
-//	public static final int INVENTORY_ZOOM_SIZE_TEXT = 40;
-//	
-//	public static final int INVENTORY_SIZE_BOXES = 70;
-//	public static final int INVENTORY_SIZE_BETWEEN_BOXES = 2;
-//	
-//	public static final String INVENTORY_IMAGE_PREFIX = "_inv";
-//	//public static final String INVENTORY_IMAGE_PREFIX_BIG = "big_";
-//	public static final String INVENTORY_IMAGE_PREFIX_ZOOM = "_zoom";
-//
-//	public static final int INVENTORY_ADD_ITEM = 1;
-//	public static final int INVENTORY_REMOVE_ITEM = 0;
-//	
-//	/*  */
-//	/* be careful: if you change the following sizes, don't forget to increase
-//	/* BTAs size in method loadItems of Inventory class
-//	/*  */
-//	public static final int INVENTORY_MAX_SIZE_ITEM = 70;
-//	public static final int INVENTORY_MAX_SIZE_BIG = 100;
-//	public static final int INVENTORY_MAX_SIZE_ZOOM = 200;
-//	
-//	/*                  */
-//	/* TALK SCREEN      */
-//	/*                  */
+
+	/*                  */
+	/* INVENTORY SCREEN */
+	/*                  */
+	public static final int INVENTORY_BAG_POSX = 20;
+	public static final int INVENTORY_BAG_POSY = 20;
+
+	public static final int INVENTORY_POSX_NORMALVIEW = 0;
+	public static final int INVENTORY_POSY_NORMALVIEW = 320-85;
+	public static final int POSX_ZOOMVIEW = 2;
+	public static final int POSY_ZOOMVIEW = 46;
+	public static final int INVENTORY_POSX_ZOOMVIEW = 2;
+	public static final int INVENTORY_POSY_ZOOMVIEW = 6;
+	public static final int INVENTORY_POSX_ZOOM_ITEM = 238;
+	public static final int INVENTORY_POSY_ZOOM_ITEM = 94;
+	public static final int INVENTORY_POSX_ZOOM_TEXT = 30;
+	public static final int INVENTORY_POSY_ZOOM_TEXT = 190;
+	public static final int INVENTORY_ZOOM_SIZE_TEXT = 40;
+	
+	public static final int INVENTORY_SIZE_BOXES = 70;
+	public static final int INVENTORY_SIZE_BETWEEN_BOXES = 2;
+	
+	public static final String INVENTORY_IMAGE_PREFIX = "_inv";
+	//public static final String INVENTORY_IMAGE_PREFIX_BIG = "big_";
+	public static final String INVENTORY_IMAGE_PREFIX_ZOOM = "_zoom";
+
+	public static final int INVENTORY_ADD_ITEM = 1;
+	public static final int INVENTORY_REMOVE_ITEM = 0;
+	
+	/*  */
+	/* be careful: if you change the following sizes, don't forget to increase
+	/* BTAs size in method loadItems of Inventory class
+	/*  */
+	public static final int INVENTORY_MAX_SIZE_ITEM = 70;
+	public static final int INVENTORY_MAX_SIZE_BIG = 100;
+	public static final int INVENTORY_MAX_SIZE_ZOOM = 200;
+	
+	/*                  */
+	/* TALK SCREEN      */
+	/*                  */
 //	public static final int TALKSCREEN_POSX = 4;
 //	public static final int TALKSCREEN_POSY = 4;
 //	

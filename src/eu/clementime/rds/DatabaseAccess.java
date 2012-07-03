@@ -1,11 +1,19 @@
 package eu.clementime.rds;
 
 import static eu.clementime.rds.Constants.DB_FIELD_DISPLAY;
+import static eu.clementime.rds.Constants.DB_INVENTORY_VALUE_IN;
+import static eu.clementime.rds.Constants.DB_TABLE_ITEM;
+import static eu.clementime.rds.Constants.DIRECTION_LEFT;
+import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
+
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
@@ -154,7 +162,350 @@ public class DatabaseAccess {
 
 		return ll;
 	}
+	
+	public ArrayList<Exit> selectExits(int screenId, TiledTextureRegion TRLeft, TiledTextureRegion TRRight) {
 
+		ArrayList<Exit> exits = new ArrayList<Exit>();
+		
+		String query = " select _id as id, x, y, direction, display, starting_x, starting_y, to_screen_id, before_trigger_id, after_trigger_id ";
+		query += " from exit ";
+		query += " where screen_id = " + screenId + " order by id";	// conditions
+		
+		Log.i("Clementime", "Background/loadExits(): ***load exits*** ");	
+
+		int id;
+		int direction;
+		int x;
+		int y;
+		int display;
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+
+			while (c.moveToNext()) {
+				
+				id = c.getInt(c.getColumnIndex("id"));
+				direction = c.getInt(c.getColumnIndex("direction"));
+				x = c.getInt(c.getColumnIndex("x"));
+				y = c.getInt(c.getColumnIndex("y"));
+				display = c.getInt(c.getColumnIndex("display"));
+				
+				Log.v("Clementime", "Background/loadExits(): load exit " + id);
+				
+				if (c.getInt(c.getColumnIndex("direction")) == DIRECTION_LEFT) {
+					Exit exit = new Exit(id, direction, x, y, display, TRLeft);
+					
+					exit.beforeTrigger = c.getInt(c.getColumnIndex("before_trigger_id"));
+					exit.afterTrigger = c.getInt(c.getColumnIndex("after_trigger_id"));
+					exit.startingX = c.getInt(c.getColumnIndex("starting_x"));
+					exit.startingY = c.getInt(c.getColumnIndex("starting_y"));
+					exit.toScreen = c.getInt(c.getColumnIndex("to_screen_id"));
+
+					exits.add(exit);
+				} else if (c.getInt(c.getColumnIndex("direction")) == DIRECTION_RIGHT) {
+					Exit exit = new Exit(id, direction, x, y, display, TRRight);
+					
+					exit.beforeTrigger = c.getInt(c.getColumnIndex("before_trigger_id"));
+					exit.afterTrigger = c.getInt(c.getColumnIndex("after_trigger_id"));
+					exit.startingX = c.getInt(c.getColumnIndex("starting_x"));	
+					exit.startingY = c.getInt(c.getColumnIndex("starting_y"));
+					exit.toScreen = c.getInt(c.getColumnIndex("to_screen_id"));
+
+					exits.add(exit);
+				}			
+			}
+			
+			c.close();
+			
+		} catch (Exception e) {
+			Log.w("Clementime", "Background/loadExits(): failed to load exits - " + e.getMessage());
+		}
+		
+		return exits;
+	}
+
+	public ArrayList<Area> selectAreas(int screenId) {
+
+		ArrayList<Area> areas = new ArrayList<Area>();
+		
+		int id;
+		int x;
+		int y;
+		int width;
+		int height;
+		
+		String query = " select _id as id, x, y, height, width ";
+		query += " from screen_area ";
+		query += " where screen_id = " + screenId + " order by id";	// conditions
+		
+		Log.d("Clementime", "Background/loadAreas(): ***load areas*** ");	
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+
+			while (c.moveToNext()) {
+				
+				id = c.getInt(c.getColumnIndex("id"));
+				x = c.getInt(c.getColumnIndex("x"));
+				y = c.getInt(c.getColumnIndex("y"));
+				width = c.getInt(c.getColumnIndex("width"));
+				height = c.getInt(c.getColumnIndex("height"));
+	
+				Log.d("Clementime", "Background/loadAreas(): load area " + id + " xMin: " + x + "-yMin: " + y + "-xMax: " + (x + width) + "-yMax: " + (y + height));
+				areas.add(new Area(id, x, y, width, height));
+			}
+			
+			c.close();
+			
+		} catch (Exception e) {
+			Log.w("Clementime", "Background/loadAreas(): failed to load areas - " + e.getMessage());
+		}
+		
+		return areas;
+	}
+	
+	public ArrayList<Integer> selectDisplayedAnims(int screenId) {
+		
+		ArrayList<Integer> displayedAnims = new ArrayList<Integer>();
+		
+		String query = " select p._id as id ";
+		query += " from playing_animation p left join animation a on a._id = anim_id ";
+		query += " where screen_id = " + screenId;	// conditions
+		query += " and " + DB_FIELD_DISPLAY + " = 1 ";
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+
+			while (c.moveToNext()) displayedAnims.add(c.getInt(c.getColumnIndex("id")));			
+			
+			c.close();
+			
+		} catch (Exception e) {
+			Log.w("Clementime", "Background/showAnims(): failed to load playing animations - " + e.getMessage());
+		}
+		
+		return displayedAnims;
+	}
+
+	public int[] selectStaticAnimFeatures(int animId) {
+	
+		String query;
+		int[] features = {0,0,0};	
+		
+		query = " select first_frame, last_frame, frame_duration ";
+		query += " from playing_animation p ";
+		query += " where p._id = " + animId;
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+	
+				features[0] = c.getInt(c.getColumnIndex("first_frame"));
+				features[1] = c.getInt(c.getColumnIndex("last_frame"));
+				features[2] = c.getInt(c.getColumnIndex("frame_duration"));
+			}
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return features;		
+	}
+
+	public int[] selectAnimStates(int animId) {	
+		
+		int[] stateResults = {0,0,0,0};
+
+		String query  = " select look_state, talk_state ";
+		query += " from character ";
+		query += " where playing_anim_id = " + animId;
+		
+		// check if every items needed for activating are in inventory
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+				
+				stateResults[1] = c.getInt(c.getColumnIndex("look_state"));
+				stateResults[2] = c.getInt(c.getColumnIndex("talk_state"));
+				
+				c.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return stateResults;
+	}
+
+	public int[] selectItemStates(int itemId) {	
+		
+		int[] stateResults = {0,0,0,0};
+
+		String query  = " select item_id as id, take_state, look_state, talk_state, exit ";
+		query += " from screen_item ";
+		query += " where id = " + itemId;
+		
+		// check if every items needed for activating are in inventory
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+				
+				stateResults[0] = c.getInt(c.getColumnIndex("take_state"));
+				stateResults[1] = c.getInt(c.getColumnIndex("look_state"));
+				stateResults[2] = c.getInt(c.getColumnIndex("talk_state"));
+				stateResults[3] = c.getInt(c.getColumnIndex("exit"));
+				
+				c.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return stateResults;
+	}
+	
+	public int[] selectAreaStates(int areaId) {	
+		
+		int[] stateResults = {0,0,0,0};
+
+		String query  = " select a._id as id, look_state, a.exit as exit_id, direction ";
+		query += " from screen_area a left join exit e on e._id = exit_id ";
+		query += " where id = " + areaId;
+		
+		// check if every items needed for activating are in inventory
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+				
+				stateResults[1] = c.getInt(c.getColumnIndex("look_state"));
+				stateResults[3] = c.getInt(c.getColumnIndex("direction"));
+				
+				c.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return stateResults;
+	}	
+
+	//***********************************
+	// INVENTORY
+	//*********************************** 
+	public LinkedList<Map<String, String>> selectInventoryItems() {
+		
+		LinkedList<Map<String, String>> ll = new LinkedList<Map<String, String>>();
+		
+		String query = " select _id as id, image " ;
+		query += " from item ";
+		query += " where " + DB_FIELD_DISPLAY + " = " + DB_INVENTORY_VALUE_IN;	// conditions
+		query += " order by height desc ";
+			
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			//int i = 0;
+
+			while (c.moveToNext()) {
+				Map<String, String> hm = new HashMap<String, String>();
+				
+				hm.put("id", c.getString(c.getColumnIndex("id")));
+				hm.put("image", c.getString(c.getColumnIndex("image")));
+
+				ll.add(hm);		
+			}
+			
+			c.close();
+			
+		} catch (Exception e) {
+			Log.e("Clementime", "DatabaseAccess/selectInventoryItems(): failed to select inventory items");
+		}		
+
+		return ll;
+	}
+
+	public void updateInventoryField(String where, String value) {
+		
+		Log.d("Clementime", "InventoryFrame/updateInventoryField()");
+
+		try {	
+		    ContentValues args = new ContentValues();
+		    args.put(DB_FIELD_DISPLAY, value);
+    
+		    //int affectedRows = dbh.db.update(DB_TABLE_ITEM, args, where, null);
+		    dbh.db.update(DB_TABLE_ITEM, args, where, null);
+
+		} catch (Exception e) {
+			Log.e("Clementime", "InventoryFrame/updateInventoryField(): failed to update display field " + where + " - " + e.getMessage());
+		}
+	}
+	
+	public Map<String, String> selectInventoryItem(int itemId) {
+		
+		Map<String, String> hm = new HashMap<String, String>();
+		
+		String query = " select _id as id, image, height, width ";
+		query += " from item ";
+		query += " where id = " + itemId;	// conditions
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+
+			c.moveToFirst();
+
+			hm.put("id", c.getString(c.getColumnIndex("id")));
+			hm.put("image", c.getString(c.getColumnIndex("image")));
+			hm.put("height", c.getString(c.getColumnIndex("height")));
+			hm.put("width", c.getString(c.getColumnIndex("width")));
+			
+			c.close();
+			
+		} catch (Exception e) {
+			Log.e("Clementime", "DatabaseAccess/selectInventoryItem(): failed to access data " + e.getMessage());
+		}
+		
+		return hm;	
+	}
+
+	//***********************************
+	// WORLD
+	//***********************************  
+	public boolean selectTakeable(int itemId) {
+		
+		String query;
+		boolean takeable = false;
+		
+		query = " select takeable ";
+		query += " from screen_item where item_id = " + itemId;		
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+
+				if (c.getInt(c.getColumnIndex("takeable")) == 1) takeable = true;
+			}
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return takeable;
+	}	
+	
 	//***********************************
 	// GAME TOOLS
 	//***********************************  
@@ -311,7 +662,7 @@ public class DatabaseAccess {
 		} catch (Exception e) {
 			Log.w("Clementime", "World/getDollPosition(): failed to get y position from player table.");
 		}
-
+		
 		return dollPos;	
 	}
 

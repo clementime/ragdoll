@@ -68,13 +68,13 @@ public class World {
 	private Context context;
 	private DatabaseAccess db;
 
-	public int screenId;
+//	public int screenId;
 	
 	public World(DatabaseHandler dbh, Context context, int startingScreen) {
 		this.context = context;
 		this.db = new DatabaseAccess(dbh);		
 
-		this.screenId = startingScreen;
+//		this.screenId = startingScreen;
 	}
 		
 //	public int[] combineItems(int idItem1, int idItem2, int type) {
@@ -150,31 +150,9 @@ public class World {
 //		return triggers;
 //	}
 //	
-//	public boolean isItemTakeable(int itemId) {
-//		
-//		String query;
-//		boolean takeable = false;
-//		
-//		query = " select takeable ";
-//		query += " from screen_item where item_id = " + itemId;		
-//		
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//			
-//			if (c.getCount() != 0) {
-//				c.moveToFirst();
-//
-//				if (c.getInt(c.getColumnIndex("takeable")) == 1) takeable = true;
-//			}
-//	
-//			c.close();
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//		return takeable;
-//	}	
+	public boolean isItemTakeable(int itemId) {
+		return db.selectTakeable(itemId);
+	}	
 //	
 //	public int[] activateTrigger(int triggerId) {
 //		
@@ -452,88 +430,9 @@ public class World {
 //	    dbh.db.update("player_saving", args, " reference = 'y_doll' ", null);	
 //	}
 //	
-//	public int[] getItemStates(int itemId) {	
-//	
-//		int[] stateResults = {0,0,0,0};
-//
-//		String query  = " select item_id as id, take_state, look_state, talk_state, exit ";
-//		query += " from screen_item ";
-//		query += " where id = " + itemId;
-//		
-//		// check if every items needed for activating are in inventory
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//			
-//			if (c.getCount() != 0) {
-//				c.moveToFirst();
-//				
-//				stateResults[0] = c.getInt(c.getColumnIndex("take_state"));
-//				stateResults[1] = c.getInt(c.getColumnIndex("look_state"));
-//				stateResults[2] = c.getInt(c.getColumnIndex("talk_state"));
-//				stateResults[3] = c.getInt(c.getColumnIndex("exit"));
-//				
-//				c.close();
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//		return stateResults;
-//	}
-//	
-//	public int[] getAreaStates(int areaId) {	
-//		
-//		int[] stateResults = {0,0,0,0};
-//
-//		String query  = " select a._id as id, look_state, a.exit as exit_id, direction ";
-//		query += " from screen_area a left join exit e on e._id = exit_id ";
-//		query += " where id = " + areaId;
-//		
-//		// check if every items needed for activating are in inventory
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//			
-//			if (c.getCount() != 0) {
-//				c.moveToFirst();
-//				
-//				stateResults[1] = c.getInt(c.getColumnIndex("look_state"));
-//				stateResults[3] = c.getInt(c.getColumnIndex("direction"));
-//				
-//				c.close();
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//		return stateResults;
-//	}
-//	
-//	public int[] getCharStates(int animId) {	
-//		
-//		int[] stateResults = {0,0,0,0};
-//
-//		String query  = " select look_state, talk_state ";
-//		query += " from character ";
-//		query += " where playing_anim_id = " + animId;
-//		
-//		// check if every items needed for activating are in inventory
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//			
-//			if (c.getCount() != 0) {
-//				c.moveToFirst();
-//				
-//				stateResults[1] = c.getInt(c.getColumnIndex("look_state"));
-//				stateResults[2] = c.getInt(c.getColumnIndex("talk_state"));
-//				
-//				c.close();
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//		return stateResults;
-//	}
+
+
+
 //	
 //	public String isItemDisplayed(int itemId) {
 //		
@@ -594,35 +493,7 @@ public class World {
 //		return features;		
 //	}
 //
-//	public int[] getStaticAnimFeatures(int animId) {
-//		
-//		String query;
-//		int[] features = {0,0,0};	
-//		
-//		query = " select first_frame, last_frame, frame_duration ";
-//		query += " from playing_animation p ";
-//		query += " where p._id = " + animId;
-//		
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//			
-//			if (c.getCount() != 0) {
-//				c.moveToFirst();
-//
-//				features[0] = c.getInt(c.getColumnIndex("first_frame"));
-//				features[1] = c.getInt(c.getColumnIndex("last_frame"));
-//				features[2] = c.getInt(c.getColumnIndex("frame_duration"));
-//			}
-//	
-//			c.close();
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//		return features;		
-//	}
-//
+
 
 	// features[0] = id exit, features[1] = to trigger before leaving	
 	public int[] getFirstScreenFeatures() {

@@ -60,7 +60,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	    this.startingDbFileName = "starting_" + dbFile;
 	    this.currentDbFileName = "current_" + dbFile;
 
-	    deleteDatabase();
+	    //deleteDatabase();
 	    
 	    storeStartingDatabase(data);
 	    storeCurrentDatabase(currentData);    

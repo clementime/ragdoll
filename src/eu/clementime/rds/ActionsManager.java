@@ -8,6 +8,7 @@ import static eu.clementime.rds.Constants.ACTION_TAKE;
 import static eu.clementime.rds.Constants.ACTION_TALK;
 import static eu.clementime.rds.Constants.DIRECTION_LEFT;
 import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
+import static eu.clementime.rds.Constants.ZINDEX_ACTION;
 
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.entity.Entity;
@@ -59,19 +60,27 @@ public class ActionsManager extends Entity {
 		this.attachChild(take);
 		this.attachChild(look);
 		this.attachChild(talk);
-		this.attachChild(exitLeft);
-		this.attachChild(exitRight);
+//		this.attachChild(exitLeft);
+//		this.attachChild(exitRight);
+		
+		scene.registerTouchArea(take);
+		scene.registerTouchArea(look);
+		scene.registerTouchArea(talk);
+		
+		this.setZIndex(ZINDEX_ACTION);
+		scene.attachChild(this);
 	}	
 		
 	public void activate(float x, float y, float width, float height, int[] itemStates, boolean area) {
+		
 		int take = itemStates[0];
 		int look = itemStates[1];
 		int talk = itemStates[2];
 		int exit = itemStates[3];
 
-		Log.d("Clementime", "ActionHandler/activate(): activate take: " + take + "-look: " + look + "-talk: " + talk + "-exit: " + exit);
-
 		deactivate();
+
+		Log.d("Clementime", "ActionHandler/activate(): activate take: " + take + "-look: " + look + "-talk: " + talk + "-exit: " + exit);
 		
 		// if area, pointers are shown in centre area, if item, above or below
 		if (area) {

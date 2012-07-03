@@ -2,6 +2,7 @@ package eu.clementime.rds;
 
 import static eu.clementime.rds.Constants.ANIMATION_IMAGE_PREFIX;
 import static eu.clementime.rds.Constants.DEFAULT_IMAGE;
+import static eu.clementime.rds.Constants.ZINDEX_ACTION;
 import static eu.clementime.rds.Constants.ZINDEX_GROUND_0;
 import static eu.clementime.rds.Constants.ZINDEX_GROUND_1;
 import static eu.clementime.rds.Constants.ZINDEX_FOREGROUND;
@@ -33,10 +34,10 @@ public class Background {
 	private final int CAMERA_HEIGHT;
 	
 	public ArrayList<ScreenItem> items = new ArrayList<ScreenItem>();
-//	public ArrayList<Area> areas = new ArrayList<Area>();
+	public ArrayList<Area> areas = new ArrayList<Area>();
 	public ArrayList<Anim> anims = new ArrayList<Anim>();
 //	public ArrayList<Sprite> chars = new ArrayList<Sprite>();
-//	public ArrayList<Exit> exits = new ArrayList<Exit>();
+	public ArrayList<Exit> exits = new ArrayList<Exit>();
 
 	public Sprite bgImage;
 	public Sprite fgImage;
@@ -66,6 +67,10 @@ public class Background {
 		this.CAMERA_HEIGHT = ch;
 	}
 	
+	/**************************************/
+	/* LOAD NEW SCREEN                    */
+	/**************************************/
+	
 	public void loadBackground(Engine engine, Scene scene, int MARGIN) {
 		
 		try {			
@@ -90,7 +95,7 @@ public class Background {
 				} else Log.d("Clementime", "Background/loadBackground(): load foreground " + this.screenPrefix + hm.get("foreground"));
 
 				TextureRegion TRFore = BitmapTextureAtlasTextureRegionFactory.createFromResource(bgBTA, context, fgFile, 0, 480);
-				fgImage = new Sprite(0, 0, TRFore);
+				fgImage = new Sprite(0, 0 + MARGIN, TRFore);
 				
 				scene.attachChild(fgImage);
 				fgImage.setZIndex(ZINDEX_GROUND_1);
@@ -361,133 +366,15 @@ public class Background {
 //		
 //		return BTA;
 //	}
-//
-//	public void loadAreas() {
-//
-//		int id;
-//		int x;
-//		int y;
-//		int width;
-//		int height;
-//		//int look;
-//		//int exit;
-//		//String desc;
-//
-//		//String locale = context.getResources().getConfiguration().locale.getLanguage(); //iso2 code
-//		
-//		String query = " select _id as id, x, y, height, width ";
-//		query += " from screen_area ";
-//		query += " where screen_id = " + screenId + " order by id";	// conditions
-////		query += " where screen_id = " + screenId + " and look_state = state ";	// conditions
-//		
-//		Log.d("Clementime", "Background/loadAreas(): ***load areas*** ");	
-//		
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//
-//			while (c.moveToNext()) {
-//				
-//				id = Integer.parseInt(hm.get("id"));
-//				x = Integer.parseInt(hm.get("x"));
-//				y = Integer.parseInt(hm.get("y"));
-//				width = Integer.parseInt(hm.get("width"));
-//				height = Integer.parseInt(hm.get("height"));
-//				
-//				//exit = Integer.parseInt(hm.get("exit"));		
-//				//look = Integer.parseInt(hm.get("look"));
-//				//desc = hm.get("desc"));
-//	
-//				Log.d("Clementime", "Background/loadAreas(): load area " + id + " xMin: " + x + "-yMin: " + y + "-xMax: " + (x + width) + "-yMax: " + (y + height));
-//				//areas.add(new ScreenArea(id, x, y, width, height, desc, look, exit));
-//				areas.add(new Area(id, x, y, width, height));
-//			}
-//			
-//			c.close();
-//			
-//		} catch (Exception e) {
-//			Log.w("Clementime", "Background/loadAreas(): failed to load areas - " + e.getMessage());
-//		}
-//	}
-//	
-//	public void loadExits(TiledTextureRegion TRLeft, TiledTextureRegion TRRight) {
-//
-//		String query = " select _id as id, x, y, direction, display, starting_x, starting_y, to_screen_id, before_trigger_id, after_trigger_id ";
-//		query += " from exit ";
-//		query += " where screen_id = " + screenId + " order by id";	// conditions
-//		
-//		Log.i("Clementime", "Background/loadExits(): ***load exits*** ");	
-//
-//		int id;
-//		int direction;
-//		int x;
-//		int y;
-//		int display;
-//		
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//
-//			while (c.moveToNext()) {
-//				
-//				id = Integer.parseInt(hm.get("id"));
-//				direction = Integer.parseInt(hm.get("direction"));
-//				x = Integer.parseInt(hm.get("x"));
-//				y = Integer.parseInt(hm.get("y"));
-//				display = Integer.parseInt(hm.get("display"));
-//				
-//				Log.v("Clementime", "Background/loadExits(): load exit " + id);
-//				
-//				if (Integer.parseInt(hm.get("direction")) == DIRECTION_LEFT) {
-//					Exit exit = new Exit(id, direction, x, y, display, TRLeft);
-//					
-//					exit.beforeTrigger = Integer.parseInt(hm.get("before_trigger_id"));
-//					exit.afterTrigger = Integer.parseInt(hm.get("after_trigger_id"));
-//					exit.startingX = Integer.parseInt(hm.get("starting_x"));
-//					exit.startingY = Integer.parseInt(hm.get("starting_y"));
-//					exit.toScreen = Integer.parseInt(hm.get("to_screen_id"));
-//
-//					exits.add(exit);
-//				} else if (Integer.parseInt(hm.get("direction")) == DIRECTION_RIGHT) {
-//					Exit exit = new Exit(id, direction, x, y, display, TRRight);
-//					
-//					exit.beforeTrigger = Integer.parseInt(hm.get("before_trigger_id"));
-//					exit.afterTrigger = Integer.parseInt(hm.get("after_trigger_id"));
-//					exit.startingX = Integer.parseInt(hm.get("starting_x"));
-//					exit.startingY = Integer.parseInt(hm.get("starting_y"));
-//					exit.toScreen = Integer.parseInt(hm.get("to_screen_id"));
-//
-//					exits.add(exit);
-//				}			
-//			}
-//			
-//			c.close();
-//			
-//		} catch (Exception e) {
-//			Log.w("Clementime", "Background/loadExits(): failed to load exits - " + e.getMessage());
-//		}
-//	}
-//	
-//	public boolean hasNoCharacter() {
-//		
-//		String query = " select c._id ";
-//		query += " from character c left join playing_animation p on c.playing_anim_id = p._id ";
-//		query += " left join animation a on p.anim_id = a._id ";
-//		query += " where a.screen_id = " + screenId + " and " + DB_FIELD_DISPLAY + " = 1";	// conditions
-//		
-//		boolean empty = true;
-//		
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//
-//			if (c.getCount() != 0) empty = false;
-//			c.close();
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//
-//		return empty;
-//	}
-//	
+
+	public void createAreas() {
+		areas = db.selectAreas(screenId);
+	}
+	
+	public void createExits(TiledTextureRegion TRLeft, TiledTextureRegion TRRight) {
+		exits = db.selectExits(screenId, TRLeft, TRRight);
+	}
+
 //	public void loadChars() {
 //		
 //		Log.i("Clementime", "Background/loadChars()");
@@ -543,29 +430,76 @@ public class Background {
 //			e.printStackTrace();
 //		}
 //	}
-//	
-//	public ArrayList<Integer> showAnims() {
-//		
-//		ArrayList<Integer> displayedChars = new ArrayList<Integer>();
-//		
-//		String query = " select p._id as id ";
-//		query += " from playing_animation p left join animation a on a._id = anim_id ";
-//		query += " where screen_id = " + this.screenId;	// conditions
-//		query += " and " + DB_FIELD_DISPLAY + " = 1 ";
-//		
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//
-//			while (c.moveToNext()) displayedChars.add(Integer.parseInt(hm.get("id")));			
-//			
-//			c.close();
-//			
-//		} catch (Exception e) {
-//			Log.w("Clementime", "Background/showAnims(): failed to load playing animations - " + e.getMessage());
-//		}
-//		
-//		return displayedChars;
-//	}
+	
+	public void showStaticAnims(Scene scene) {
+		
+		Log.i("Clementime", "Screen/showStaticAnims()");
+		
+		ArrayList<Integer> displayedAnims = db.selectDisplayedAnims(screenId);
+		ListIterator<Integer> itAnims = displayedAnims.listIterator();
+		
+		while(itAnims.hasNext()) launchStaticAnim(itAnims.next(), scene);	
+	}
+	
+	private void launchStaticAnim(int animId, Scene scene) {
+		
+		//****************************************************************
+		// features[0] = first_frame
+		// features[1] = last_frame
+		// features[2] = frame_duration
+		//****************************************************************
+		int[] animFeatures = db.selectStaticAnimFeatures(animId);
+		
+		Log.i("Clementime","Screen/launchStaticAnim(): launch static animation " + animId);
+		
+		ListIterator<Anim> it = this.anims.listIterator();
+		
+		while(it.hasNext()){
+			Anim animation = it.next();
+			
+			if (animId == animation.id) {
+
+				// to use animate function with first/last frame, you have to initialise a long[] sized by the number of frames 
+				long[] frameDuration = new long[animFeatures[1]-animFeatures[0]+1];
+				for (int i = 0; i <= animFeatures[1] - animFeatures[0]; i++) frameDuration[i] = animFeatures[2];
+				
+				animation.animate(frameDuration, animFeatures[0], animFeatures[1], true);
+
+				if (animation.moveToX != 0 || animation.moveToY != 0) animation.setPosition(animation.moveToX, animation.moveToY);					
+
+				animation.setVisible(true);
+				scene.registerTouchArea(animation);
+			}
+		}
+	}
+	
+	public void showExits(Scene scene) {
+		
+		Log.i("Clementime", "Screen/showExits()");
+
+		Exit exit;
+		
+		ListIterator<Exit> itExits = this.exits.listIterator();
+		
+		while(itExits.hasNext()) {
+			exit = itExits.next();
+			
+			scene.attachChild(exit);
+			exit.setZIndex(ZINDEX_ACTION);
+			
+			if (exit.display == 1) {
+				exit.setVisible(true);
+				exit.animate(150, true);
+				scene.registerTouchArea(exit);
+				Log.v("Clementime", "Screen/showExits(): exit " + exit.id + " on display");
+			} else Log.v("Clementime", "Screen/showExits(): exit " + exit.id + " hidden");
+					
+		}
+	}
+	
+	/**************************************/
+	/* DURING RUNTIME                     */
+	/**************************************/
 	
 	public void hideShowItem(Scene scene, ScreenItem item) {
 		
@@ -578,6 +512,54 @@ public class Background {
 			item.setVisible(true);
 			scene.registerTouchArea(item);				
 		}
+	}
+	
+	public void hideShowAnimation(int animId) {
+		
+		Log.i("Clementime", "Screen/hideShowAnimation()");
+		
+//		ListIterator<PlayingAnimation> it = currentScreen.anims.listIterator();
+//		
+//		while(it.hasNext()){
+//			PlayingAnimation anim = it.next();
+//			
+//			if (anim.id == animId) {
+//				if (anim.isVisible()) anim.setVisible(false);
+//				else anim.setVisible(true);
+//
+//			}
+//		}
+	}
+
+	public int[] getAnimStates(int animId) {	
+		return db.selectAnimStates(animId);
+	}
+	
+	public int[] getItemStates(int itemId) {	
+		return db.selectItemStates(itemId);
+	}
+	
+	public int[] getAreaStates(int areaId) {	
+		return db.selectAreaStates(areaId);
+	}
+
+	public Area checkAreas(float x, float y) {
+		
+		Log.i("Clementime", "Screen/checkAreas()");
+		
+		Area touchedArea = null;
+		
+		ListIterator<Area> it = this.areas.listIterator();
+		
+		while(it.hasNext()){
+			Area area = it.next();
+					
+			//Log.d("Clementime", "Screen/checkAreas(): x: " + x + "-y: " + y + "-area xMin: " + area.x + "-area yMin: " + area.y + "-area xMax: " + (area.x + area.width) + "-area yMax: " + (area.y + area.height));
+			
+			if (x >= area.x && x <= (area.x + area.width) && y >= area.y && y <= (area.y + area.height)) touchedArea = area;		
+		}
+		
+		return touchedArea;
 	}
 }
 

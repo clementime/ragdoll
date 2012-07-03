@@ -42,10 +42,7 @@ public class GameTools extends Entity {
 	public AnimatedSprite animatedCircle;
 	
 	public ActionsManager am;
-	
-	public float xMin;
-	public float xMax;
-	
+
 	private BitmapTextureAtlas defaultFontBTA;
 	private BitmapTextureAtlas defaultFont2BTA;
 	private BitmapTextureAtlas fontBTA;
@@ -107,6 +104,9 @@ public class GameTools extends Entity {
 		scene.attachChild(rightArrow);
 		scene.attachChild(animatedCircle);
 		
+		scene.registerTouchArea(leftArrow);
+		scene.registerTouchArea(rightArrow);
+		
 		animatedCircle.setZIndex(ZINDEX_CIRCLE);
 		leftArrow.setZIndex(ZINDEX_ARROW);
 		rightArrow.setZIndex(ZINDEX_ARROW);
@@ -140,25 +140,25 @@ public class GameTools extends Entity {
 		animatedCircle.animate(50, false);
 	}
 	
-	public void checkBorders(float xMin, float xMax) {
+	public void checkBorders(float xMinCamera, float xMaxCamera, float xMinScreen, float xMaxScreen) {
 		
 		if (leftArrow.isVisible()) {
-			if (this.xMin >= xMin)
+			if (xMinScreen >= xMinCamera)
 				leftArrow.setVisible(false);
 			else
-				leftArrow.setPosition(xMin + MOVE_LEFT_ARROW_POSX, leftArrow.getY());
-		} else if (this.xMin < xMin) {
-			leftArrow.setPosition(xMin + MOVE_LEFT_ARROW_POSX, leftArrow.getY());
+				leftArrow.setPosition(xMinCamera + MOVE_LEFT_ARROW_POSX, leftArrow.getY());
+		} else if (xMinScreen < xMinCamera) {
+			leftArrow.setPosition(xMinCamera + MOVE_LEFT_ARROW_POSX, leftArrow.getY());
 			leftArrow.setVisible(true);
 		}
 		 
 		if (rightArrow.isVisible()) {
-			if (this.xMax <= xMax)
+			if (xMaxScreen <= xMaxCamera)
 				rightArrow.setVisible(false);
 			else
-				rightArrow.setPosition(xMin + MOVE_RIGHT_ARROW_POSX, rightArrow.getY());
-		} else if (this.xMax > xMax) {
-			rightArrow.setPosition(xMin + MOVE_RIGHT_ARROW_POSX, rightArrow.getY());
+				rightArrow.setPosition(xMaxCamera + MOVE_RIGHT_ARROW_POSX, rightArrow.getY());
+		} else if (xMaxScreen > xMaxCamera) {
+			rightArrow.setPosition(xMaxCamera + MOVE_RIGHT_ARROW_POSX, rightArrow.getY());
 			rightArrow.setVisible(true);
 		}
 	}
