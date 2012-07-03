@@ -567,5 +567,17 @@ public class Background {
 //		return displayedChars;
 //	}
 	
+	public void hideShowItem(Scene scene, ScreenItem item) {
+		
+		Log.i("Clementime", "Background/hideShowItem()");	
+
+		if (item.isVisible()) {
+			item.setVisible(false);
+			scene.unregisterTouchArea(item);					
+		} else {
+			item.setVisible(true);
+			scene.registerTouchArea(item);				
+		}
+	}
 }
 

@@ -1,14 +1,14 @@
 package eu.clementime.rds;
 
-//import static eu.clementime.rds.Constants.ACTION_LOOK;
-//import static eu.clementime.rds.Constants.ACTION_TAKE;
-//import static eu.clementime.rds.Constants.ACTION_TALK;
+import static eu.clementime.rds.Constants.ACTION_LOOK;
+import static eu.clementime.rds.Constants.ACTION_TAKE;
+import static eu.clementime.rds.Constants.ACTION_TALK;
 import static eu.clementime.rds.Constants.BACKGROUND_MAX_HEIGHT;
-//import static eu.clementime.rds.Constants.CLICK_AGAIN_INVENTORY;
-//import static eu.clementime.rds.Constants.CLICK_BAG;
-//import static eu.clementime.rds.Constants.CLICK_INVENTORY;
-//import static eu.clementime.rds.Constants.CLICK_OFF;
-//import static eu.clementime.rds.Constants.CLICK_ZOOM;
+import static eu.clementime.rds.Constants.CLICK_AGAIN_INVENTORY;
+import static eu.clementime.rds.Constants.CLICK_BAG;
+import static eu.clementime.rds.Constants.CLICK_INVENTORY;
+import static eu.clementime.rds.Constants.CLICK_OFF;
+import static eu.clementime.rds.Constants.CLICK_ZOOM;
 //import static eu.clementime.rds.Constants.DB_COMBINATION_VALUE_IN_INVENTORY;
 //import static eu.clementime.rds.Constants.DB_COMBINATION_VALUE_ON_SCREEN;
 //import static eu.clementime.rds.Constants.DB_TABLE_COMBINATION;
@@ -20,18 +20,21 @@ import static eu.clementime.rds.Constants.BACKGROUND_MAX_HEIGHT;
 //import static eu.clementime.rds.Constants.INVENTORY_POSY_NORMALVIEW;
 //import static eu.clementime.rds.Constants.INVENTORY_POSY_ZOOM_ITEM;
 //import static eu.clementime.rds.Constants.INV_ALPHA_LAYER;
-//import static eu.clementime.rds.Constants.MODE_ACTION;
-//import static eu.clementime.rds.Constants.MODE_ACTION_WAIT;
-//import static eu.clementime.rds.Constants.MODE_ANIM_RUNNING;
-//import static eu.clementime.rds.Constants.MODE_DROP;
-//import static eu.clementime.rds.Constants.MODE_INVENTORY;
-//import static eu.clementime.rds.Constants.MODE_SCREEN_OFF;
-//import static eu.clementime.rds.Constants.MODE_ZOOM;
-//import static eu.clementime.rds.Constants.STATUS_ANIM;
-//import static eu.clementime.rds.Constants.STATUS_INVENTORY;
-//import static eu.clementime.rds.Constants.STATUS_MAP;
-//import static eu.clementime.rds.Constants.STATUS_SCREEN;
-//import static eu.clementime.rds.Constants.STATUS_TALK;
+import static eu.clementime.rds.Constants.DEVELOPMENT;
+import static eu.clementime.rds.Constants.DIRECTION_LEFT;
+import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
+import static eu.clementime.rds.Constants.MODE_ANIM_ACTION; // old mode action
+import static eu.clementime.rds.Constants.MODE_ACTION_WAIT;
+import static eu.clementime.rds.Constants.MODE_ANIM_TALK;
+import static eu.clementime.rds.Constants.MODE_ANIM_RUNNING;
+import static eu.clementime.rds.Constants.MODE_INVENTORY_DROP;
+import static eu.clementime.rds.Constants.MODE_INVENTORY_OPEN;
+import static eu.clementime.rds.Constants.MODE_ACTION_WALK; // old screen off
+import static eu.clementime.rds.Constants.MODE_INVENTORY_ZOOM;
+import static eu.clementime.rds.Constants.STATUS_ANIM;
+import static eu.clementime.rds.Constants.STATUS_INVENTORY;
+import static eu.clementime.rds.Constants.STATUS_MAP;
+import static eu.clementime.rds.Constants.STATUS_ACTION; // old status screen
 import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM_IN_USE;
 
 import java.util.ArrayList;
@@ -86,85 +89,62 @@ IOnSceneTouchListener {
 	private static int CAMERA_HEIGHT = 0;
 	
 	private int MARGIN = 0;
-//	
-//	/*
-//	/* AndEngine objects (loaded at game start)
-//	/*******************************************************/
+	
+	/*
+	/* AndEngine objects (loaded at game start)
+	/*******************************************************/
 //	private final ClickDetector clickDetector = new ClickDetector(this);
 	private Camera camera;
 	private Scene scene = new Scene();
 	private Doll doll;
-//	private PhysicsHandler phDoll;
-//	private PhysicsHandler phAnimRunning;
-//	
-//	/*
-//	/* changeable objects & screen variables (loaded at each screen)
-//	/*******************************************************/
+
+	/*
+	/* changeable objects & screen variables (loaded at each screen)
+	/*******************************************************/
 	private Background currentBg;
 	private Background nextBg;
-//	
-//	private float minChasingX = 0;
-//	private float maxChasingX = 0;
-//	
-//	/*
-//	/* persistent objects (loaded at game start)
-//	/*******************************************************/
+	
+	private float minChasingX = 0;
+	private float maxChasingX = 0;
+	
+	/*
+	/* persistent objects (loaded at game start)
+	/*******************************************************/
 //	private Inventory inventory;
-//	private Talk talkScreen;
 //	private Information frame;
 	private GameTools gameTools;
-//	private ActionsManager actionsManager;
 //	private Map map;
 //	
-//	private World world;
-//	
+	private World world;
+	
 
-//
-//	private BitmapTextureAtlas loadingBTA;
-//	private TextureRegion loadingTR;
-//	
-//	private BitmapTextureAtlas settingsBTA;
-//	private TextureRegion settingsTR;
-//	
-//	private BitmapTextureAtlas mapBTA;
-//	private TextureRegion mapTR;
-//	
-	private BitmapTextureAtlas defaultFontBTA;
-	private BitmapTextureAtlas defaultFont2BTA;
-	private BitmapTextureAtlas fontBTA;
-	private Font defaultFont;
-	private Font defaultFont2;
-	private Font font;
 //
 //	/*
 //	/* touched objects, variables & booleans => keep trace at runtime
 //	/*****************************************************************/	
-//	private AnimatedSprite touchedAction = null;
-//	private Exit touchedExit = null;
+	private AnimatedSprite touchedAction = null;
+	private Exit touchedExit = null;
 //	private InventoryItem touchedInventoryItem = null;
 //	private InventoryItem touchedZoomItem = null;
-//	private ScreenItem touchedItem = null;
-//	private ScreenItem itemToBeRemoved = null;
+	private ScreenItem touchedItem = null;
+	private ScreenItem itemToBeRemoved = null;
 //	private Sprite touchedMapItem = null;
-//	private Area touchedArea = null;
+	private Area touchedArea = null;
 //	private PlayingAnimation touchedChar = null;
-//
-//	private boolean movingArrowPressed = false;
-//	private boolean actionsManagerOutsideBorders = false;
+
+	private boolean movingArrowPressed = false;
+	private boolean actionsManagerOutsideBorders = false;
 //	private boolean dollIsChased = true;
 //	
 //	// doll moving
-//	private float touchedX = 0;
-//	private int dollDirection = 1;	
-//	private float dollYVelocityLeft = 0;
-//	private float dollYVelocityRight = 0;
+	private float touchedX = 0;
 //	private int dollYVelocity = 0;
-//
-//	// status
-//	private int status = STATUS_SCREEN;
-//	private int mode = MODE_SCREEN_OFF;
-//	private int clickCheck = CLICK_OFF;
-//
+
+	// status
+	private int status = STATUS_ACTION;
+	private int mode = MODE_ACTION_WALK;
+	private int clickCheck = CLICK_OFF;
+
 //	// animation sequences
 //	private int pendingTriggerId = 0;
 //	private int simultaneousTriggerId = 0;
@@ -172,7 +152,7 @@ IOnSceneTouchListener {
 //	
 //	// switch screen
 //	private int firstScreenTriggerId = 0;
-//	private int[] startingPosition;
+	private int[] startingPosition;
 	private boolean initScene = false;
 //	
 //	private float downTime;
@@ -249,43 +229,25 @@ IOnSceneTouchListener {
 		try {
 			
 			setLoop();
-	//		
-	//		/*
-	//		/* starting game, persistent objects are set up
-	//		/**************************************************/
-	//		
-	//		// Doll
-			doll = new Doll(context, mEngine, scene);
 			
-	//		doll = new AnimatedSprite(0, 0, dollTR);
-	//		doll.stopAnimation(16);
-	//			
-	//		phDoll = new PhysicsHandler(doll);
-	//		doll.registerUpdateHandler(phDoll);
-	//
-	//		/*
-	//		/* prepare background, because items are needed in inventory
-	//		/******************************************************************************/
+			/*
+			/* prepare background here, because items are needed in inventory
+			/******************************************************************************/
 			loadNewScreen();
-	//
-	//		/*
-	//		/* setup inventory, talk screen, information frame, game tools (arrows, pointer...)
-	//		/******************************************************************************/
+	
+			/*
+			/* setup inventory, talk screen, information frame, game tools (arrows, pointer...)
+			/******************************************************************************/
 	//        if (DEVELOPMENT) devFrame.setup();
 	//        inventory.setup(nextBg.items); // TODO: inventory shouldn't be part of next scene
-	//        talkScreen.setup();
+	//        talk.setup();
 	//        frame.setup();
 	//        map.setup();
-	//        
-	//        gameTools.setupGameItems();
-	//		actionsManager.setup();	
-	//		
-	//		attachPersistentObjects();
-	//		
-	//		/*
-	//		/* then set up background, items, animations and foreground of current screen
-	//		/* (changed when new screen is loaded)
-	//		/******************************************************************************/
+
+			/*
+			/* then set up background, items, animations and foreground of current screen
+			/* (changed when new screen is loaded)
+			/******************************************************************************/
 			currentBg = nextBg;
 			initNewScene();	
 			
@@ -309,45 +271,39 @@ IOnSceneTouchListener {
 	
 	private void loadResources() {
 		
-        FontFactory.setAssetBasePath("font/");
-        
+		/*
+		/* starting game, persistent objects are set up
+		/**************************************************/
+		
+		Log.i("Clementime", "Screen/loadResources()");
+
+        //**********************	
+		// DOLL
         //**********************
-		// FONTS
-        //**********************
-        fontBTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		font = FontFactory.createFromAsset(fontBTA, this, "arfmoochikncheez.ttf", 20, true, Color.BLACK);
-		mEngine.getTextureManager().loadTexture(fontBTA);
-		getFontManager().loadFont(font);        
-        
-		defaultFontBTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		defaultFont = new Font(defaultFontBTA, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 24, true, Color.BLACK);
-		mEngine.getTextureManager().loadTexture(defaultFontBTA);
-		getFontManager().loadFont(defaultFont);
-		
-		defaultFont2BTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		defaultFont2 = new Font(defaultFont2BTA, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 24, true, Color.RED);
-		mEngine.getTextureManager().loadTexture(defaultFont2BTA);
-		getFontManager().loadFont(defaultFont2);
-		
-		
+		doll = new Doll(dbh, context, mEngine, scene);		
 
         //**********************
 		// SCREEN
         //**********************	
-//		world = new World(dbh, context);
-//		
-		gameTools = new GameTools(context, CAMERA_WIDTH, CAMERA_HEIGHT, MARGIN);
+		world = new World(dbh, context, doll.getScreen());
+		gameTools = new GameTools(dbh, context, CAMERA_WIDTH, CAMERA_HEIGHT, MARGIN, mEngine, scene);
+
+        //**********************
+		// FONTS
+        //**********************
+		getFontManager().loadFont(gameTools.font);
+		getFontManager().loadFont(gameTools.defaultFont);
+		getFontManager().loadFont(gameTools.defaultFont2);
+
 //		inventory = new Inventory(camera, font, context, dbh, CAMERA_WIDTH, CAMERA_HEIGHT, world.language);
-//		talkScreen = new Talk(camera, talkFont, talkFont2, context, dbh, world.screenId, world.language);
+//		talk = new Talk(camera, talkFont, talkFont2, context, dbh, world.screenId, world.language);
 //		frame = new Information(camera, talkFont);
-//		actionsManager = new ActionsManager(camera); // hand, magnify glass, dialog bubble, exit
 //		map = new Map(dbh, CAMERA_WIDTH, CAMERA_HEIGHT);
 //		
 //		mEngine.getTextureManager().loadTexture(inventory.loadImages());
-//		mEngine.getTextureManager().loadTexture(talkScreen.loadImages(context));
+//		mEngine.getTextureManager().loadTexture(talk.loadImages(context));
 //		mEngine.getTextureManager().loadTexture(frame.loadImages(context));
-		gameTools.loadGameItems(mEngine, scene);
-//		mEngine.getTextureManager().loadTexture(actionsManager.loadImages(context));
+
 //		mEngine.getTextureManager().loadTexture(map.loadImages(context));
 //		
 //		// case inventoryBTAs are null
@@ -355,10 +311,6 @@ IOnSceneTouchListener {
 //			BitmapTextureAtlas[] inventoryBTA = inventory.loadItems();
 //			mEngine.getTextureManager().loadTextures(inventoryBTA[0], inventoryBTA[1]);
 //		}
-//
-//		// doll
-//		dollBTA = new BitmapTextureAtlas(512, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-//		dollTR = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, this, R.drawable.doll, 0, 0, 4, 5);
 //		
 //		// settings
 //		settingsBTA = new BitmapTextureAtlas(128, 128, TextureOptions.DEFAULT);
@@ -395,24 +347,24 @@ IOnSceneTouchListener {
 		//screenFeatures = world.getScreenFeatures(lastExitId);
 		
 		// get position of doll from player table - on x beginning position is set to -1
-//		startingPosition = world.getDollPosition();
-//		
-//		// get new position from database if:
-//		// 1. doll comes from another exit (exit >= 1)
-//		// 2. game begins (exit=0 & x beginning position isn't set by anterior playing => -1)
-//		if (touchedExit != null) {
-//			startingPosition[0] = touchedExit.startingX; 
-//			startingPosition[1] = touchedExit.startingY; 
-//			world.screenId = touchedExit.toScreen;
-//			
-//			Log.i("Clementime", "Screen/loadNewScreen(): enter a new screen from 'last' exit: " + touchedExit.id);
-//		} else if (startingPosition[0] == -1) {
-//			int[] features = world.getFirstScreenFeatures();
-//			startingPosition[0] = features[1]; 
-//			startingPosition[1] = features[2]; 
+		startingPosition = doll.getPosition();
+		
+		// get new position from database if:
+		// 1. doll comes from another exit (exit >= 1)
+		// 2. game begins (exit=0 & x beginning position isn't set by anterior playing => -1)
+		if (touchedExit != null) {
+			startingPosition[0] = touchedExit.startingX; 
+			startingPosition[1] = touchedExit.startingY; 
+			world.screenId = touchedExit.toScreen;
+			
+			Log.i("Clementime", "Screen/loadNewScreen(): enter a new screen from 'last' exit: " + touchedExit.id);
+		} else if (startingPosition[0] == -1) {
+			int[] features = world.getFirstScreenFeatures();
+			startingPosition[0] = features[1]; 
+			startingPosition[1] = features[2]; 
 //			firstScreenTriggerId = features[0];
-//			
-//			Log.i("Clementime", "Screen/loadNewScreen(): starting new game ");
+			
+			Log.i("Clementime", "Screen/loadNewScreen(): starting new game ");
 //		} else if(touchedMapItem != null) {
 //			world.screenId = Integer.parseInt(touchedMapItem.getUserData().toString());
 //			int[] features = world.getScreenFeatures(world.screenId);
@@ -422,8 +374,8 @@ IOnSceneTouchListener {
 //			
 //			touchedMapItem = null;
 //		
-//		} else Log.i("Clementime", "Screen/loadNewScreen(): player in screen: " + world.screenId);
-//		
+		} else Log.i("Clementime", "Screen/loadNewScreen(): player in screen: " + world.screenId);
+		
 		// create a new scene handler for sprites (background, items, animations...), areas, borders of scene, etc...
 		//nextBg = new Background(dbh, context, world.screenId, world.language, CAMERA_WIDTH, CAMERA_HEIGHT);
 		nextBg = new Background(dbh, context, 1, CAMERA_WIDTH, CAMERA_HEIGHT);
@@ -439,9 +391,9 @@ IOnSceneTouchListener {
 //		}
 //		
 //		nextBg.loadAreas();
-//		nextBg.loadExits(actionsManager.exitLeftTR, actionsManager.exitRightTR);
+//		nextBg.loadExits(gameTools.am.exitLeftTR, gameTools.am.exitRightTR);
 //		
-//		talkScreen.chars = nextBg.chars;
+//		talk.chars = nextBg.chars;
 	}
 	
 	public void initNewScene() {
@@ -449,27 +401,24 @@ IOnSceneTouchListener {
 		Log.i("Clementime", "Screen/initNewScene()");
 		
 		initScene = true; // do not do anything during scene initialisation
-//		
-//		try {
-//			// hide objects when changing screen
-//			showPersistentObjects(false);
-//			
-//			//setLoop();
-//					
-//			dollYVelocityRight = world.getYVelocity(world.screenId);
-//			dollYVelocityLeft = -dollYVelocityRight;
-//			
+		
+		try {
+			// hide objects when changing screen
+			showPersistentObjects(false);
+
+			doll.getYVelocity(currentBg.screenId);	// set standard velocity for current screen
+			
 			scene.setOnSceneTouchListener(this);
 			scene.setOnAreaTouchListener(this);
 //					
 //			// TODO: choose if XMin/Max should be in gameTools or sideScreen class
-//			gameTools.xMin = currentScreen.xMin;
-//			gameTools.xMax = currentScreen.xMax;
-//			
-//			// variables to chase doll or animation with the camera
-//			minChasingX = CAMERA_WIDTH / 2;
-//			maxChasingX = currentScreen.bgImage.getWidth() - CAMERA_WIDTH / 2;	
-//			
+//			gameTools.xMin = currentBg.xMin;
+//			gameTools.xMax = currentBg.xMax;
+			
+			// variables to chase doll or animation with the camera
+			minChasingX = CAMERA_WIDTH / 2;
+			maxChasingX = currentBg.bgImage.getWidth() - CAMERA_WIDTH / 2;	
+			
 //			// background & foreground
 //			//scene.grounds[0].setPosition(0, 0);
 //			//if (scene.grounds[1] != null) scene.grounds[1].setPosition(0, 0);	
@@ -480,13 +429,13 @@ IOnSceneTouchListener {
 //			doll.setPosition(startingPosition[0], startingPosition[1] + MARGIN);
 //			
 //			// set camera focus on doll at start
-//			if (startingPosition[0] >= currentScreen.bgImage.getWidth() - CAMERA_WIDTH/2)	camera.setCenter(currentScreen.bgImage.getWidth() - CAMERA_WIDTH/2, CAMERA_HEIGHT/2);
+//			if (startingPosition[0] >= currentBg.bgImage.getWidth() - CAMERA_WIDTH/2)	camera.setCenter(currentBg.bgImage.getWidth() - CAMERA_WIDTH/2, CAMERA_HEIGHT/2);
 //			else if (startingPosition[0] <= CAMERA_WIDTH/2)								camera.setCenter(CAMERA_WIDTH/2, CAMERA_HEIGHT/2);			
 //			else 																		camera.setCenter(startingPosition[0] + doll.getWidth() / 2, CAMERA_HEIGHT/2);
 //
 //			setToolsInPosition();
 
-//			showPersistentObjects(true);
+			showPersistentObjects(true);
 //			showStaticAnims();
 //			showExits();
 //			
@@ -497,17 +446,17 @@ IOnSceneTouchListener {
 //				launchTrigger(firstScreenTriggerId, false);
 //				firstScreenTriggerId = 0;
 //			} else {
-////				status = STATUS_SCREEN;
-////				mode = MODE_SCREEN_OFF;
+////				status = STATUS_ACTION;
+////				mode = MODE_ACTION_WALK;
 //			}
 //
 //
 			scene.sortChildren();	
-//
-//		} catch (Exception e) {
-//			Log.e("Clementime", "Screen/initNewScene(): raise error: " + e.getMessage());
-//		}
-//		
+
+		} catch (Exception e) {
+			Log.e("Clementime", "Screen/initNewScene(): raise error: " + e.getMessage());
+		}
+		
 		initScene = false;
 	}
 	
@@ -522,12 +471,68 @@ IOnSceneTouchListener {
 	
 			@Override
 			public void onUpdate(final float pSecondsElapsed) {
-	
+				
+				float pointToChase = -1;
+				boolean chaseAnim = false;
 
+				if ((!checkStopDoll() && doll.ph.getVelocityX() != 0) || chaseAnim) {	
+				
+					//****************************************
+					//     MOVE SPRITES WITH CAMERA
+					//****************************************
+					setToolsInPosition();
+					
+					if (doll.isChased) pointToChase = doll.image.getX() + doll.centerX; // chase doll
+					
+		    		//************************************
+		    		//    CHASE DOLL or ANIM
+		    		//************************************			
+					if (pointToChase != -1 && pointToChase > minChasingX && pointToChase < maxChasingX) 
+						camera.setCenter(pointToChase, CAMERA_HEIGHT / 2);					
+				
+				}	
 			}
 		});	
 	}
 	
+	private void setToolsInPosition() {
+
+//		// move info frame with the doll
+//		if (frame.lookBg.isVisible()) frame.lookBg.setPosition(camera.getMinX() + INFORMATION_POSX, frame.lookBg.getY());
+
+		// moving arrows are shown if there is a possibility to travel within the screen
+		gameTools.checkBorders(camera.getMinX(), camera.getMaxX());			
+
+//		settings.setPosition(camera.getMinX() + 400, settings.getY());
+//		mapSprite.setPosition(camera.getMinX() + 400, mapSprite.getY());
+//		if (DEVELOPMENT) devOpen.setPosition(camera.getMinX() + 480/2-devOpen.getWidth()/2, devOpen.getY());
+	}
+	
+	private void showPersistentObjects(boolean choice) {
+		
+		Log.i("Clementime", "Screen/showPersistentObjects(): " + choice);
+		
+		doll.setVisible(choice);
+		gameTools.setVisible(choice);
+	}
+	
+	/**************************************/
+	/* TOUCH DETECTION && GESTURE METHODS */
+	/**************************************/
+
+	//**********************//
+	//*** EVENT REMINDER ***//
+	// EVENT ORDER :
+	// AreaTouched DOWN
+	// SceneTouchEvent DOWN
+	// AreaTouched UP
+	// OnClick
+	// SceneTouchEvent UP
+	//**********************//
+	// if no area is touched, AreaTouched isn't called
+	// if no click happens, OnClick isn't called
+	//**********************//
+
 	@Override
 	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final ITouchArea pTouchArea, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		
@@ -544,24 +549,20 @@ IOnSceneTouchListener {
 //					// DO NOT remove from ACTION_DOWN
 //					if (pTouchArea instanceof InventoryItem) {
 //						
-//						if (mode == MODE_INVENTORY || mode == MODE_ZOOM) {
+//						if (mode == MODE_INVENTORY_OPEN || mode == MODE_INVENTORY_ZOOM) {
 //							touchedInventoryItem = (InventoryItem)pTouchArea;
 //		
-//							if (mode == MODE_INVENTORY) clickCheck = CLICK_INVENTORY;
+//							if (mode == MODE_INVENTORY_OPEN) clickCheck = CLICK_INVENTORY;
 //							// accept consecutive clicks
 //							else clickCheck = CLICK_AGAIN_INVENTORY;
 //						}	
 //					}
 //				} else if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
-//		    		//************************************
-//		    		//     CLOSE TALK FRAME
-//		    		//************************************   
-//					if (status == STATUS_TALK) {
-//						if (!talkScreen.talkScreenBg.isVisible()) {
-//							talkScreen.clean();
-//							status = STATUS_SCREEN;
-//							mode = MODE_SCREEN_OFF;
-//						}
+		    		//************************************
+		    		//     CLOSE TALK FRAME
+		    		//************************************   
+					if (status == STATUS_ANIM && mode == MODE_ANIM_TALK)	closeTalk();
+
 //		    		//************************************
 //		    		//     CLOSE MAP
 //		    		//************************************   
@@ -595,7 +596,7 @@ IOnSceneTouchListener {
 //		    		//************************************
 //		    		//     STATUS SCREEN
 //					//************************************   
-//					} else if (status == STATUS_SCREEN) {
+//					} else if (status == STATUS_ACTION) {
 //		
 //			    		//************************************
 //			    		//     MOVING ARROWS OR ACTION
@@ -610,25 +611,25 @@ IOnSceneTouchListener {
 //		
 //								if (pTouchArea == gameTools.leftArrow) {
 //									
-//									if (phDoll.getVelocityX() != 0 && dollDirection == DIRECTION_RIGHT) {
-//										phDoll.setVelocityX(0);
-//								    	doll.stopAnimation(16);
+//									if (doll.ph.getVelocityX() != 0 && doll.walkDirection == DIRECTION_RIGHT) {
+//										doll.ph.setVelocityX(0);
+//								    	doll.image.stopAnimation(16);
 //										gameTools.rightArrow.stopAnimation(4);
 //									}
-//									touchedX = currentScreen.xMin;
+//									touchedX = currentBg.xMin;
 //									gameTools.leftArrow.animate(120, true);
 //									
 //								} else if (pTouchArea == gameTools.rightArrow) {
 //									
-//									if (phDoll.getVelocityX() != 0 && dollDirection == DIRECTION_LEFT) {
-//										phDoll.setVelocityX(0);
-//								    	doll.stopAnimation(16);
+//									if (doll.ph.getVelocityX() != 0 && doll.walkDirection == DIRECTION_LEFT) {
+//										doll.ph.setVelocityX(0);
+//								    	doll.image.stopAnimation(16);
 //										gameTools.leftArrow.stopAnimation(4);
 //									}
-//									touchedX = currentScreen.xMax;
+//									touchedX = currentBg.xMax;
 //									gameTools.rightArrow.animate(120, true);
 //								}
-//								moveDoll();
+//								doll.move(status, touchedX);
 //								movingArrowPressed = true;
 //						
 //							} else {
@@ -642,11 +643,11 @@ IOnSceneTouchListener {
 //										touchedChar = (PlayingAnimation)pTouchArea;
 //										touchedX = touchedChar.getX() + touchedChar.getWidth()/2;
 //										
-//										actionsManager.activate(touchedChar.getX(), touchedChar.getY(), touchedChar.getWidth(), touchedChar.getHeight(),
+//										gameTools.am.activate(touchedChar.getX(), touchedChar.getY(), touchedChar.getWidth(), touchedChar.getHeight(),
 //												               world.getCharStates(touchedChar.id), false);
 //		
 //								} else {
-//									mode = MODE_ACTION;
+//									mode = MODE_ANIM_ACTION;
 //									
 //									//***********************************
 //									//     EXIT
@@ -660,8 +661,8 @@ IOnSceneTouchListener {
 //									//***********************************
 //									} else {
 //										touchedAction = (AnimatedSprite)pTouchArea;
-//										if (touchedX > currentScreen.xMin && touchedX < currentScreen.xMax && touchedAction != actionsManager.look) moveDoll();
-//										else actionsManagerOutsideBorders = true;	
+//										if (touchedX > currentBg.xMin && touchedX < currentBg.xMax && touchedAction != gameTools.am.look) doll.move(status, touchedX);
+//										else gameTools.amOutsideBorders = true;	
 //									}
 //								}
 //							}					
@@ -678,7 +679,7 @@ IOnSceneTouchListener {
 //							touchedItem = (ScreenItem)pTouchArea;
 //							touchedX = touchedItem.getX() + touchedItem.getWidth()/2;
 //								
-//							actionsManager.activate(touchedItem.getX(), touchedItem.getY(), touchedItem.getWidth(), touchedItem.getHeight(),
+//							gameTools.am.activate(touchedItem.getX(), touchedItem.getY(), touchedItem.getWidth(), touchedItem.getHeight(),
 //									               world.getItemStates(touchedItem.id), false);	
 //						} if (pTouchArea instanceof Sprite) {
 //							
@@ -689,7 +690,7 @@ IOnSceneTouchListener {
 //		
 //					    		if (!inventory.items.isEmpty()) {
 //					    			status = STATUS_INVENTORY;
-//									mode = MODE_INVENTORY;
+//									mode = MODE_INVENTORY_OPEN;
 //									displayInventory();
 //					    		} else {
 //					    			displayInfoFrame(world.getGeneralText("empty_inventory"));
@@ -718,9 +719,9 @@ IOnSceneTouchListener {
 //					    if (pTouchArea == inventory.bag) {
 //					    	
 //					    	// inventory is open
-//							if (mode == MODE_INVENTORY) {			
-//								status = STATUS_SCREEN;
-//								mode = MODE_SCREEN_OFF;
+//							if (mode == MODE_INVENTORY_OPEN) {			
+//								status = STATUS_ACTION;
+//								mode = MODE_ACTION_WALK;
 //								clickCheck = CLICK_BAG; // avoid doll moving when touching bag in MODE_SCREEN
 //								hideInventory();
 //							}
@@ -734,7 +735,7 @@ IOnSceneTouchListener {
 //					        scene.setChildScene(devFrame);
 //					        devFrame.display();	    		
 //				    	} else {
-//							world.save(doll.getX(), doll.getY());
+//							world.save(doll.image.getX(), doll.image.getY());
 //				    		load = devFrame.hide();
 //				    		if (load > 0) {
 //				    			devTools.setLoad(load);
@@ -751,10 +752,6 @@ IOnSceneTouchListener {
 		}
 		return false;
 	}
-	
-	/****************************/
-	/* EVENT HANDLING METHODS */
-	/****************************/
 
 	@Override
 	public boolean onSceneTouchEvent(final Scene pScene, final TouchEvent pSceneTouchEvent) {
@@ -764,22 +761,23 @@ IOnSceneTouchListener {
 		if (initScene) Log.i("Clementime", "Screen/onSceneTouchEvent(): scene initialisation - sceneTouchEvent desactivated"); 
 		else {
 			
-			Log.d("Clementime", "Screen/onSceneTouchEvent(): status ");
+			Log.d("Clementime", "Screen/onSceneTouchEvent(): status " + status);
 			
 			try {
 				//************************************
 				//     ANIMATED CIRCLE
 				//************************************ 
-				// show animated circle in modes action or screen only
-//				if (status == STATUS_SCREEN) {
+				// show animated circle when status is ACTION
+				if (status == STATUS_ACTION) {
 					float xCircle = pSceneTouchEvent.getX() - gameTools.animatedCircle.getWidth() / 2;
 			    	float yCircle = pSceneTouchEvent.getY() - gameTools.animatedCircle.getHeight() / 2;
 					gameTools.showAnimatedCircle(xCircle, yCircle);	
-//				}	
+				}	
 				
 //				//**********************************************
 //				//     INVENTORY ITEM zooming and dropping
 //				//********************************************** 
+				if (false) { // to REMOVE !!!		
 //				if (status == STATUS_INVENTORY && touchedInventoryItem != null && touchedInventoryItem != touchedZoomItem) {		
 //		
 //					//TODO: right/left handed (-50 = right handed)
@@ -790,9 +788,9 @@ IOnSceneTouchListener {
 //		        	//TODO: avoid mode drop when click zoom & dropping
 //		        	
 //		        	// mode DROP launched when an item is dragged outside the "list" of inventory items
-//		        	if (mode == MODE_INVENTORY && (pSceneTouchEvent.getY() < INVENTORY_POSY_NORMALVIEW
+//		        	if (mode == MODE_INVENTORY_OPEN && (pSceneTouchEvent.getY() < INVENTORY_POSY_NORMALVIEW
 //		        								|| pSceneTouchEvent.getX() > camera.getMinX() + inventory.items.size() * inventory.boxPlusInterval)) {
-//		        		mode = MODE_DROP;
+//		        		mode = MODE_INVENTORY_DROP;
 //		        		hideInventory();
 //		       		}
 //		        	
@@ -823,9 +821,9 @@ IOnSceneTouchListener {
 //		        		//************************************
 //		        		//     ITEM DROPPED ON SCREEN
 //		        		//************************************        		
-//		        		if (mode == MODE_DROP) {
+//		        		if (mode == MODE_INVENTORY_DROP) {
 //		
-//				        	ListIterator<ScreenItem> it = currentScreen.items.listIterator();
+//				        	ListIterator<ScreenItem> it = currentBg.items.listIterator();
 //				        	
 //				        	boolean lookForCombination = true;
 //		    				String text = "";
@@ -884,12 +882,12 @@ IOnSceneTouchListener {
 //			    			if (!frame.lookBg.isVisible()) displayInfoFrame(text);
 //			    			
 //				        	clickCheck = CLICK_OFF;
-//				        	if (status != STATUS_ANIM) status = STATUS_SCREEN;
+//				        	if (status != STATUS_ANIM) status = STATUS_ACTION;
 //				        	
 //				       	//************************************
 //			        	//   ITEM COMBINATION (in inventory)
 //			        	//************************************        		    	 
-//			        	} else if (mode == MODE_ZOOM) {
+//			        	} else if (mode == MODE_INVENTORY_ZOOM) {
 //		
 //				    		if (RectangularShapeCollisionChecker.checkCollision(touchedInventoryItem.big, touchedZoomItem.big)) {
 //				    		//if (RectangularShapeCollisionChecker.checkCollision(touchedInventoryItem.big, touchedZoomItem.zoom)) {
@@ -947,127 +945,264 @@ IOnSceneTouchListener {
 //				//******************************************
 //				//     NOT IN INVENTORY - other actions
 //				//******************************************  
-//				} else if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
+				} else if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
 //		    		//************************************
 //		    		//     CLOSE TALK FRAME
 //		    		//************************************   
-//					if (status == STATUS_TALK) {
-//						if (!talkScreen.talkScreenBg.isVisible()) {
-//							talkScreen.clean();
-//							status = STATUS_SCREEN;
-//							mode = MODE_SCREEN_OFF;
-//						}	
-//					}
-//					
-//					if (status == STATUS_SCREEN) {
-//		
-//						//**************************
-//						//     ACTION
-//						//**************************
-//						// player activate an action or exit
-//						if (mode == MODE_ACTION) {
-//							if (touchedAction == actionsManager.look)		{
-//								actionsManager.freeze(ACTION_LOOK);
-//								look();
-//							}
-//							else if (touchedAction == actionsManager.take)			actionsManager.freeze(ACTION_TAKE);
-//							else if (touchedAction == actionsManager.talk)		actionsManager.freeze(ACTION_TALK);
-//							else { // exit
-//								
-//								touchedExit.stopAnimation();
-//						    	gameTools.leftArrow.stopAnimation(4);
-//						    	gameTools.rightArrow.stopAnimation(4);
-//		
-//								if (touchedExit.beforeTrigger == 0) moveDoll(); // no trigger on exit, move doll until 
-//								else launchTrigger(touchedExit.beforeTrigger, false);
-//		
-//								//actionsManager.freeze(ACTION_EXIT);
-//								
-//								//int exitFeatures[] = world.getExitFeatures(touchedArea.id);
-//								//if (touchedExit.beforeTrigger != 0) exit();
-//							}
-//							
-//							touchedX = pSceneTouchEvent.getX();
-//						//*********************************
-//						//     SPECIAL AREAS ON SCREEN
-//						//*********************************
-//						// player touch the screen - check if an area is touched
-//						} else if (clickCheck != CLICK_BAG) {
-//		
-//							Area area = null;
-//							
-//							area = checkAreas(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
-//		
-//							if (area != null) {
-//								Log.d("Clementime", "Screen/onSceneTouchEvent(): activated area: " + area.id);
-//								
-//								mode = MODE_ACTION_WAIT;
-//								touchedX = area.x + area.width/2;
-//								
-//								actionsManager.activate(area.x, area.y, area.width, area.height, world.getAreaStates(area.id), true);
-//								
-//								touchedItem = null;
-//								touchedChar = null;
-//								touchedArea = area;
-//							}
-//						}
-//		
-//			    		//************************************
-//			    		//     SIMPLE MOVE DOLL
-//			    		//************************************
-//						if (mode == MODE_SCREEN_OFF) {
-//							actionsManager.deactivate();
-//		
-//							// avoid doll moving when closing inventory or frame
-//							if (clickCheck != CLICK_BAG) {
-//								
-//								// avoid doll stopping if moving arrow just pressed
-//								if (!movingArrowPressed) {
-//							    	gameTools.leftArrow.stopAnimation(4);
-//							    	gameTools.rightArrow.stopAnimation(4);
-//									touchedX = pSceneTouchEvent.getX();
-//									moveDoll();						
-//								} else movingArrowPressed = false;
-//								
-//							} else clickCheck = CLICK_OFF;				
-//							
-//						} else {
-//					    	gameTools.leftArrow.stopAnimation(4);
-//					    	gameTools.rightArrow.stopAnimation(4);
-//							
-//							if (mode == MODE_ACTION_WAIT) mode = MODE_SCREEN_OFF;					
-//						}				
+					if (status == STATUS_ANIM && mode == MODE_ANIM_TALK) closeTalk();
+					
+					//************************************
+					//     TOUCH SCREEN IN ACTION MODE
+					//************************************
+					else if (status == STATUS_ACTION) manageAction(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
+					
 //		    		//************************************
 //		    		//     CLOSE MAP
 //		    		//************************************   
 //					} else if (status == STATUS_MAP && touchedMapItem != null) {
 //						goToNextScreen();
-//					} else { 
-//		
-//						actionsManager.deactivate();
-//				    	gameTools.leftArrow.stopAnimation(4);
-//				    	gameTools.rightArrow.stopAnimation(4);
-//		
+//					}
+					else { 
+		
+						gameTools.am.deactivate();
+				    	gameTools.leftArrow.stopAnimation(4);
+				    	gameTools.rightArrow.stopAnimation(4);
+		
 //						if (status == STATUS_ANIM) {
 //					    	// --------------- IF an animation is not running ---------------
 //					    	// frame has been recently closed, come back to mode screen here
 //					    	// (not before to avoid touch reacting to areas when closing frame) 
 //							if (mode != MODE_ANIM_RUNNING && !frame.lookBg.isVisible() && !inventory.zoomView.isVisible()) {
-//								status = STATUS_SCREEN;
-//								mode = MODE_SCREEN_OFF;						
+//								status = STATUS_ACTION;
+//								mode = MODE_ACTION_WALK;						
 //							}					
 //						} else { // stop doll
-//							phDoll.setVelocityX(0);
-//					    	doll.stopAnimation(16);				
+//							doll.ph.setVelocityX(0);
+//					    	doll.image.stopAnimation(16);				
 //						}
-//		
-//					}
-//				}
+		
+					}
+				}
 			} catch (Exception e) {
 				Log.e("Clementime", "Screen/onSceneTouchEvent(): raise error: " + e.getMessage());
 			}
 		}
 		return true;
+	}
+	 
+	private boolean checkStopDoll() {
+		
+		// if doll is moving, it can be stopped at runtime without player interaction if:
+		// it reaches borders or it reaches touchedX (if moving arrows aren't activated)
+		
+		boolean stop = false;
+		float stopX = 0;
+
+		//Log.d("Clementime", "**************" + doll.image.getX() + "-" + doll.image.getY());
+
+		// stop doll when reaching borders - if not during an animation
+    	if ((doll.image.getX() < currentBg.xMin || doll.image.getX() > currentBg.xMax) && mode != MODE_ANIM_RUNNING) {	
+			
+			doll.ph.setVelocity(0,0);
+	    	doll.image.stopAnimation(16);
+	    	gameTools.leftArrow.stopAnimation(4);
+	    	gameTools.rightArrow.stopAnimation(4);
+	    	
+	    	// avoid doll being stuck on one border
+	    	if (doll.image.getX() < currentBg.xMin) doll.image.setPosition(currentBg.xMin, doll.image.getY());
+	    	if (doll.image.getX() > currentBg.xMax) doll.image.setPosition(currentBg.xMax, doll.image.getY());
+	    	
+	    // stop doll at touchedX if the moving arrows aren't playing
+		} else if (!gameTools.leftArrow.isAnimationRunning() && !gameTools.rightArrow.isAnimationRunning()) {
+						
+			stopX = touchedX - doll.centerX;		
+
+			// if looking or talking to an item until which the doll can't move 
+			if (mode == MODE_ANIM_ACTION && actionsManagerOutsideBorders) {
+				gameTools.animatedCircle.stopAnimation(11);
+				if (touchedAction == gameTools.am.talk)	talk();
+				
+				gameTools.am.deactivate();
+								
+				touchedItem = null;
+//				touchedChar = null;
+				touchedAction = null;
+				touchedArea = null;	
+				
+				actionsManagerOutsideBorders = false;
+			}
+			
+			// stop doll if moving arrows aren't playing
+			if (doll.walkDirection == DIRECTION_RIGHT && doll.image.getX() >= stopX || doll.walkDirection == DIRECTION_LEFT && doll.image.getX() <= stopX) {   	
+
+				doll.ph.setVelocity(0,0);
+		    	doll.image.stopAnimation(16);
+		    	gameTools.leftArrow.stopAnimation(4);
+		    	gameTools.rightArrow.stopAnimation(4);
+
+		    	// reasons why doll is stopping (other than simple moving on screen)
+		    	if (mode == MODE_ANIM_ACTION) {
+
+					gameTools.animatedCircle.stopAnimation(11);
+					
+			    	if (touchedExit != null) {
+//						if (touchedExit.beforeTrigger == 0) goToNextScreen();
+						
+			    	} else if (touchedAction == gameTools.am.take)	take();
+					else if (touchedAction == gameTools.am.talk)	talk();
+					
+					gameTools.am.deactivate();
+					
+					if (itemToBeRemoved != null) {		
+						
+						currentBg.hideShowItem(scene, itemToBeRemoved);
+//						touchedZoomItem = addItemInInventory(itemToBeRemoved.id);
+						itemToBeRemoved = null;
+					}
+					
+					touchedItem = null;
+//					touchedChar = null;
+					touchedAction = null;
+					touchedArea = null;		    	
+				}
+				
+			}
+		}		
+		
+		if (doll.ph.getVelocityX() == 0 && doll.ph.getVelocityY() == 0) stop = true;
+		
+		return stop;
+	}
+	
+	private void manageAction(float x, float y) {
+
+		//**************************
+		//     ACTION
+		//**************************
+		// player activate an action or exit
+		if (mode == MODE_ANIM_ACTION) {
+			if (touchedAction == gameTools.am.look)	{
+				gameTools.am.freeze(ACTION_LOOK);
+//				look();
+			}
+			else if (touchedAction == gameTools.am.take)		gameTools.am.freeze(ACTION_TAKE);
+			else if (touchedAction == gameTools.am.talk)		gameTools.am.freeze(ACTION_TALK);
+			else { // exit
+				
+				touchedExit.stopAnimation();
+		    	gameTools.leftArrow.stopAnimation(4);
+		    	gameTools.rightArrow.stopAnimation(4);
+
+//				if (touchedExit.beforeTrigger == 0) doll.move(status, touchedX); // no trigger on exit, move doll until 
+//				else launchTrigger(touchedExit.beforeTrigger, false);
+			}
+			
+			touchedX = x;
+		//*********************************
+		//     SPECIAL AREAS ON SCREEN
+		//*********************************
+		// player touch the screen - check if an area is touched
+		} else if (clickCheck != CLICK_BAG) {
+
+			Area area = null;
+			
+//			area = checkAreas(x, y);
+
+			if (area != null) {
+				Log.d("Clementime", "Screen/onSceneTouchEvent(): activated area: " + area.id);
+				
+				mode = MODE_ACTION_WAIT;
+				touchedX = area.x + area.width/2;
+				
+//				gameTools.am.activate(area.x, area.y, area.width, area.height, world.getAreaStates(area.id), true);
+				
+				touchedItem = null;
+//				touchedChar = null;
+				touchedArea = area;
+			}
+		}
+
+		//************************************
+		//     SIMPLE MOVE DOLL
+		//************************************
+		if (mode == MODE_ACTION_WALK) {
+			gameTools.am.deactivate();
+
+			// avoid doll moving when closing inventory or frame
+			if (clickCheck != CLICK_BAG) {
+				
+				// avoid doll stopping if moving arrow just pressed
+				if (!movingArrowPressed) {
+			    	gameTools.leftArrow.stopAnimation(4);
+			    	gameTools.rightArrow.stopAnimation(4);
+					touchedX = x;
+					doll.move(status, touchedX);						
+				} else movingArrowPressed = false;
+				
+			} else clickCheck = CLICK_OFF;				
+			
+		} else {
+	    	gameTools.leftArrow.stopAnimation(4);
+	    	gameTools.rightArrow.stopAnimation(4);
+			
+			if (mode == MODE_ACTION_WAIT) mode = MODE_ACTION_WALK;					
+		}				
+	}
+	
+	
+	private void closeTalk() {
+		//************************************
+		//     CLOSE TALK FRAME
+		//************************************   
+		//if (status == STATUS_TALK) {
+		if (status == STATUS_ANIM && mode == MODE_ANIM_TALK) {
+//			if (!talk.talkBg.isVisible()) {
+//				talk.clean();
+				status = STATUS_ACTION;
+				mode = MODE_ACTION_WALK;
+//			}	
+		}
+	}
+
+
+	/*************************************/
+	/* ACTION METHODS */
+	/*************************************/
+
+	private void take() {
+		
+		Log.i("Clementime", "Screen/take()");
+		
+//		if (world.isItemTakeable(touchedItem.id)) itemToBeRemoved = touchedItem;
+//
+//		String text = world.getDesc(touchedItem.id, OBJECT_TYPE_ITEM, DB_DESCRIPTION_ACTION_TAKE);
+//		if (text != "" ) displayInfoFrame(text);
+
+	}
+
+	private void look() {
+
+		Log.i("Clementime", "Screen/look()");
+
+		String text = "";
+		
+//		if (touchedItem != null)
+//			text = world.getDesc(touchedItem.id, OBJECT_TYPE_ITEM, DB_DESCRIPTION_ACTION_LOOK);
+//		else if (touchedArea != null)
+//			text = world.getDesc(touchedArea.id, OBJECT_TYPE_AREA, DB_DESCRIPTION_ACTION_AREA_LOOK);
+//		else if (touchedChar != null)
+//			text = world.getDesc(touchedChar.id, OBJECT_TYPE_CHAR, DB_DESCRIPTION_ACTION_CHAR_LOOK);
+//
+//		displayInfoFrame(text);
+	}
+
+	private void talk() {
+
+		Log.i("Clementime", "Screen/talk()");
+
+//		status = STATUS_TALK;
+//		talkScreen.display(touchedChar.id);
+//      scene.setChildScene(talkScreen);
 	}
 	
 	/****************************/
@@ -1115,6 +1250,7 @@ IOnSceneTouchListener {
 	}
 	
 	@Override
+	
 	public void onPause() {
 		
 		Log.i("Clementime", "Screen/onPause()");
@@ -1122,7 +1258,7 @@ IOnSceneTouchListener {
 		super.onPause();
 		if(dbh.db.isOpen()) {
 //			// if screen is loaded, don't change player savings info as it will cancel loading 
-//			if (load == 0) world.save(doll.getX(), doll.getY());
+//			if (load == 0) world.save(doll.image.getX(), doll.image.getY());
 //			
 //			if (DEVELOPMENT && load == 0 && touchedExit == null   ) {
 //				devTools.createStateFile("_current");

@@ -9,15 +9,18 @@ import static eu.clementime.rds.Constants.ZINDEX_CIRCLE;
 
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.entity.Entity;
-import org.anddev.andengine.entity.primitive.Rectangle;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
+import org.anddev.andengine.opengl.font.Font;
+import org.anddev.andengine.opengl.font.FontFactory;
 import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.Log;
 
 public class GameTools extends Entity {
@@ -27,6 +30,7 @@ public class GameTools extends Entity {
 	private final int MARGIN;
 		
 	private Context context;
+	private DatabaseAccess db;
 	public int screenId;
 	
 	private TiledTextureRegion TR1;
@@ -37,28 +41,45 @@ public class GameTools extends Entity {
 	public AnimatedSprite rightArrow;
 	public AnimatedSprite animatedCircle;
 	
+	public ActionsManager am;
+	
 	public float xMin;
 	public float xMax;
 	
-	public Rectangle mask;
+	private BitmapTextureAtlas defaultFontBTA;
+	private BitmapTextureAtlas defaultFont2BTA;
+	private BitmapTextureAtlas fontBTA;
+	public Font defaultFont;
+	public Font defaultFont2;
+	public Font font;
 	
-	public GameTools(Context context, int cw, int ch, int MARGIN) {
+	public String language;
+	
+	public GameTools(DatabaseHandler dbh, Context context, int cw, int ch, int MARGIN, Engine engine, Scene scene) {
 		
-		Log.i("Clementime", "GameToolsManager/constructor()");
+		Log.i("Clementime", "GameTools/constructor()");
+		
+		this.db = new DatabaseAccess(dbh);
 		
 		this.context = context;
 		this.CAMERA_WIDTH = cw;
 		this.CAMERA_HEIGHT = ch;
 		this.MARGIN = MARGIN;
 		
-		this.mask = new Rectangle(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		this.mask.setColor(0, 0, 0, 0);
+		this.language = db.selectLanguage(context);
+		this.am = new ActionsManager();
+		
+		loadGameItems(engine, scene);
+		loadFonts(engine, scene);
+		
+//		this.mask = new Rectangle(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+//		this.mask.setColor(0, 0, 0, 0);
 	}
-
+	
 	// TODO: check size of all BTA to reduce them as much as possible
 	public void loadGameItems(Engine engine, Scene scene) {
 		
-		Log.i("Clementime", "GameToolsManager/loadGameItems()");
+		Log.i("Clementime", "GameTools/loadGameItems()");
 		
 		BitmapTextureAtlas BTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
@@ -89,11 +110,30 @@ public class GameTools extends Entity {
 		animatedCircle.setZIndex(ZINDEX_CIRCLE);
 		leftArrow.setZIndex(ZINDEX_ARROW);
 		rightArrow.setZIndex(ZINDEX_ARROW);
+		
+		this.am.load(this.context, engine, scene);
 	}
 	
+	public void loadFonts(Engine engine, Scene scene) {
+		
+        FontFactory.setAssetBasePath("font/");
+		
+        fontBTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		font = FontFactory.createFromAsset(fontBTA, this.context, "arfmoochikncheez.ttf", 20, true, Color.BLACK);
+		engine.getTextureManager().loadTexture(fontBTA);     
+        
+		defaultFontBTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		defaultFont = new Font(defaultFontBTA, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 24, true, Color.BLACK);
+		engine.getTextureManager().loadTexture(defaultFontBTA);
+		
+		defaultFont2BTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		defaultFont2 = new Font(defaultFont2BTA, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 24, true, Color.RED);
+		engine.getTextureManager().loadTexture(defaultFont2BTA);
+	}
+
 	public void showAnimatedCircle(float x, float y) {
 		
-		Log.i("Clementime", "GameToolsManager/showAnimatedCircle()");
+		Log.i("Clementime", "GameTools/showAnimatedCircle()");
 		
 		animatedCircle.setPosition(x, y);
 		animatedCircle.setVisible(true);

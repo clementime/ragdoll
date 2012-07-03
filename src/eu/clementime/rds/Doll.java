@@ -1,5 +1,8 @@
 package eu.clementime.rds;
 
+import static eu.clementime.rds.Constants.DIRECTION_LEFT;
+import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
+import static eu.clementime.rds.Constants.STATUS_ACTION;
 import static eu.clementime.rds.Constants.ZINDEX_DOLL;
 
 import org.anddev.andengine.engine.Engine;
@@ -12,16 +15,31 @@ import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextur
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.util.Log;
 
 public class Doll {
 	
-	private AnimatedSprite image;
+	public AnimatedSprite image;
 	private BitmapTextureAtlas dollBTA;
 	private TiledTextureRegion dollTR;
 	
 	public PhysicsHandler ph;
 	
-	public Doll(Context context, Engine engine, Scene scene) {
+	public float standardYVelocityRight;
+	public float standardYVelocityLeft;
+	public float YVelocity = 0;
+	
+	public float centerX;
+	
+	public int walkDirection;
+	public boolean isChased = true;
+	
+	private DatabaseAccess db;
+	
+	public Doll(DatabaseHandler dbh, Context context, Engine engine, Scene scene) {
+		
+		this.db = new DatabaseAccess(dbh);
 		
 		dollBTA = new BitmapTextureAtlas(512, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		dollTR = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, context, R.drawable.doll, 0, 0, 4, 5);
@@ -36,5 +54,48 @@ public class Doll {
 		
 		scene.attachChild(image);
 		image.setZIndex(ZINDEX_DOLL);
+		
+		scene.registerTouchArea(image);
+		
+		this.centerX = image.getWidth()/2;
+	}
+
+	public void move(int status, float touchedX) {
+		
+		Log.i("Clementime", "Screen/moveDoll()");
+
+		// if doll wasn't previously walking, launch walking animation	
+		if (ph.getVelocityX() == 0) {
+			
+			if (touchedX > image.getX()) {
+				walkDirection = DIRECTION_RIGHT;
+				image.animate(new long[]{120, 120, 120, 120, 120, 120, 120, 120}, 0, 7, true);	
+				if (status == STATUS_ACTION || YVelocity == -1000) ph.setVelocity(70, standardYVelocityRight);
+				else ph.setVelocity(70, YVelocity);
+			}
+			else if (touchedX < image.getX()) {
+				walkDirection = DIRECTION_LEFT;
+				image.animate(new long[]{120, 120, 120, 120, 120, 120, 120, 120}, 8, 15, true);				
+				if (status == STATUS_ACTION || YVelocity == -1000) ph.setVelocity(-70, standardYVelocityLeft);
+				else ph.setVelocity(-70, YVelocity);
+			}	
+		}
+	}
+	
+	public void getYVelocity(int screenId) {
+		this.standardYVelocityRight = db.selectYVelocity(screenId);
+		this.standardYVelocityLeft = -this.standardYVelocityRight;
+	}
+	
+	public void setVisible(boolean choice) {
+		this.image.setVisible(choice);
+	}
+	
+	public int getScreen() {
+		return db.selectDollScreen();
+	}
+	
+	public int[] getPosition() {
+		return db.selectDollPosition();
 	}
 }

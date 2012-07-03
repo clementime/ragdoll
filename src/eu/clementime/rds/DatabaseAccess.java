@@ -4,10 +4,9 @@ import static eu.clementime.rds.Constants.DB_FIELD_DISPLAY;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.ListIterator;
 import java.util.Map;
 
-
+import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
@@ -19,6 +18,9 @@ public class DatabaseAccess {
 		this.dbh = dbh;
 	}
 	
+	//***********************************
+	// BACKGROUND
+	//***********************************   
 	public String selectScreenPrefix(int screenId) {
 
 		String screenPrefix = "";
@@ -111,7 +113,6 @@ public class DatabaseAccess {
 		return ll;
 	}
 	
-	
 	public LinkedList<Map<String, String>> selectAnimations(int screenId) {
 		
 		LinkedList<Map<String, String>> ll = new LinkedList<Map<String, String>>();
@@ -152,5 +153,200 @@ public class DatabaseAccess {
 		}		
 
 		return ll;
+	}
+
+	//***********************************
+	// GAME TOOLS
+	//***********************************  
+	// search if phone language is available (English is used if not)
+	public String selectLanguage(Context context) {
+
+		String locale = context.getResources().getConfiguration().locale.getLanguage(); //iso2 code	
+		String query = " select value as language_list from parameter where reference = 'available_language' ";
+		String[] languages;
+		
+		String language = "en";
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+				
+				languages = c.getString(c.getColumnIndex("language_list")).split(";");
+				for (int i = 0; i < languages.length; i++) {
+
+					if (locale.equals(languages[i])) language = locale;
+				}
+			}
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return language;
+	}
+
+	public String selectText(String reference, String language) {
+		
+		String query;
+		String text = "";
+		
+		query = " select text_" + language + " as text ";
+		query += " from text where reference = '" + reference + "'";
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+
+				// retrieve combination description for side screen display				
+				text = c.getString(c.getColumnIndex("text"));
+			}
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return text;
+	}
+
+	//***********************************
+	// DOLL
+	//***********************************  
+	public float selectYVelocity(int screenId) {
+		
+		float yVelocity = 0;
+		
+		String query = " select y_velocity ";
+		query += " from screen ";
+		query += " where _id = " + screenId;	// conditions
+	
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+				yVelocity = c.getFloat(c.getColumnIndex("y_velocity"));
+			}
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return yVelocity;
+	}
+
+	// find which screen the doll is in
+	public int selectDollScreen() {
+
+		String query = "";
+
+		int screenId = 1;
+
+		try {
+			query = " select value as screen_id from player_saving where reference = 'screen_id' ";
+		
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+				
+				screenId = c.getInt(c.getColumnIndex("screen_id"));
+
+			}
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return screenId;	
+	}
+	
+	// find where the doll is at launching time
+	public int[] selectDollPosition() {
+		
+		Log.d("Clementime", "World/getDollPosition()");
+		
+		String query = "";
+		int[] dollPos = {0,0};
+		
+		try {
+			query = " select value as x from player_saving where reference = 'x_doll' ";
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+				
+				dollPos[0] = c.getInt(c.getColumnIndex("x"));
+			}
+
+			c.close();
+			
+		} catch (Exception e) {
+			Log.w("Clementime", "World/getDollPosition(): failed to get x position from player table.");
+		}
+		
+		try {		
+			query = " select value as y from player_saving where reference = 'y_doll' ";
+			Cursor c1 = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c1.getCount() != 0) {
+				c1.moveToFirst();
+				
+				dollPos[1] = c1.getInt(c1.getColumnIndex("y"));
+			}
+
+			c1.close();
+			
+		} catch (Exception e) {
+			Log.w("Clementime", "World/getDollPosition(): failed to get y position from player table.");
+		}
+
+		return dollPos;	
+	}
+
+	//***********************************
+	// WORLD
+	//*********************************** 
+	public int[] selectFirstScreenFeatures() {
+		
+		Log.i("Clementime", "World/getFirstScreenFeatures() ");
+
+		// features[0] = id exit, features[1] = to trigger before leaving	
+		int[] features = {0,0,0,0};
+		
+		String query = " select to_screen_id, ";
+		query += " starting_x, starting_y, after_trigger_id ";
+		query += " from exit e ";
+		query += " where _id = 0 ";	// conditions
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+				features[0] = c.getInt(c.getColumnIndex("after_trigger_id"));
+				features[1] = c.getInt(c.getColumnIndex("starting_x"));
+				features[2] = c.getInt(c.getColumnIndex("starting_y"));
+				Log.v("Clementime", "World/getFirstScreenFeatures(): starting x: " + features[2] + " starting y: " + features[3] + " starting trigger: " + features[1]);
+			}
+
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return features;
 	}
 }

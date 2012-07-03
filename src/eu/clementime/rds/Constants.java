@@ -16,22 +16,22 @@ public final class Constants  {
 	public static final String DEFAULT_IMAGE = "default_img";
 	public static final String ANIMATION_IMAGE_PREFIX = "anim_";
 //	public static final int NO_END_LOOP = 1000;
-//	
-//	/*             */
-//	/* SIDE SCREEN */
-//	/*             */
-//	public static final int DIRECTION_LEFT = 1;
-//	public static final int DIRECTION_RIGHT = 2;
+	
+	/*             */
+	/* SIDE SCREEN */
+	/*             */
+	public static final int DIRECTION_LEFT = 1;
+	public static final int DIRECTION_RIGHT = 2;
 //
 //	public static final int SIDE_SCREEN_AREA = 80; // when you press side doll keep moving
 //	
-//	public static final int ACTION_TAKE = 1;
-//	public static final int ACTION_LOOK = 2;	
-//	public static final int ACTION_TALK = 3;	
-//	public static final int ACTION_EXIT = 4;
-//	
-//	public static final int ACTION_POINTER_SIZE = 60;
-//	public static final int ACTION_POINTER_OUT = -1000;
+	public static final int ACTION_TAKE = 1;
+	public static final int ACTION_LOOK = 2;	
+	public static final int ACTION_TALK = 3;	
+	public static final int ACTION_EXIT = 4;
+	
+	public static final int ACTION_POINTER_SIZE = 60;
+	public static final int ACTION_POINTER_OUT = -1000;
 //	
 //	public static final int LEFT_HANDED = 75;
 //	public static final int RIGHT_HANDED = -75;
@@ -39,36 +39,36 @@ public final class Constants  {
 //	//*******************
 //	// STATUS & MODES
 //	//*******************
-//	public static final int STATUS_SCREEN = 0;
-//	public static final int STATUS_INVENTORY = 1;
-//	public static final int STATUS_TALK = 3;
-//	public static final int STATUS_ANIM = 4;
-//	public static final int STATUS_MAP = 5;
-//	
-//	// status anim modes
-//	public static final int MODE_ANIM_OFF = 8;
-//	public static final int MODE_ANIM_RUNNING = 7;
-//	// inventory different modes
-//	public static final int MODE_INVENTORY = 1;
-//	public static final int MODE_ZOOM = 2;	
-//	public static final int MODE_DROP = 3;
-//	// status screen modes
-//	public static final int MODE_ACTION = 4;
-//	public static final int MODE_ACTION_WAIT = 5;	
-//	public static final int MODE_SCREEN_OFF = 0;
-//	
-//	//*********
-//	// CLICKS
-//	//*********
-//	public static final int CLICK_OFF = 0;
-//	public static final int CLICK_INVENTORY = 1;
-//	public static final int CLICK_ZOOM = 2;	
-//	public static final int CLICK_ACTION = 3;	
-//	public static final int CLICK_BAG = 4;
-//	public static final int CLICK_TALK = 5;
-//	public static final int CLICK_INFO = 6;
-//	public static final int CLICK_AGAIN_INVENTORY = 7;
-//	
+	public static final int STATUS_ACTION = 0;		// walk, try to look, take, talk, exit, do whatever you want
+	public static final int STATUS_INVENTORY = 1;		// inventory is open, walk and actions not allowed
+	public static final int STATUS_ANIM = 2;			// an animation is running, or talking is activated
+	public static final int STATUS_MAP = 3;
+	
+	// status action modes
+	public static final int MODE_ACTION_WALK = 0;		// player walk and search for objects
+	public static final int MODE_ACTION_WAIT = 1;		// action manager activated, waiting for player action
+//	public static final int MODE_ACTION_RUNNING = 2;	// an action (look, moving doll to talk, take or exit) is running
+	// inventory different modes
+	public static final int MODE_INVENTORY_OPEN = 3;	// inventory is open
+	public static final int MODE_INVENTORY_ZOOM = 4;	// zoom is open
+	public static final int MODE_INVENTORY_DROP = 5;	// player is dragging an object from inventory
+	// status anim modes
+	public static final int MODE_ANIM_ACTION = 6;		// an action (look, moving doll to talk, take or exit) is running 
+	public static final int MODE_ANIM_TALK = 7;		// doll is talking
+	public static final int MODE_ANIM_RUNNING = 8;	// an animation is running
+	
+	//*********
+	// CLICKS
+	//*********
+	public static final int CLICK_OFF = 0;
+	public static final int CLICK_INVENTORY = 1;
+	public static final int CLICK_ZOOM = 2;	
+	public static final int CLICK_ACTION = 3;	
+	public static final int CLICK_BAG = 4;
+	public static final int CLICK_TALK = 5;
+	public static final int CLICK_INFO = 6;
+	public static final int CLICK_AGAIN_INVENTORY = 7;
+	
 	public static final int MOVE_LEFT_ARROW_POSX = 10;
 	public static final int MOVE_RIGHT_ARROW_POSX = -45; // from right (to remove from screen width)
 	public static final int MOVE_ARROWS_POSY = -80; // from screen bottom (to remove from screen height)
@@ -162,35 +162,35 @@ public final class Constants  {
 //	/*                     */
 //	
 //	// ---- BE CAREFUL: These constants have to matched the database ---- 
-//	public static final String DB_TABLE_ITEM = "item";
-//	public static final String DB_TABLE_ANIMATION = "animation";
-//	public static final String DB_TABLE_MOVE_DOLL = "move_doll";
-//	public static final String DB_TABLE_MODIFIER = "modifier";
-//	public static final String DB_TABLE_TEXT_ANIM = "text_animation";
-//	public static final String DB_TABLE_COMBINATION = "combination";
-//	public static final String DB_TABLE_TRIGGER = "trigger";
-//	public static final String DB_TABLE_SCREEN_ITEM = "screen_item";
-//	public static final String DB_TABLE_SCREEN_AREA = "screen_area";
-//	public static final String DB_TABLE_CHARACTER = "character";
-//	public static final String DB_TABLE_QUESTION = "text_question";
-//	public static final String DB_TABLE_EXIT = "exit";
+	public static final String DB_TABLE_ITEM = "item";
+	public static final String DB_TABLE_ANIMATION = "animation";
+	public static final String DB_TABLE_MOVE_DOLL = "move_doll";
+	public static final String DB_TABLE_MODIFIER = "modifier";
+	public static final String DB_TABLE_TEXT_ANIM = "text_animation";
+	public static final String DB_TABLE_COMBINATION = "combination";
+	public static final String DB_TABLE_TRIGGER = "trigger";
+	public static final String DB_TABLE_SCREEN_ITEM = "screen_item";
+	public static final String DB_TABLE_SCREEN_AREA = "screen_area";
+	public static final String DB_TABLE_CHARACTER = "character";
+	public static final String DB_TABLE_QUESTION = "text_question";
+	public static final String DB_TABLE_EXIT = "exit";
 //	
 	public static final String DB_FIELD_DISPLAY = "display";
-//	public static final String DB_FIELD_STATE = "state";
-//	public static final String DB_FIELD_DESC_STATE = "desc_state";
-//	public static final String DB_FIELD_TAKE_STATE = "take_state";
-//	public static final String DB_FIELD_LOOK_STATE = "look_state";
-//	public static final String DB_FIELD_TALK_STATE = "talk_state";
-//	public static final String DB_FIELD_EXIT = "exit";
-//	public static final String DB_FIELD_TAKEABLE = "takeable";
-//	public static final String DB_FIELD_TRIGGER = "after_trigger_id";
-//
-//	public static final String DB_INVENTORY_VALUE_ON_SCREEN = "1";
-//	public static final String DB_INVENTORY_VALUE_IN = "2";
-//	public static final String DB_INVENTORY_VALUE_OUT = "0";
-//	
-//	public static final int DB_COMBINATION_VALUE_ON_SCREEN = 1;
-//	public static final int DB_COMBINATION_VALUE_IN_INVENTORY = 2;
+	public static final String DB_FIELD_STATE = "state";
+	public static final String DB_FIELD_DESC_STATE = "desc_state";
+	public static final String DB_FIELD_TAKE_STATE = "take_state";
+	public static final String DB_FIELD_LOOK_STATE = "look_state";
+	public static final String DB_FIELD_TALK_STATE = "talk_state";
+	public static final String DB_FIELD_EXIT = "exit";
+	public static final String DB_FIELD_TAKEABLE = "takeable";
+	public static final String DB_FIELD_TRIGGER = "after_trigger_id";
+
+	public static final String DB_INVENTORY_VALUE_ON_SCREEN = "1";
+	public static final String DB_INVENTORY_VALUE_IN = "2";
+	public static final String DB_INVENTORY_VALUE_OUT = "0";
+	
+	public static final int DB_COMBINATION_VALUE_ON_SCREEN = 1;
+	public static final int DB_COMBINATION_VALUE_IN_INVENTORY = 2;
 //
 //	public static final int DB_DESCRIPTION_ACTION_TAKE = 1;
 //	public static final int DB_DESCRIPTION_ACTION_LOOK = 2;
@@ -201,29 +201,29 @@ public final class Constants  {
 //	public static final int DB_DESCRIPTION_COMBINATION = 7;
 //	public static final int DB_DESCRIPTION_ACTION_CHAR_LOOK = 8;
 //	
-//	public static final int DB_TRIGGER_TYPE_ANIM = 1;
-//	public static final int DB_TRIGGER_TYPE_ACTION = 2;
-//	public static final int DB_TRIGGER_TYPE_DOLL = 3;
-//	public static final int DB_TRIGGER_TYPE_SV_ITEM = 4; // Switch Visibility
-//	public static final int DB_TRIGGER_TYPE_TEXT = 5;
-//	public static final int DB_TRIGGER_TYPE_SV_ANIM = 6; // Switch Visibility
-//	
-//	public static final int DB_MODIFIER_TYPE_COMB = 1;
-//	public static final int DB_MODIFIER_TYPE_POS = 2;
-//	public static final int DB_MODIFIER_TYPE_TAKE = 3;
-//	public static final int DB_MODIFIER_TYPE_LOOK = 4;
-//	public static final int DB_MODIFIER_TYPE_TALK = 5;
-//	public static final int DB_MODIFIER_TYPE_EXIT = 6;
-//	public static final int DB_MODIFIER_TYPE_TAKEABLE = 7;
-//	public static final int DB_MODIFIER_TYPE_SWITCH_COMB = 8;
-//	public static final int DB_MODIFIER_TYPE_AREA_LOOK = 9;
-//	public static final int DB_MODIFIER_TYPE_CHAR_LOOK = 10;
-//	public static final int DB_MODIFIER_TYPE_QUESTION_STATE = 11;
-//	public static final int DB_MODIFIER_TYPE_SCREEN_TRIGGER = 12;
-//	
-//	/*                     */
-//	/*      ZINDEXES       */
-//	/*                     */
+	public static final int DB_TRIGGER_TYPE_ANIM = 1;
+	public static final int DB_TRIGGER_TYPE_ACTION = 2;
+	public static final int DB_TRIGGER_TYPE_DOLL = 3;
+	public static final int DB_TRIGGER_TYPE_SV_ITEM = 4; // Switch Visibility
+	public static final int DB_TRIGGER_TYPE_TEXT = 5;
+	public static final int DB_TRIGGER_TYPE_SV_ANIM = 6; // Switch Visibility
+	
+	public static final int DB_MODIFIER_TYPE_COMB = 1;
+	public static final int DB_MODIFIER_TYPE_POS = 2;
+	public static final int DB_MODIFIER_TYPE_TAKE = 3;
+	public static final int DB_MODIFIER_TYPE_LOOK = 4;
+	public static final int DB_MODIFIER_TYPE_TALK = 5;
+	public static final int DB_MODIFIER_TYPE_EXIT = 6;
+	public static final int DB_MODIFIER_TYPE_TAKEABLE = 7;
+	public static final int DB_MODIFIER_TYPE_SWITCH_COMB = 8;
+	public static final int DB_MODIFIER_TYPE_AREA_LOOK = 9;
+	public static final int DB_MODIFIER_TYPE_CHAR_LOOK = 10;
+	public static final int DB_MODIFIER_TYPE_QUESTION_STATE = 11;
+	public static final int DB_MODIFIER_TYPE_SCREEN_TRIGGER = 12;
+	
+	/*                     */
+	/*      ZINDEXES       */
+	/*                     */
 	public static final int ZINDEX_GROUND_0 = 0;
 	public static final int ZINDEX_ITEM = 10;			
 	public static final int ZINDEX_ANIM = 60;			
