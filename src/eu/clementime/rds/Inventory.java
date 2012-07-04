@@ -82,8 +82,7 @@ public class Inventory {
 		this.context = context;
 		this.db = new DatabaseAccess(dbh);
 		
-		load(engine, scene);
-		loadItems(engine, scene);
+		this.load(engine, scene);
 	}
 	
 	//*********************************************
@@ -121,6 +120,7 @@ public class Inventory {
 		normalView =  new Entity();
 		normalView.setPosition(INVENTORY_POSX_NORMALVIEW, INVENTORY_POSY_NORMALVIEW + MARGIN_Y);
 
+		loadItems(engine, scene);
 		drawInventory();
 	
 		normalView.setVisible(false);
@@ -141,10 +141,14 @@ public class Inventory {
 	}
 	
 	public void loadItems(Engine engine, Scene scene) {
+		
+		Log.i("Clementime", "Inventory/loadItems()");
 
 		LinkedList<Map<String, String>> ll = db.selectInventoryItems();
 
 		if (!ll.isEmpty()) {
+			
+			Log.d("Clementime", "Inventory/loadItems(): there are " + ll.size() + " items in inventory");			
 			/* be careful:
 			 *   inventory items image must not be bigger than INVENTORY_MAX_SIZE_ITEM  (square)  
 			 *   big items image       must not be bigger than INVENTORY_MAX_SIZE_BIG (square)  
@@ -166,14 +170,19 @@ public class Inventory {
 			ListIterator<Map<String, String>> it = ll.listIterator();
 			
 			Map<String, String> hm = new HashMap<String, String>();
-			
+
 			try {
+	
 				while (it.hasNext()) {
+					
+					hm = it.next();
+					
 					// retrieve images
 					String invFile = hm.get("image") + INVENTORY_IMAGE_PREFIX;
 					String zoomFile = hm.get("image") + INVENTORY_IMAGE_PREFIX_ZOOM;
 					
 					int invRes = context.getResources().getIdentifier(invFile, "drawable", context.getPackageName());
+					
 					if (invRes == 0) {
 						Log.w("Clementime", "InventoryFrame/loadItems(): cannot find image " + invFile + " - try to find default image " + DEFAULT_IMAGE);
 						invRes = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
@@ -185,15 +194,15 @@ public class Inventory {
 						zoomRes = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
 						if (zoomRes == 0) Log.w("Clementime", "InventoryFrame/loadItems(): cannot find default image " + DEFAULT_IMAGE);
 					}
-	
-					
+
 					invTR = BitmapTextureAtlasTextureRegionFactory.createFromResource(invBTA, context, invRes, posXInv, posYInv);
 					zoomTR = BitmapTextureAtlasTextureRegionFactory.createFromResource(zoomBTA, context, zoomRes, posXZoom, posYZoom);
-		
+
 					// create item from database information	
 					id = Integer.parseInt(hm.get("id"));
-		
+
 					items.add(new InventoryItem(id, new Sprite(0, 0, zoomTR), new Sprite(0, 0, zoomTR), new Sprite(0, 0, invTR), TR3));
+
 					Log.d("Clementime", "InventoryFrame/loadItems(): load item " + invFile + " id: " + id);
 	
 					posXInv = posXInv + INVENTORY_MAX_SIZE_ITEM;
@@ -237,6 +246,8 @@ public class Inventory {
 			}	
 		}
 	}
+	
+	//*********************************************	
 
 	//*********************************************
 	//        USING INVENTORY during game 
@@ -323,10 +334,7 @@ public class Inventory {
 		
 		ListIterator<InventoryItem> itItem = items.listIterator();
 		
-		while(itItem.hasNext()){
-			
-			
-			
+		while(itItem.hasNext()){			
 			drawItem(itItem.next(), xBox, 0);
 			xBox = xBox + boxPlusInterval;
 		}	
@@ -350,7 +358,8 @@ public class Inventory {
 			xBox = xBox + boxPlusInterval;
 		}	
 	}
-
+	//*********************************************
+	
 	public InventoryItem addItem(int itemId, Engine engine, Scene scene) {
 		
 		InventoryItem item;

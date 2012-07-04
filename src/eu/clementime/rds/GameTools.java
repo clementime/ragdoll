@@ -80,8 +80,8 @@ public class GameTools extends Entity {
 		
 		engine.getTextureManager().loadTexture(BTA);
 		
-		leftArrow = new AnimatedSprite(MOVE_LEFT_ARROW_POSX, CAMERA_HEIGHT + MOVE_ARROWS_POSY, TR1);
-		rightArrow = new AnimatedSprite(CAMERA_WIDTH + MOVE_RIGHT_ARROW_POSX, CAMERA_HEIGHT + MOVE_ARROWS_POSY + MARGIN_Y, TR2);
+		leftArrow = new AnimatedSprite(MOVE_LEFT_ARROW_POSX, CAMERA_HEIGHT + MOVE_ARROWS_POSY - MARGIN_Y, TR1);
+		rightArrow = new AnimatedSprite(CAMERA_WIDTH + MOVE_RIGHT_ARROW_POSX, CAMERA_HEIGHT + MOVE_ARROWS_POSY - MARGIN_Y, TR2);
 		animatedCircle = new AnimatedSprite(0, 0, TR3);
 		
 		leftArrow.setVisible(false);

@@ -219,8 +219,6 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		} catch (Exception e){
 			Log.e("Clementime", "Screen/onLoadResources(): cannot load resources - " + e.getMessage());			
 		}
-		
-
 	}	
 	
 	private void loadResources() {
@@ -486,7 +484,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 //			touchedMapItem = null;
 //			createNewBackground(Integer.parseInt(touchedMapItem.getUserData().toString()));
 			
-		} else Log.i("Clementime", "Screen/loadNewScreen(): player in screen: " + nextBg.screenId);
+		} else {
+			createNewBackground(doll.getScreen());
+			
+			Log.i("Clementime", "Screen/loadNewScreen(): player in screen: " + nextBg.screenId);
+		}
 	}
 	
 	private void createNewBackground(int screenId) {

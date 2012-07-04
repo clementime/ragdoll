@@ -59,8 +59,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	    this.fileName = dbFile;
 	    this.startingDbFileName = "starting_" + dbFile;
 	    this.currentDbFileName = "current_" + dbFile;
-
-	    //deleteDatabase();
 	    
 	    storeStartingDatabase(data);
 	    storeCurrentDatabase(currentData);    
@@ -123,8 +121,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	  	try	{copyDatabaseOnSDCard(this.fileName);}
 	  	catch (Exception e) {Log.w("Clementime", "DatabaseHandler/checkDatabase(): copy database ");}
 	  			//checkedDatabaseFile = this.copyFromAssets();
-
-
 	    
 		if (!checkedDatabaseFile) {
 			file.delete();

@@ -958,4 +958,18 @@ public class DatabaseAccess {
 		
 		return hm;		
 	}
+
+	public void updateWhenSaving(int screenId, float x, float y) {
+			
+		    ContentValues args = new ContentValues();
+		    
+			args.put("value", screenId);
+		    dbh.db.update("player_saving", args, " reference = 'screen_id' ", null);
+		    
+			args.put("value", x);
+		    dbh.db.update("player_saving", args, " reference = 'x_doll' ", null);
+		    
+			args.put("value", y);
+		    dbh.db.update("player_saving", args, " reference = 'y_doll' ", null);	
+	}
 }

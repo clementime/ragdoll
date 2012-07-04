@@ -67,7 +67,7 @@ public class World {
 	private DatabaseAccess db;
 	
 	public World(DatabaseHandler dbh, Context context, int startingScreen) {
-		this.db = new DatabaseAccess(dbh);		
+		this.db = new DatabaseAccess(dbh);	
 	}
 		
 	public int[] combineItems(int idItem1, int idItem2, int type) {
@@ -283,21 +283,10 @@ public class World {
 	    return itemId;
 	}
 	
-//	public void save(float x, float y) {
-//		
-//	    ContentValues args = new ContentValues();
-//	    
-//		args.put("value", this.screenId);
-//	    dbh.db.update("player_saving", args, " reference = 'screen_id' ", null);
-//	    
-//		args.put("value", x);
-//	    dbh.db.update("player_saving", args, " reference = 'x_doll' ", null);
-//	    
-//		args.put("value", y);
-//	    dbh.db.update("player_saving", args, " reference = 'y_doll' ", null);	
-//	}
-//	
-//	
+	public void save(int screenId, float x, float y) {
+		db.updateWhenSaving(screenId, x, y);
+	}	
+	
 	public int isItemDisplayed(int itemId) {
 		return db.selectDisplayed(itemId);
 	}
