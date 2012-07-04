@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.anddev.andengine.opengl.texture.TextureOptions;
+import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
 import android.content.ContentValues;
@@ -163,7 +165,7 @@ public class DatabaseAccess {
 		return ll;
 	}
 	
-	public ArrayList<Exit> selectExits(int screenId, TiledTextureRegion TRLeft, TiledTextureRegion TRRight) {
+	public ArrayList<Exit> selectExits(int screenId, TiledTextureRegion TRLeft, TiledTextureRegion TRRight,int MARGIN) {
 
 		ArrayList<Exit> exits = new ArrayList<Exit>();
 		
@@ -187,7 +189,7 @@ public class DatabaseAccess {
 				id = c.getInt(c.getColumnIndex("id"));
 				direction = c.getInt(c.getColumnIndex("direction"));
 				x = c.getInt(c.getColumnIndex("x"));
-				y = c.getInt(c.getColumnIndex("y"));
+				y = c.getInt(c.getColumnIndex("y")) + MARGIN;
 				display = c.getInt(c.getColumnIndex("display"));
 				
 				Log.v("Clementime", "Background/loadExits(): load exit " + id);
@@ -224,7 +226,7 @@ public class DatabaseAccess {
 		return exits;
 	}
 
-	public ArrayList<Area> selectAreas(int screenId) {
+	public ArrayList<Area> selectAreas(int screenId, int MARGIN) {
 
 		ArrayList<Area> areas = new ArrayList<Area>();
 		
@@ -247,7 +249,7 @@ public class DatabaseAccess {
 				
 				id = c.getInt(c.getColumnIndex("id"));
 				x = c.getInt(c.getColumnIndex("x"));
-				y = c.getInt(c.getColumnIndex("y"));
+				y = c.getInt(c.getColumnIndex("y")) + MARGIN;
 				width = c.getInt(c.getColumnIndex("width"));
 				height = c.getInt(c.getColumnIndex("height"));
 	
@@ -399,6 +401,41 @@ public class DatabaseAccess {
 		return stateResults;
 	}	
 
+	public Map<String, String> selectItem(int itemId) {
+
+		Map<String, String> hm = new HashMap<String, String>();
+
+		String query = " select _id as id, image, height, width, " + DB_FIELD_DISPLAY + ", ";
+		query += " x, y, take_state, look_state, talk_state, exit, takeable ";	// select field
+		query += " from item left join screen_item on _id = item_id ";
+		query += " where _id = " + itemId;	// conditions
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+
+			c.moveToNext();
+				
+			hm.put("id", c.getString(c.getColumnIndex("id")));
+			hm.put("image", c.getString(c.getColumnIndex("image")));
+			hm.put("height", c.getString(c.getColumnIndex("height")));
+			hm.put("width", c.getString(c.getColumnIndex("width")));	
+			hm.put(DB_FIELD_DISPLAY, c.getString(c.getColumnIndex(DB_FIELD_DISPLAY)));
+			hm.put("x", c.getString(c.getColumnIndex("x")));
+			hm.put("y", c.getString(c.getColumnIndex("y")));
+			hm.put("take_state", c.getString(c.getColumnIndex("take_state")));
+			hm.put("look_state", c.getString(c.getColumnIndex("look_state")));
+			hm.put("talk_state", c.getString(c.getColumnIndex("talk_state")));
+			hm.put("exit", c.getString(c.getColumnIndex("exit")));
+			hm.put("takeable", c.getString(c.getColumnIndex("takeable")));
+			
+			c.close();
+			
+		} catch (Exception e) {
+			Log.w("Clementime", "Background/loadItem(): failed to load item " + itemId + " - " + e.getMessage());
+		}
+		
+		return hm;
+	}
 	//***********************************
 	// INVENTORY
 	//*********************************** 
@@ -434,7 +471,7 @@ public class DatabaseAccess {
 		return ll;
 	}
 
-	public void updateInventoryField(String where, String value) {
+	public void updateInventoryField(String where, int value) {
 		
 		Log.d("Clementime", "InventoryFrame/updateInventoryField()");
 
@@ -477,15 +514,165 @@ public class DatabaseAccess {
 		return hm;	
 	}
 
+	public int[] selectCombination(int idItem1, int idItem2, int type) {
+
+		//********************************************************************************************************
+		// results table:
+		// results[0]: combination        - id combination if combination ok, 0 if no combination		
+		// results[1]: combination        - id of resulting item
+		// results[2]: on screen creation - 0 if combination is in inventory, 1 if new item has to be created on screen
+		//********************************************************************************************************
+		int[] results = {0,0,0};
+		
+		String query = " select _id as id, resulting_item as item_id, result_on_screen, trigger_id ";
+		query += " from combination ";
+		query += " where ((item1_id = " + idItem1 + " and item2_id = " + idItem2 +") " ;	// conditions
+		query += " or (item1_id = " + idItem2 + " and item2_id = " + idItem1 +")) " ;	// conditions
+		query += " and state = " + type;
+	
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+				
+				results[0] = c.getInt(c.getColumnIndex("id"));
+				
+				// retrieve item id for side screen display	
+				results[1] = c.getInt(c.getColumnIndex("item_id"));
+
+				if (c.getInt(c.getColumnIndex("result_on_screen")) == 1) results[2] = c.getInt(c.getColumnIndex("result_on_screen"));
+			}
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return results;
+	}
+	
 	//***********************************
 	// WORLD
 	//***********************************  
+	
+	public ArrayList<Integer> selectTriggers(int id, String tableName) {
+
+		ArrayList<Integer> triggers = new ArrayList<Integer>();
+		
+		String query = " select trigger_id ";
+		query += " from " + tableName;
+		query += " where _id = " + id;
+	
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+				
+				if (c.getString(c.getColumnIndex("trigger_id")) != null) {
+					String[] triggersId = c.getString(c.getColumnIndex("trigger_id")).split(";");
+					for (int i = 0; i < triggersId.length; i++) {
+						triggers.add(Integer.parseInt(triggersId[i]));
+					}					
+				}
+			}
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return triggers;
+	}
+
+	public Map<String, String> selectTrigger(int triggerId) {
+
+		Map<String, String> hm = new HashMap<String, String>();
+		
+		String query  = " select _id as id, to_trigger_id, type, next_trigger_id, simultaneous_trigger_id ";
+		query += " from trigger ";
+		query += " where _id = " + triggerId;
+	
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			c.moveToFirst();
+
+			hm.put("id", c.getString(c.getColumnIndex("id")));
+			hm.put("to_trigger_id", c.getString(c.getColumnIndex("to_trigger_id")));
+			hm.put("type", c.getString(c.getColumnIndex("type")));
+			hm.put("next_trigger_id", c.getString(c.getColumnIndex("next_trigger_id")));
+			hm.put("simultaneous_trigger_id", c.getString(c.getColumnIndex("simultaneous_trigger_id")));
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return hm;
+	}
+	
+	public Map<String, String> selectDollTrigger(int toTriggerId) {
+
+		Map<String, String> hm = new HashMap<String, String>();
+		
+		String query  = " select to_x, doll_is_hidden, y_velocity ";
+		query += " from move_doll ";
+		query += " where _id = " + toTriggerId;
+	
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			c.moveToFirst();
+
+			hm.put("to_x", c.getString(c.getColumnIndex("to_x")));
+			hm.put("doll_is_hidden", c.getString(c.getColumnIndex("doll_is_hidden")));
+			hm.put("y_velocity", c.getString(c.getColumnIndex("y_velocity")));
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return hm;
+	}
+	
+	public Map<String, String> selectModifier(int modifierId) {
+
+		Map<String, String> hm = new HashMap<String, String>();
+		
+		String query = " select new_state, type, to_modify_id ";
+		query += " from modifier ";
+		query += " where _id = " + modifierId;
+	
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			c.moveToFirst();
+
+			hm.put("new_state", c.getString(c.getColumnIndex("new_state")));
+			hm.put("type", c.getString(c.getColumnIndex("type")));
+			hm.put("to_modify_id", c.getString(c.getColumnIndex("to_modify_id")));
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return hm;
+	}
+	
 	public boolean selectTakeable(int itemId) {
 		
-		String query;
 		boolean takeable = false;
 		
-		query = " select takeable ";
+		String query = " select takeable ";
 		query += " from screen_item where item_id = " + itemId;		
 		
 		try {
@@ -505,7 +692,46 @@ public class DatabaseAccess {
 		
 		return takeable;
 	}	
+		
+	public int selectDisplayed(int itemId) {
+		
+		int displayed = 0;
+		
+		String query = " select " + DB_FIELD_DISPLAY + " from item where _id = " + itemId;
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+
+				// retrieve combination description for side screen display				
+				displayed = c.getInt(c.getColumnIndex(DB_FIELD_DISPLAY));
+			}
 	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return displayed;
+	}
+	
+	public void updateWithModifier(String tableName, String fieldName, int newState, String where) {
+		
+		Log.d("Clementime", "InventoryFrame/updateInventoryField()");
+
+		try {	
+		    ContentValues args = new ContentValues();
+			args.put(fieldName, newState);
+
+		    dbh.db.update(tableName, args, where, null);
+
+		} catch (Exception e) {
+			Log.e("Clementime", "InventoryFrame/updateInventoryField(): failed to update display field " + where + " - " + e.getMessage());
+		}
+	}
 	//***********************************
 	// GAME TOOLS
 	//***********************************  
@@ -699,5 +925,37 @@ public class DatabaseAccess {
 		}
 		
 		return features;
+	}
+
+	public Map<String, Integer> selectAnimFeatures(int animId) {
+		
+		Map<String, Integer> hm = new HashMap<String, Integer>();
+		
+		String query = " select first_frame, last_frame, frame_duration, loop, x_velocity, y_velocity, doll_is_hidden ";
+		query += " from animation a left join playing_animation p on a._id = p.anim_id ";
+		query += " where p._id = " + animId;
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+
+				hm.put("first_frame", c.getInt(c.getColumnIndex("first_frame")));
+				hm.put("last_frame", c.getInt(c.getColumnIndex("last_frame")));
+				hm.put("frame_duration", c.getInt(c.getColumnIndex("frame_duration")));
+				hm.put("loop", c.getInt(c.getColumnIndex("loop")));
+				hm.put("x_velocity", c.getInt(c.getColumnIndex("x_velocity")));
+				hm.put("y_velocity", c.getInt(c.getColumnIndex("y_velocity")));
+				hm.put("doll_is_hidden", c.getInt(c.getColumnIndex("doll_is_hidden")));
+			}
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return hm;		
 	}
 }

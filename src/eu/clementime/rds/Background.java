@@ -1,6 +1,7 @@
 package eu.clementime.rds;
 
 import static eu.clementime.rds.Constants.ANIMATION_IMAGE_PREFIX;
+import static eu.clementime.rds.Constants.DB_INVENTORY_VALUE_ON_SCREEN;
 import static eu.clementime.rds.Constants.DEFAULT_IMAGE;
 import static eu.clementime.rds.Constants.ZINDEX_ACTION;
 import static eu.clementime.rds.Constants.ZINDEX_GROUND_0;
@@ -8,6 +9,10 @@ import static eu.clementime.rds.Constants.ZINDEX_GROUND_1;
 import static eu.clementime.rds.Constants.ZINDEX_FOREGROUND;
 import static eu.clementime.rds.Constants.ZINDEX_ITEM;
 import static eu.clementime.rds.Constants.ZINDEX_ANIM;
+
+import static eu.clementime.rds.Global.CAMERA_WIDTH;
+import static eu.clementime.rds.Global.CAMERA_HEIGHT;
+import static eu.clementime.rds.Global.MARGIN_Y;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,9 +34,6 @@ import android.content.Context;
 import android.util.Log;
 
 public class Background {
-	
-	private final int CAMERA_WIDTH;
-	private final int CAMERA_HEIGHT;
 	
 	public ArrayList<ScreenItem> items = new ArrayList<ScreenItem>();
 	public ArrayList<Area> areas = new ArrayList<Area>();
@@ -55,7 +57,7 @@ public class Background {
 	public BitmapTextureAtlas animsBTA;
 	public BitmapTextureAtlas charsBTA;
 	
-	public Background(DatabaseHandler dbh, Context context, int screenId, int cw, int ch) {
+	public Background(DatabaseHandler dbh, Context context, int screenId, Engine engine, Scene scene, TiledTextureRegion elTR, TiledTextureRegion erTR) {
 
 		this.db = new DatabaseAccess(dbh);
 		this.context = context;
@@ -63,15 +65,22 @@ public class Background {
 
 		this.screenPrefix = db.selectScreenPrefix(screenId);
 		
-		this.CAMERA_WIDTH = cw;
-		this.CAMERA_HEIGHT = ch;
+		// load images & data
+		load(engine, scene);
+		loadItems(engine, scene);
+		loadAnimations(engine, scene);
+		createAreas();
+		createExits(elTR, erTR);
+		
+//		nextBg.loadChars();
+//		talk.chars = nextBg.chars;
 	}
 	
 	/**************************************/
 	/* LOAD NEW SCREEN                    */
 	/**************************************/
 	
-	public void loadBackground(Engine engine, Scene scene, int MARGIN) {
+	public void load(Engine engine, Scene scene) {
 		
 		try {			
 			// -height- x -max scale- x -background & foreground- => 320 x 1.5 x 2 =  960px 
@@ -95,7 +104,7 @@ public class Background {
 				} else Log.d("Clementime", "Background/loadBackground(): load foreground " + this.screenPrefix + hm.get("foreground"));
 
 				TextureRegion TRFore = BitmapTextureAtlasTextureRegionFactory.createFromResource(bgBTA, context, fgFile, 0, 480);
-				fgImage = new Sprite(0, 0 + MARGIN, TRFore);
+				fgImage = new Sprite(0, 0 + MARGIN_Y, TRFore);
 				
 				scene.attachChild(fgImage);
 				fgImage.setZIndex(ZINDEX_GROUND_1);
@@ -103,7 +112,7 @@ public class Background {
 			
 			TextureRegion TRBack = BitmapTextureAtlasTextureRegionFactory.createFromResource(bgBTA, context, bgFile, 0, 0);
 			
-			bgImage = new Sprite(0, 0 + MARGIN, TRBack);
+			bgImage = new Sprite(0, 0 + MARGIN_Y, TRBack);
 		
 			xMin = Integer.parseInt(hm.get("x_min"));
 			xMax = Integer.parseInt(hm.get("x_max"));
@@ -116,10 +125,9 @@ public class Background {
 		} catch (Exception e) {
 			Log.e("Clementime", "Background/loadBackground():failed to load screen " + screenId);			
 		}
-
 	}
 	
-	public void loadItems(Engine engine, Scene scene, int MARGIN) {
+	public void loadItems(Engine engine, Scene scene) {
 		
 		LinkedList<Map<String, String>> ll = db.selectscreenItems(this.screenId);
 		
@@ -156,7 +164,7 @@ public class Background {
 						nextPosOnAtlasY = 0;
 					}
 					
-					createItem(hm, itemsBTA, posOnAtlasX, posOnAtlasY, MARGIN);
+					createItem(hm, itemsBTA, posOnAtlasX, posOnAtlasY);
 		
 					// manage position on AtlasBitmap
 					posOnAtlasX = posOnAtlasX + Integer.parseInt(hm.get("width"));
@@ -185,7 +193,7 @@ public class Background {
 		} else Log.d("Clementime", "Background/loadItems(): ***screen " + screenId + " has no item***");
 	}
 		
-	private void createItem(Map<String, String> hm, BitmapTextureAtlas BTA, int xPos, int yPos, int MARGIN) {
+	private void createItem(Map<String, String> hm, BitmapTextureAtlas BTA, int xPos, int yPos) {
 
 		int res = 0;
 		
@@ -221,12 +229,12 @@ public class Background {
 		if (Integer.parseInt(hm.get("foreground")) == 1) foreground = true;
 		else foreground = false;
 
-		items.add(new ScreenItem(id, x, y + MARGIN, take, look, talk, takeable, foreground, TR));
+		items.add(new ScreenItem(id, x, y + MARGIN_Y, take, look, talk, takeable, foreground, TR));
 		
 		Log.d("Clementime", "Background/createItem(): create item " + file + " -id: " + id);
 	}
 	
-	public void loadAnimations(Engine engine, Scene scene, int MARGIN) {
+	public void loadAnimations(Engine engine, Scene scene) {
 		
 		LinkedList<Map<String, String>> ll = db.selectAnimations(this.screenId);
 		
@@ -262,7 +270,7 @@ public class Background {
 						nextPosOnAtlasY = 0; 	
 					}
 	
-					createAnimation(hm, animsBTA, posOnAtlasX, posOnAtlasY, MARGIN);
+					createAnimation(hm, animsBTA, posOnAtlasX, posOnAtlasY);
 					
 					// manage position on AtlasBitmap
 					posOnAtlasX = posOnAtlasX + Integer.parseInt(hm.get("width"));
@@ -289,7 +297,7 @@ public class Background {
 		}
 	}
 	
-	private void createAnimation(Map<String, String> hm, BitmapTextureAtlas BTA, int xPos, int yPos, int MARGIN) {
+	private void createAnimation(Map<String, String> hm, BitmapTextureAtlas BTA, int xPos, int yPos) {
 
 		int res = 0;
 		
@@ -335,44 +343,28 @@ public class Background {
 		if (Integer.parseInt(hm.get("to_chase")) == 1) toChase = true;
 		
 //		anims.add(new Animation(id, frameDuration, firstFrame, lastFrame, stopFrame, loop, width, x, y, moveToX, xVelocity, yVelocity, dollIsHidden, toChase, triggerId, TR));
-		anims.add(new Anim(id, width, x, y, stopFrame, moveToX, moveToY, toChase, TR));
+		anims.add(new Anim(id, width, x, y + MARGIN_Y, stopFrame, moveToX, moveToY, toChase, TR));
 		Log.d("Clementime", "Background/createAnimation(): create animation " + id);
 
 	}
 	
-//	public BitmapTextureAtlas loadItem(int itemId) {
-//		
-//		BitmapTextureAtlas BTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-//
-//		//String locale = context.getResources().getConfiguration().locale.getLanguage(); //iso2 code
-//		
-//		String query = " select _id as id, image, height, width, desc_" + this.language + " as desc, " + DB_FIELD_DISPLAY + ", ";
-//		query += " x, y, take_state, look_state, talk_state, exit, takeable ";	// select field
-//		query += " from item left join screen_item on _id = item_id ";
-//		query += " where _id = " + itemId;	// conditions
-//		
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//
-//			c.moveToNext();
-//				
-//			createItem(c, BTA, 0, 0);	
-//			
-//			c.close();
-//			
-//		} catch (Exception e) {
-//			Log.w("Clementime", "Background/loadItem(): failed to load item " + itemId + " - " + e.getMessage());
-//		}
-//		
-//		return BTA;
-//	}
+	public void loadItem(int itemId, Engine engine) {
+		
+		BitmapTextureAtlas BTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+
+		Map<String, String> hm = db.selectItem(itemId);
+				
+		createItem(hm, BTA, 0, 0);	
+		
+		engine.getTextureManager().loadTexture(BTA);
+	}
 
 	public void createAreas() {
-		areas = db.selectAreas(screenId);
+		areas = db.selectAreas(screenId, MARGIN_Y);
 	}
 	
 	public void createExits(TiledTextureRegion TRLeft, TiledTextureRegion TRRight) {
-		exits = db.selectExits(screenId, TRLeft, TRRight);
+		exits = db.selectExits(screenId, TRLeft, TRRight, MARGIN_Y);
 	}
 
 //	public void loadChars() {
@@ -514,21 +506,42 @@ public class Background {
 		}
 	}
 	
+	public void hideShowItemById(int itemId, Scene scene) {
+		
+		Log.i("Clementime", "Screen/hideShowScreenItem()");
+		
+		ListIterator<ScreenItem> it = items.listIterator();
+		
+		while(it.hasNext()){
+			ScreenItem item = it.next();
+			
+			if (item.id == itemId) {
+				if (item.isVisible()) {
+					item.setVisible(false);
+					scene.unregisterTouchArea(item);					
+				} else {
+					item.setVisible(true);
+					scene.registerTouchArea(item);				
+				}
+			}
+		}
+	}
+
 	public void hideShowAnimation(int animId) {
 		
 		Log.i("Clementime", "Screen/hideShowAnimation()");
 		
-//		ListIterator<PlayingAnimation> it = currentScreen.anims.listIterator();
-//		
-//		while(it.hasNext()){
-//			PlayingAnimation anim = it.next();
-//			
-//			if (anim.id == animId) {
-//				if (anim.isVisible()) anim.setVisible(false);
-//				else anim.setVisible(true);
-//
-//			}
-//		}
+		ListIterator<Anim> it = anims.listIterator();
+		
+		while(it.hasNext()){
+			Anim anim = it.next();
+			
+			if (anim.id == animId) {
+				if (anim.isVisible()) anim.setVisible(false);
+				else anim.setVisible(true);
+
+			}
+		}
 	}
 
 	public int[] getAnimStates(int animId) {	
@@ -560,6 +573,23 @@ public class Background {
 		}
 		
 		return touchedArea;
+	}
+	
+	public ScreenItem addItemOnScreen(int itemId, Engine engine, Scene scene) {
+		
+		Log.i("Clementime", "Screen/addItemOnScreen()");
+
+		int newValue = DB_INVENTORY_VALUE_ON_SCREEN;
+		String where = " _id = " + itemId;
+		db.updateInventoryField(where, newValue);
+
+		loadItem(itemId, engine);
+
+		ScreenItem item = items.get(items.size() - 1);  
+
+		scene.attachChild(item);
+		
+		return item;
 	}
 }
 

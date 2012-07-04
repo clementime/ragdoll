@@ -82,6 +82,10 @@ public class Doll {
 		}
 	}
 	
+	public void sayNo() {
+		image.animate(new long[]{120, 120, 120, 120}, 16, 19, 4);		
+	}
+	
 	public void getYVelocity(int screenId) {
 		this.standardYVelocityRight = db.selectYVelocity(screenId);
 		this.standardYVelocityLeft = -this.standardYVelocityRight;

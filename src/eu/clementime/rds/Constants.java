@@ -15,7 +15,7 @@ public final class Constants  {
 	public static final float INVBOX_ALPHA_LAYER = 0.3f;
 	public static final String DEFAULT_IMAGE = "default_img";
 	public static final String ANIMATION_IMAGE_PREFIX = "anim_";
-//	public static final int NO_END_LOOP = 1000;
+	public static final int NO_END_LOOP = 1000;
 	
 	/*             */
 	/* SIDE SCREEN */
@@ -186,9 +186,9 @@ public final class Constants  {
 	public static final String DB_FIELD_TAKEABLE = "takeable";
 	public static final String DB_FIELD_TRIGGER = "after_trigger_id";
 
-	public static final String DB_INVENTORY_VALUE_ON_SCREEN = "1";
-	public static final String DB_INVENTORY_VALUE_IN = "2";
-	public static final String DB_INVENTORY_VALUE_OUT = "0";
+	public static final int DB_INVENTORY_VALUE_ON_SCREEN = 1;
+	public static final int DB_INVENTORY_VALUE_IN = 2;
+	public static final int DB_INVENTORY_VALUE_OUT = 0;
 	
 	public static final int DB_COMBINATION_VALUE_ON_SCREEN = 1;
 	public static final int DB_COMBINATION_VALUE_IN_INVENTORY = 2;

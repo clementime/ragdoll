@@ -24,6 +24,10 @@ import static eu.clementime.rds.Constants.POSY_ZOOMVIEW;
 import static eu.clementime.rds.Constants.ZINDEX_INVENTORY;
 import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM;
 
+import static eu.clementime.rds.Global.CAMERA_WIDTH;
+import static eu.clementime.rds.Global.CAMERA_HEIGHT;
+import static eu.clementime.rds.Global.MARGIN_Y;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -47,8 +51,7 @@ import android.content.Context;
 import android.util.Log;
 
 public class Inventory {
-	private final int CAMERA_WIDTH;
-	
+
 	public ArrayList<InventoryItem> items = new ArrayList<InventoryItem>();
 	//private ArrayList<ScreenItem> screenItems = new ArrayList<ScreenItem>();
 
@@ -57,8 +60,8 @@ public class Inventory {
 	private TextureRegion TR3;
 	private TextureRegion TR4;
 	
-	public Sprite bag;
-	public Sprite openBag;
+//	public Sprite bag;
+//	public Sprite openBag;
 	
 	private Font font;
 	
@@ -74,8 +77,8 @@ public class Inventory {
 	
 	Sprite touchedSprite; 	
 		
-	public Inventory(Camera camera, Context context, DatabaseHandler dbh, int cw, int ch, Engine engine, Scene scene) {
-		this.CAMERA_WIDTH = cw;
+	public Inventory(Camera camera, Context context, DatabaseHandler dbh, Engine engine, Scene scene) {
+
 		this.context = context;
 		this.db = new DatabaseAccess(dbh);
 		
@@ -95,28 +98,28 @@ public class Inventory {
 
 		this.TR1 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA, context, R.drawable.inventory_zoom_box, 0, 0);
 		this.TR3 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA, context, R.drawable.inventory_box, 0, 240);
-		this.TR2 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA, context, R.drawable.magali_bag_opened, 80, 240);
-		this.TR4 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA, context, R.drawable.magali_bag, 160, 240);
+//		this.TR2 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA, context, R.drawable.magali_bag_opened, 80, 240);
+//		this.TR4 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA, context, R.drawable.magali_bag, 160, 240);
 
 		engine.getTextureManager().loadTexture(BTA);
 		
-		bag = new Sprite(INVENTORY_BAG_POSX, INVENTORY_BAG_POSY, TR4);
-		openBag = new Sprite(INVENTORY_BAG_POSX, INVENTORY_BAG_POSY, TR2);
-		bag.setAlpha(0.7f);
-		openBag.setAlpha(0.6f);
-		openBag.setVisible(false);
+//		bag = new Sprite(INVENTORY_BAG_POSX, INVENTORY_BAG_POSY, TR4);
+//		openBag = new Sprite(INVENTORY_BAG_POSX, INVENTORY_BAG_POSY, TR2);
+//		bag.setAlpha(0.7f);
+//		openBag.setAlpha(0.6f);
+//		openBag.setVisible(false);
 		
 		// boxPlusInterval is used to set boxes in normal view
 		boxPlusInterval = INVENTORY_SIZE_BOXES + INVENTORY_SIZE_BETWEEN_BOXES;
 		
 		// Zoom view: items are zoomed with description
-		mask = new Rectangle(0, 0, 480, 320);
+		mask = new Rectangle(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 		mask.setColor(1, 1, 1, MASK_ALPHA_LAYER);
 		zoomView = new Sprite(INVENTORY_POSX_ZOOMVIEW, INVENTORY_POSY_ZOOMVIEW, TR1);
 		
 		// normal view: items are listed in boxes at the bottom of the screen
 		normalView =  new Entity();
-		normalView.setPosition(INVENTORY_POSX_NORMALVIEW, INVENTORY_POSY_NORMALVIEW);
+		normalView.setPosition(INVENTORY_POSX_NORMALVIEW, INVENTORY_POSY_NORMALVIEW + MARGIN_Y);
 
 		drawInventory();
 	
@@ -124,14 +127,14 @@ public class Inventory {
 		mask.setVisible(false);	
 		zoomView.setVisible(false);
 		
-		scene.attachChild(bag);
-		scene.attachChild(openBag);
+//		scene.attachChild(bag);
+//		scene.attachChild(openBag);
 		scene.attachChild(mask);
 		scene.attachChild(zoomView);
 		scene.attachChild(normalView);
 		
-		bag.setZIndex(ZINDEX_INVENTORY);
-		openBag.setZIndex(ZINDEX_INVENTORY);
+//		bag.setZIndex(ZINDEX_INVENTORY);
+//		openBag.setZIndex(ZINDEX_INVENTORY);
 		mask.setZIndex(ZINDEX_INVENTORY);
 		zoomView.setZIndex(ZINDEX_INVENTORY);
 		normalView.setZIndex(ZINDEX_INVENTORY);	
@@ -241,7 +244,7 @@ public class Inventory {
 	public void display(float cameraMinX, Scene scene) {
 		
 		Log.d("Clementime", "InventoryFrame/display()");
-		
+
 		normalView.setPosition(cameraMinX + INVENTORY_POSX_NORMALVIEW, normalView.getY());
 		
 		ListIterator<InventoryItem> itItem = items.listIterator();
@@ -252,8 +255,8 @@ public class Inventory {
 		}			
 		
 		normalView.setVisible(true);
-		bag.setVisible(false);
-		openBag.setVisible(true);
+//		bag.setVisible(false);
+//		openBag.setVisible(true);
 	}
 	
 	public void hide() {
@@ -261,20 +264,24 @@ public class Inventory {
 		Log.d("Clementime", "InventoryFrame/hide()");
 
 		normalView.setVisible(false);
-		bag.setVisible(true);
-		openBag.setVisible(false);
+//		bag.setVisible(true);
+//		openBag.setVisible(false);
 	}
 	
-	public void displayZoomView(float xMin, InventoryItem touchedItem) {		
-		
+	public void displayZoomView(float xMin, InventoryItem touchedItem, Scene scene) {		
+			
 		Log.d("Clementime", "InventoryFrame/displayZoomView()");
 
 		mask.setVisible(true);
 		mask.setPosition(xMin, mask.getY());
 		zoomView.setVisible(true);
+ 		scene.registerTouchArea(zoomView);
 		
-		if (normalView.isVisible())	zoomView.setPosition(xMin + INVENTORY_POSX_ZOOMVIEW, INVENTORY_POSY_ZOOMVIEW);
-		else zoomView.setPosition(xMin + POSX_ZOOMVIEW, POSY_ZOOMVIEW);
+ 		// zoom view is positioned depending on it is open when inventory is open or when an object is taken
+		if (normalView.isVisible())	zoomView.setPosition(xMin + CAMERA_WIDTH/2 - zoomView.getWidth()/2, INVENTORY_POSY_ZOOMVIEW + MARGIN_Y);
+		else zoomView.setPosition(xMin + CAMERA_WIDTH/2 - zoomView.getWidth()/2, CAMERA_HEIGHT/2 - zoomView.getHeight()/2);
+//		if (normalView.isVisible())	zoomView.setPosition(xMin + INVENTORY_POSX_ZOOMVIEW, INVENTORY_POSY_ZOOMVIEW + MARGIN_Y);
+//		else zoomView.setPosition(xMin + POSX_ZOOMVIEW, POSY_ZOOMVIEW + MARGIN_Y);
 		
 		displayZoomItem(xMin, touchedItem);
 	}
@@ -293,7 +300,7 @@ public class Inventory {
     	touchedItem.small.setAlpha(INV_ALPHA_LAYER); 
 	}
 	
-	public void hideZoomView(InventoryItem touchedItem) {
+	public void hideZoomView(InventoryItem touchedItem, Scene scene) {
 		
 		Log.d("Clementime", "InventoryFrame/hideZoomView()");
 
@@ -302,6 +309,7 @@ public class Inventory {
     	touchedItem.small.setAlpha(1);
 		mask.setVisible(false);
 		zoomView.setVisible(false);
+		scene.unregisterTouchArea(zoomView);
 		
 		touchedItem.big.setPosition(-200, 0); // out of screen
 	}
@@ -347,7 +355,7 @@ public class Inventory {
 		
 		InventoryItem item;
 		
-		String newValue = DB_INVENTORY_VALUE_IN;
+		int newValue = DB_INVENTORY_VALUE_IN;
 		String where = " _id = " + itemId;
 		db.updateInventoryField(where, newValue);
 		
@@ -411,6 +419,15 @@ public class Inventory {
 		drawItem(item, (items.size() - 1) * boxPlusInterval, 0);
 	}
 
+	// TODO: check if hide & remove item are different and if garbage collector take all sprites (because of itItem.remove()...
+	public void hideItem(InventoryItem item) {
+		
+		Log.i("Clementime", "Screen/hideInventoryItem()");
+		
+		item.big.setVisible(false);
+		item.big.setPosition(-200, 0);
+	}
+	
 	public void removeItem(int itemId) {
 		
 		Log.d("Clementime", "InventoryFrame/removeItem()");

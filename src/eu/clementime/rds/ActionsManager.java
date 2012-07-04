@@ -9,6 +9,7 @@ import static eu.clementime.rds.Constants.ACTION_TALK;
 import static eu.clementime.rds.Constants.DIRECTION_LEFT;
 import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
 import static eu.clementime.rds.Constants.ZINDEX_ACTION;
+import static eu.clementime.rds.Global.MARGIN_Y;
 
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.entity.Entity;
@@ -35,7 +36,7 @@ public class ActionsManager extends Entity {
 	public AnimatedSprite talk;
 	public AnimatedSprite exitLeft;
 	public AnimatedSprite exitRight;
-	
+
 	public void load(Context context, Engine engine, Scene scene) {
 				
 		Log.d("Clementime", "ActionHandler/loadImages()");
@@ -101,7 +102,7 @@ public class ActionsManager extends Entity {
 		// only one pointer authorised for this item
 		if (count == 1) {
 			x = x + width/2 - ACTION_POINTER_SIZE/2;
-			this.setPosition(x, y);
+			this.setPosition(x, y + MARGIN_Y);
 			
 			if (take > 0) {
 				this.take.setPosition(0, 0);
@@ -130,7 +131,7 @@ public class ActionsManager extends Entity {
 		// two pointers authorised for this item
 		else if (count == 2) {
 			x = x + width/2 - ACTION_POINTER_SIZE;
-			this.setPosition(x, y);
+			this.setPosition(x, y + MARGIN_Y);
 			
 			if (take > 0 && look > 0) {
 				this.take.setPosition(0, 0);
@@ -171,7 +172,7 @@ public class ActionsManager extends Entity {
 		// three pointers authorised for this item: take, look, talk only
 		else if (count == 3) {
 			x = x + width/2 - 3*ACTION_POINTER_SIZE/2;
-			this.setPosition(x, y);
+			this.setPosition(x, y + MARGIN_Y);
 			this.take.setPosition(0, 0);
 			this.take.setVisible(true);
 			this.take.animate(150, true);

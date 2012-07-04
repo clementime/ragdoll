@@ -7,6 +7,10 @@ import static eu.clementime.rds.Constants.MOVE_RIGHT_ARROW_POSX;
 import static eu.clementime.rds.Constants.ZINDEX_ARROW;
 import static eu.clementime.rds.Constants.ZINDEX_CIRCLE;
 
+import static eu.clementime.rds.Global.CAMERA_WIDTH;
+import static eu.clementime.rds.Global.CAMERA_HEIGHT;
+import static eu.clementime.rds.Global.MARGIN_Y;
+
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.entity.Entity;
 import org.anddev.andengine.entity.scene.Scene;
@@ -24,10 +28,6 @@ import android.graphics.Typeface;
 import android.util.Log;
 
 public class GameTools extends Entity {
-	
-	private final int CAMERA_WIDTH;
-	private final int CAMERA_HEIGHT;
-	private final int MARGIN;
 		
 	private Context context;
 	private DatabaseAccess db;
@@ -52,25 +52,19 @@ public class GameTools extends Entity {
 	
 	public String language;
 	
-	public GameTools(DatabaseHandler dbh, Context context, int cw, int ch, int MARGIN, Engine engine, Scene scene) {
+	public GameTools(DatabaseHandler dbh, Context context, Engine engine, Scene scene) {
 		
 		Log.i("Clementime", "GameTools/constructor()");
 		
 		this.db = new DatabaseAccess(dbh);
 		
 		this.context = context;
-		this.CAMERA_WIDTH = cw;
-		this.CAMERA_HEIGHT = ch;
-		this.MARGIN = MARGIN;
 		
 		this.language = db.selectLanguage(context);
 		this.am = new ActionsManager();
 		
 		loadGameItems(engine, scene);
 		loadFonts(engine, scene);
-		
-//		this.mask = new Rectangle(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-//		this.mask.setColor(0, 0, 0, 0);
 	}
 	
 	// TODO: check size of all BTA to reduce them as much as possible
@@ -87,7 +81,7 @@ public class GameTools extends Entity {
 		engine.getTextureManager().loadTexture(BTA);
 		
 		leftArrow = new AnimatedSprite(MOVE_LEFT_ARROW_POSX, CAMERA_HEIGHT + MOVE_ARROWS_POSY, TR1);
-		rightArrow = new AnimatedSprite(CAMERA_WIDTH + MOVE_RIGHT_ARROW_POSX, CAMERA_HEIGHT + MOVE_ARROWS_POSY, TR2);
+		rightArrow = new AnimatedSprite(CAMERA_WIDTH + MOVE_RIGHT_ARROW_POSX, CAMERA_HEIGHT + MOVE_ARROWS_POSY + MARGIN_Y, TR2);
 		animatedCircle = new AnimatedSprite(0, 0, TR3);
 		
 		leftArrow.setVisible(false);
