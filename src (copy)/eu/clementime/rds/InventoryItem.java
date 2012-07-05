@@ -9,13 +9,15 @@ public class InventoryItem  extends Sprite {
 	public int id;
 	public int andEngineId;
 	public Sprite big;
+	public Sprite zoom;
 	public Sprite small;
 	
-	public InventoryItem(int id, Sprite big, Sprite small, TextureRegion box) {
+	public InventoryItem(int id, Sprite big, Sprite zoom, Sprite small, TextureRegion box) {
 		super(0, 0, box.getWidth(), box.getHeight(), box);
 		
 		this.id = id;
 		this.big = big;
+		this.zoom = zoom;
 		this.small = small;		
 	}
 	

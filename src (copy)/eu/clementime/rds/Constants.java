@@ -5,7 +5,7 @@ public final class Constants  {
 	/*         */
 	/* GENERAL */
 	/*         */
-	public static final boolean DEVELOPMENT = true;	//TODO: TO INACTIVATE IN PRODUCTION
+	public static final boolean DEVELOPMENT = false;	//TODO: TO INACTIVATE IN PRODUCTION
 //	public static final float LOOP_LOG_INTERVAL = 2;
 	
 	public static final int BACKGROUND_MAX_HEIGHT = 320;

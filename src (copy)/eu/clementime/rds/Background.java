@@ -118,7 +118,6 @@ public class Background {
 			
 			scene.attachChild(bgImage);		
 			bgImage.setZIndex(ZINDEX_GROUND_0);
-			bgImage.setVisible(false);
 			
 		} catch (Exception e) {
 			Log.e("Clementime", "Background/loadBackground():failed to load screen " + screenId);			

@@ -1,27 +1,40 @@
 package eu.clementime.rds;
 
 import static eu.clementime.rds.Constants.MASK_ALPHA_LAYER;
+import static eu.clementime.rds.Global.CAMERA_HEIGHT;
+import static eu.clementime.rds.Global.CAMERA_WIDTH;
+import static eu.clementime.rds.Global.MARGIN_Y;
 
+import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
 import org.anddev.andengine.engine.camera.hud.HUD;
 import org.anddev.andengine.entity.primitive.Rectangle;
+import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.Scene.IOnAreaTouchListener;
-import org.anddev.andengine.entity.scene.Scene.ITouchArea;
+import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.font.Font;
+import org.anddev.andengine.opengl.font.FontFactory;
+import org.anddev.andengine.opengl.texture.TextureOptions;
+import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
+import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.anddev.andengine.opengl.texture.region.TextureRegion;
 import org.anddev.andengine.util.HorizontalAlign;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.Log;
 
 public class DevTools extends HUD implements IOnAreaTouchListener {
 
 	DatabaseHandler dbh;
-	Backup devTools;
+	Backup backup;
 	public Rectangle mask;
 	
 	private Font font;
-	private Font bigFont;
+	public Font devFont;
 
 	private Text save1;
 	
@@ -32,20 +45,52 @@ public class DevTools extends HUD implements IOnAreaTouchListener {
 	
 	private Rectangle rect;
 	
-	public DevTools(Camera camera, Font font, Font bigFont, DatabaseHandler dbh, Backup devTools) {
+	public Sprite settings;
+	public Text openX;
+	private BitmapTextureAtlas devFontBTA;
+	
+	public DevTools(Camera camera, Font font, DatabaseHandler dbh, Backup backup, Context context, Engine engine, Scene scene) {
+		
+		Log.i("Clementime", "DevTools/constructor");
+		
 		this.mCamera = camera;
 		this.font = font;
-		this.bigFont = bigFont;
-		this.devTools = devTools;
-		//this.app = app;
+		this.backup = backup;
 		this.dbh = dbh;
-		//this.context = context;
-		
-		this.setup();
-	}
+			
+		BitmapTextureAtlas settingsBTA = new BitmapTextureAtlas(128, 128, TextureOptions.DEFAULT);
+		TextureRegion settingsTR = BitmapTextureAtlasTextureRegionFactory.createFromResource(settingsBTA, context, R.drawable.settings, 0, 0);
 
+		settings = new Sprite(0, 0, settingsTR);
+		settings.setPosition(CAMERA_WIDTH - settings.getWidth(), MARGIN_Y);
+		scene.attachChild(settings);
+		scene.registerTouchArea(settings);
+		settings.setZIndex(301);
+
+		engine.getTextureManager().loadTexture(settingsBTA);
+		this.loadFonts(engine, scene);
+	}
+	
+	public void loadFonts(Engine engine, Scene scene) {
 		
-	public void setup() {
+		Log.i("Clementime", "DevTools/loadFonts()");
+
+        FontFactory.setAssetBasePath("font/");
+        
+		devFontBTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		devFont = new Font(devFontBTA, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 50, true, Color.RED);
+		engine.getTextureManager().loadTexture(devFontBTA);
+   	}
+		
+	public void setup(Scene scene) {
+		
+		Log.i("Clementime", "DevTools/setup()");
+		
+		openX = new Text(0, 0, devFont, "X", HorizontalAlign.LEFT);
+		openX.setPosition(CAMERA_WIDTH/2-openX.getWidth()/2, MARGIN_Y);
+		scene.attachChild(openX);
+		scene.registerTouchArea(openX);
+		openX.setZIndex(301);
 		
 		mask = new Rectangle(0, 0, 480, 320);
 		mask.setColor(1, 1, 1, MASK_ALPHA_LAYER);
@@ -62,17 +107,20 @@ public class DevTools extends HUD implements IOnAreaTouchListener {
 		Text save = new Text(20, 20, this.font, "SAVE", HorizontalAlign.LEFT);
 		mask.attachChild(save);
 		
-		save1 = new Text(20, 50, this.bigFont, "S1", HorizontalAlign.LEFT);
+		save1 = new Text(20, 50, this.devFont, "S1", HorizontalAlign.LEFT);
 		mask.attachChild(save1);
 		
 		Text load = new Text(20, 100, this.font, "LOAD", HorizontalAlign.LEFT);
 		mask.attachChild(load);
 		
-		load1 = new Text(20, 130, this.bigFont, "L1", HorizontalAlign.LEFT);
+		load1 = new Text(20, 130, this.devFont, "L1", HorizontalAlign.LEFT);
 		mask.attachChild(load1);	
 	}
 	
 	public void display() {
+		
+		Log.i("Clementime", "DevTools/display()");
+
 		mask.setVisible(true);
 		
 		this.registerTouchArea(save1);
@@ -89,17 +137,17 @@ public class DevTools extends HUD implements IOnAreaTouchListener {
 				case 1: dbh.save(1); break;
 			}
 
-			devTools.createStateFile("");
-			devTools.createStateFiles("");
-			devTools.savePlayerData("");
-			Log.d("Clementime","DevToolsManager/hide: save in S" + saveId);
+			backup.createStateFile("");
+			backup.createStateFiles("");
+			backup.savePlayerData("");
+			Log.d("Clementime","backupManager/hide: save in S" + saveId);
 
 			saveId = 0;
 			load = 2;
 		} else if (loadId != 0) load = 2; 
 		//loadStateFiles("");
 		//loadPlayerData("");
-		//Log.d("Clementime","DevToolsFrame/hide: load L" + loadId);
+		//Log.d("Clementime","backupFrame/hide: load L" + loadId);
 
 		this.unregisterTouchArea(save1);
 		this.unregisterTouchArea(load1);

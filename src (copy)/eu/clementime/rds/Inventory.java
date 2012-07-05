@@ -201,7 +201,7 @@ public class Inventory {
 					// create item from database information	
 					id = Integer.parseInt(hm.get("id"));
 
-					items.add(new InventoryItem(id, new Sprite(0, 0, zoomTR), new Sprite(0, 0, invTR), TR3));
+					items.add(new InventoryItem(id, new Sprite(0, 0, zoomTR), new Sprite(0, 0, zoomTR), new Sprite(0, 0, invTR), TR3));
 
 					Log.d("Clementime", "InventoryFrame/loadItems(): load item " + invFile + " id: " + id);
 	
@@ -399,7 +399,7 @@ public class Inventory {
 			id = Integer.parseInt(hm.get("id"));
 
 			Log.d("Clementime", "InventoryFrame/addItem(): add item " + invFile + " id: " + id);
-			item = new InventoryItem(id, new Sprite(0, 0, zoomTR), new Sprite(0, 0, invTR), TR3);
+			item = new InventoryItem(id, new Sprite(0, 0, zoomTR), new Sprite(0, 0, zoomTR), new Sprite(0, 0, invTR), TR3);
 			items.add(item);
 			
 			engine.getTextureManager().loadTexture(BTA);

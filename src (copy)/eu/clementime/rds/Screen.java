@@ -15,7 +15,6 @@ import static eu.clementime.rds.Constants.DB_COMBINATION_VALUE_ON_SCREEN;
 import static eu.clementime.rds.Constants.DB_INVENTORY_VALUE_IN;
 import static eu.clementime.rds.Constants.DB_INVENTORY_VALUE_OUT;
 import static eu.clementime.rds.Constants.DB_TABLE_COMBINATION;
-import static eu.clementime.rds.Constants.DEVELOPMENT;
 import static eu.clementime.rds.Constants.DIRECTION_LEFT;
 import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
 import static eu.clementime.rds.Constants.INVBOX_ALPHA_LAYER;
@@ -38,8 +37,9 @@ import static eu.clementime.rds.Constants.STATUS_INVENTORY;
 import static eu.clementime.rds.Constants.STATUS_MAP;
 import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM;
 import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM_IN_USE;
-import static eu.clementime.rds.Global.CAMERA_HEIGHT;
+
 import static eu.clementime.rds.Global.CAMERA_WIDTH;
+import static eu.clementime.rds.Global.CAMERA_HEIGHT;
 import static eu.clementime.rds.Global.MARGIN_Y;
 
 import java.util.ArrayList;
@@ -61,7 +61,6 @@ import org.anddev.andengine.entity.scene.Scene.ITouchArea;
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.entity.text.ChangeableText;
-import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.input.touch.detector.ClickDetector;
@@ -71,10 +70,8 @@ import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.anddev.andengine.sensor.accelerometer.AccelerometerData;
 import org.anddev.andengine.sensor.accelerometer.IAccelerometerListener;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
-import org.anddev.andengine.util.HorizontalAlign;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
@@ -159,16 +156,24 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private float downTime;
 	private ChangeableText errorMessage;
-
+//	private Sprite settings;
 //	private Sprite mapSprite;
+//	
+//	//***************************************
+//	// DEV TOOLS - IN DEVELOPMENT ONLY
+//	//***************************************
+//	private DevToolsManager devFrame;
+//	private Backup devTools;
+//	private Text devOpen;
+	private BitmapTextureAtlas bigFontBTA;
+	private Font bigFont;
+//	private int load = 0;
+//	// DELAY log displayed in loop
+//	//*****************************
+//	boolean displayLog = false;
+//	private float lastLog = 0;
+//	private float nextLog = 0;
 	
-	//***************************************
-	// DEV TOOLS - IN DEVELOPMENT ONLY
-	//***************************************
-	private DevTools devTools;
-	private Backup backup;
-	private int load = 0;
-
 	/**************************************/
 	/* FIRST LOAD                         */
 	/**************************************/
@@ -193,6 +198,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		}
 
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE, new FixedResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
+		//EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE, new FillResolutionPolicy(), camera);
     	engineOptions.getTouchOptions().setRunOnUpdateThread(true);		
 
 		return new Engine(engineOptions);
@@ -245,8 +251,12 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 //		talk = new Talk(camera, talkFont, talkFont2, context, dbh, world.screenId, world.language);
 //		frame = new Information(camera, talkFont);
 //		map = new Map(dbh, CAMERA_WIDTH, CAMERA_HEIGHT);
-		
-		// map
+//		
+//		// settings
+//		settingsBTA = new BitmapTextureAtlas(128, 128, TextureOptions.DEFAULT);
+//		settingsTR = BitmapTextureAtlasTextureRegionFactory.createFromResource(settingsBTA, this, R.drawable.settings, 0, 0);
+//		
+//		// map
 //		mapBTA = new BitmapTextureAtlas(128, 128, TextureOptions.DEFAULT);
 //		mapTR = BitmapTextureAtlasTextureRegionFactory.createFromResource(mapBTA, this, R.drawable.settings, 0, 0);
 		
@@ -254,11 +264,16 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		// DEV TOOLS - IN DEVELOPMENT ONLY
 		//***************************************
 
-		if (DEVELOPMENT) {
-	    	devTools = new DevTools(camera, gameTools.font, dbh, backup, context, mEngine, scene);    	
-			getFontManager().loadFont(devTools.devFont);
-			devTools.setup(scene);
-		}
+//		if (DEVELOPMENT) {
+//			bigFontBTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+//			bigFont = new Font(bigFontBTA, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 50, true, Color.RED);
+//			mEngine.getTextureManager().loadTexture(bigFontBTA);
+//			getFontManager().loadFont(bigFont);
+//			
+//	    	devFrame = new DevToolsManager(camera, font, bigFont, dbh, devTools);
+//			devOpen = new Text(480, 10, this.bigFont, "X", HorizontalAlign.LEFT);
+//			devOpen.setPosition(480/2-devOpen.getWidth()/2, 10);
+//		}
 	}
 	
 	@Override
@@ -278,7 +293,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			/*
 			/* setup inventory, talk screen, information frame, game tools (arrows, pointer...)
 			/******************************************************************************/
-
+	//        if (DEVELOPMENT) devFrame.setup();
 	//        inventory.setup(nextBg.items); // TODO: inventory shouldn't be part of next scene
 	//        talk.setup();
 	//        frame.setup();
@@ -547,12 +562,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		// moving arrows are shown if there is a possibility to travel within the screen
 		gameTools.checkBorders(camera.getMinX(), camera.getMaxX(), currentBg.xMin, currentBg.xMax);			
 
+//		settings.setPosition(camera.getMinX() + 400, settings.getY());
 //		mapSprite.setPosition(camera.getMinX() + 400, mapSprite.getY());
-		
-		if (DEVELOPMENT) {
-			devTools.settings.setPosition(camera.getMinX() + CAMERA_WIDTH - devTools.settings.getWidth(), devTools.settings.getY());
-			devTools.openX.setPosition(camera.getMinX() + CAMERA_WIDTH/2-devTools.openX.getWidth()/2, devTools.openX.getY());
-		}
+//		if (DEVELOPMENT) devOpen.setPosition(camera.getMinX() + 480/2-devOpen.getWidth()/2, devOpen.getY());
 	}
 	
 	private void showPersistentObjects(boolean choice) {
@@ -662,14 +674,13 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				    		//************************************
 				    		//     OPEN DEV
 				    		//************************************
-						    if (pTouchArea == devTools.settings) {
-						    	dbh.deleteDatabase();
-						    	this.finish();
-						    }
+//						    if (pTouchArea == settings) {
+//						    	dbh.deleteDatabase();
+//						    	this.finish();
 				    		//************************************
 				    		//     OPEN MAP
 				    		//************************************
-//						    else if (pTouchArea == mapSprite) {
+//						    } else if (pTouchArea == mapSprite) {
 //					    		status = STATUS_MAP;
 //					    		map.background.setPosition(camera.getMinX(), map.background.getY());
 //					    		map.display();
@@ -680,11 +691,22 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		    		//     CLOSE ZOOM
 		    		//************************************
 					else if (pTouchArea == inventory.zoomView && inventory.zoomView.isVisible()) clickCheck = CLICK_ZOOM;
-
-		    		//**********************************************
-		    		//     OPEN/CLOSE DEV TOOLS (only in dev mode)
-		    		//**********************************************
-					if (pTouchArea == devTools.openX) openCloseDevTools();
+					
+//					else if (pTouchArea == devOpen) {
+//				    	if (!devFrame.mask.isVisible()) {
+//					        scene.setChildScene(devFrame);
+//					        devFrame.display();	    		
+//				    	} else {
+//							world.save(doll.image.getX(), doll.image.getY());
+//				    		load = devFrame.hide();
+//				    		if (load > 0) {
+//				    			devTools.setLoad(load);
+//						    	Intent refresh = new Intent(this, Screen.class);
+//						    	startActivity(refresh);
+//						    	this.finish();
+//				    		}
+//				    	}
+//				    }
 				}
 			} catch (Exception e) {
 				Log.e("Clementime", "Screen/onAreaTouched(): raise error: " + e.getMessage());
@@ -884,7 +906,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
         	// coordinates are set from top left to centre of the sprite
 			float x = pSceneTouchEvent.getX() - touchedInventoryItem.big.getWidth() / 2  - 50;
         	float y = pSceneTouchEvent.getY() - touchedInventoryItem.big.getHeight() / 2;
-        	       	
+        	
         	//TODO: avoid mode drop when click zoom & dropping
         	
         	// mode DROP launched when an item is dragged outside the "list" of inventory items
@@ -907,8 +929,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
                 	touchedInventoryItem.big.setZIndex(ZINDEX_INV_ITEM_IN_USE);
             		scene.sortChildren();
             	}
-            	if (pSceneTouchEvent.getMotionEvent().getEventTime() > downTime + 200) touchedInventoryItem.big.setPosition(x, y);
-            	
+            	if (pSceneTouchEvent.getMotionEvent().getEventTime() > downTime + 200)
+            		touchedInventoryItem.big.setPosition(x, y);
                 break;
                 
     		//********************************************************
@@ -1107,7 +1129,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	private void closeInventory() {
 		
 		// avoid closing inventory right after opening it
-		if (clickCheck != CLICK_DOLL) {
+		if (clickCheck != CLICK_DOLL && clickCheck != CLICK_ZOOM) {
 			status = STATUS_ACTION;
 			mode = MODE_ACTION_WALK;
 			hideInventory();								
@@ -1149,31 +1171,13 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		}	
 	}
 
-	private void openCloseDevTools() {
-				
-		Log.i("Clementime", "Screen/openCloseDevTools()");
-		
-    	if (!devTools.mask.isVisible()) {
-	        scene.setChildScene(devTools);
-	        devTools.display();	    		
-    	} else {
-			world.save(currentBg.screenId, doll.image.getX(), doll.image.getY());
-    		load = devTools.hide();
-    		if (load > 0) {
-    			backup.setLoad(load);
-		    	Intent refresh = new Intent(this, Screen.class);
-		    	startActivity(refresh);
-		    	this.finish();
-    		}
-    	}
-	}
 	/**************************************/
 	/* ON CLICK SUB METHODS               */
 	/**************************************/
 	
 	private void zoomOnItem() {
 		
-		Log.i("Clementime", "Screen/ZoomOnItem()");
+		Log.i("Clementime", "Screen/onClick(): clic on inventory");
 		
 		mode = MODE_INVENTORY_ZOOM;
 		touchedZoomItem = touchedInventoryItem;
@@ -1429,7 +1433,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		dbh = app.dbHandler;
 		dbh.checkNewGame();
 
-		backup = new Backup(dbh, context);
+//		devTools = new Backup(dbh, context);
 		
 		try {
 			if (dbh.checkDatabase()) dbh.open();
@@ -1443,19 +1447,19 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		}
 		
 		//TODO: load
-		if (DEVELOPMENT) {
-			if (backup.getLoad() == 2) {
-				Log.i("Clementime","Screen/onResume(): --- DEV ON --- load saved version");
-				backup.loadStateFiles("");
-				backup.loadPlayerData("");				
-			} else if (!dbh.newGame)  {
-				Log.i("Clementime","Screen/onResume(): --- DEV ON --- load current version");
-				backup.loadStateFiles("_current");
-				backup.loadPlayerData("_current");
-			} else Log.i("Clementime","Screen/onResume(): --- DEV ON ---  start a new game");	
-		}
-		else if (!dbh.newGame)	Log.i("Clementime","Screen/onResume(): keep current version");					
-		else					Log.i("Clementime","Screen/onResume(): start a new game");	
+//		if (DEVELOPMENT) {
+//			if (devTools.getLoad() == 2) {
+//				Log.i("Clementime","Screen/onResume(): --- DEV ON --- load saved version");
+//				devTools.loadStateFiles("");
+//				devTools.loadPlayerData("");				
+//			} else if (!dbh.newGame)  {
+//				Log.i("Clementime","Screen/onResume(): --- DEV ON --- load current version");
+//				devTools.loadStateFiles("_current");
+//				devTools.loadPlayerData("_current");
+//			} else Log.i("Clementime","Screen/onResume(): --- DEV ON ---  start a new game");	
+//		}
+//		else if (!dbh.newGame)	Log.i("Clementime","Screen/onResume(): keep current version");					
+//		else					Log.i("Clementime","Screen/onResume(): start a new game");	
 	}
 	
 	@Override
@@ -1465,16 +1469,16 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		
 		super.onPause();
 		if(dbh.db.isOpen()) {
-			// if screen is loaded, don't change player savings info as it will cancel loading 
-			if (load == 0) world.save(currentBg.screenId, doll.image.getX(), doll.image.getY());
-			
-			if (DEVELOPMENT && load == 0 && touchedExit == null) {
-				backup.createStateFile("_current");
-				backup.createStateFiles("_current");
-				backup.savePlayerData("_current");
-				Log.i("Clementime","Screen/onPause(): --- DEV ON --- save current version");
-			}
-			
+//			// if screen is loaded, don't change player savings info as it will cancel loading 
+//			if (load == 0) world.save(doll.image.getX(), doll.image.getY());
+//			
+//			if (DEVELOPMENT && load == 0 && touchedExit == null   ) {
+//				devTools.createStateFile("_current");
+//				devTools.createStateFiles("_current");
+//				devTools.savePlayerData("_current");
+//				Log.i("Clementime","Screen/onPause(): --- DEV ON --- save current version");
+//			}
+//			
 			dbh.close();
 		}
 	}
