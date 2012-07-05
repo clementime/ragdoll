@@ -6,7 +6,7 @@ public final class Constants  {
 	/* GENERAL */
 	/*         */
 	public static final boolean DEVELOPMENT = true;	//TODO: TO INACTIVATE IN PRODUCTION
-//	public static final float LOOP_LOG_INTERVAL = 2;
+	public static final float LOOP_LOG_INTERVAL = 2;
 	
 	public static final int BACKGROUND_MAX_HEIGHT = 320;
 	
@@ -54,7 +54,7 @@ public final class Constants  {
 	public static final int MODE_INVENTORY_DROP = 5;	// player is dragging an object from inventory
 	// status anim modes
 	public static final int MODE_ANIM_ACTION = 6;		// an action (look, moving doll to talk, take or exit) is running 
-	public static final int MODE_ANIM_TALK = 7;		// doll is talking
+	public static final int MODE_ANIM_TALK = 7;		// an action (look, moving doll to talk, take or exit) is running 
 	public static final int MODE_ANIM_RUNNING = 8;	// an animation is running
 	
 	//*********
@@ -135,10 +135,10 @@ public final class Constants  {
 //	public static final String CHAR_IMAGE_PREFIX = "char_";
 //
 //	/*                     */
-//	/* INFORMATION FRAME   */
+//	/*        TALK         */
 //	/*                     */
-//	public static final int INFORMATION_POSX = 0;
-//	public static final int INFORMATION_POSY = 0;
+	public static final int TALK_POSX = 0;
+	public static final int TALK_POSY = 0;
 //	public static final int INFORMATION_TEXT_MAX_SIZE = 32;
 //	public static final int INFORMATION_TEXT_POSX = 85;
 //	public static final int INFORMATION_TEXT_POSY = 6;
@@ -146,7 +146,7 @@ public final class Constants  {
 //	public static final int INFORMATION_TEXT_WIDTH = 300;
 //	public static final int INFORMATION_MAX_LINE = 5;
 //	public static final float INFORMATION_AVERAGE_LETTER_WIDTH = 8.7f;
-//	public static final int INFORMATION_CLOSING_HEIGHT = 140;
+	public static final int TALK_CLOSING_HEIGHT = 140;
 //	
 //	public static final int OBJECT_TYPE_ITEM = 1;
 //	public static final int OBJECT_TYPE_AREA = 2;
@@ -237,7 +237,7 @@ public final class Constants  {
 	public static final int ZINDEX_INVENTORY = 150;
 	public static final int ZINDEX_INV_ITEM = 170;			
 	public static final int ZINDEX_INV_ITEM_IN_USE = 230;	
-	public static final int ZINDEX_INFO_FRAME = 270;
+	public static final int ZINDEX_TALK = 270;
 	public static final int ZINDEX_SETTINGS = 300;			
 	
 	private Constants(){

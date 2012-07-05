@@ -100,10 +100,9 @@ public class World {
 
 		int[] triggerResults = {0,0,0,0,0,0,0,0,0,0};
 		
-		
 		try {
 			
-			Map<String, String> hm = db.selectBackground(triggerId);
+			Map<String, String> hm = db.selectTrigger(triggerId);
 				
 			int type = 0;
 			int toTriggerId = 0;	
@@ -125,10 +124,14 @@ public class World {
 
 				case DB_TRIGGER_TYPE_DOLL:	// OR move/hide doll	
 					
-					Map<String, String> hmDoll = db.selectBackground(triggerId);
-					triggerResults[2] = Integer.parseInt(hmDoll.get("to_x"));
-					triggerResults[3] = Integer.parseInt(hmDoll.get("doll_is_hidden"));
-					triggerResults[6] = Integer.parseInt(hmDoll.get("y_velocity"));
+					Map<String, String> hmDoll = db.selectDollTrigger(toTriggerId);
+					if (hmDoll.get("to_x") != null)				triggerResults[2] = Integer.parseInt(hmDoll.get("to_x"));
+					if (hmDoll.get("doll_is_hidden") != null)	triggerResults[3] = Integer.parseInt(hmDoll.get("doll_is_hidden"));
+					if (hmDoll.get("y_velocity") != null)		triggerResults[6] = Integer.parseInt(hmDoll.get("y_velocity"));
+					
+					Log.d("Clementime", "World/activateTrigger(): Trigger results 2 " + hmDoll.get("to_x"));
+					Log.d("Clementime", "World/activateTrigger(): Trigger results 3 " + hmDoll.get("doll_is_hidden"));
+					Log.d("Clementime", "World/activateTrigger(): Trigger results 6 " + hmDoll.get("y_velocity"));
 					
 					break;
 					
@@ -147,9 +150,13 @@ public class World {
 					triggerResults[8] = toTriggerId;					
 					break;
 			}
+		
+			Log.d("Clementime", "World/activateTrigger(): Trigger results 0 " + hm.get("next_trigger_id"));
+			Log.d("Clementime", "World/activateTrigger(): Trigger results 5 " + triggerResults[5]);
+			Log.d("Clementime", "World/activateTrigger(): Trigger results 1, 4, 7 & 8: " + toTriggerId);
 			
-			triggerResults[0] = Integer.parseInt(hm.get("next_trigger_id"));
-			triggerResults[9] = Integer.parseInt(hm.get("simultaneous_trigger_id"));
+			if (hm.get("next_trigger_id") != null)	triggerResults[0] = Integer.parseInt(hm.get("next_trigger_id"));
+			if (hm.get("simultaneous_trigger_id") != null)	triggerResults[9] = Integer.parseInt(hm.get("simultaneous_trigger_id"));
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -163,7 +170,7 @@ public class World {
 		int itemId = 0;
 		int type = 0;
 		
-		Map<String, String> hm = db.selectBackground(toTriggerId);
+		Map<String, String> hm = db.selectModifier(toTriggerId);
 
 		// find what to modify in database
 		String tableName = "";

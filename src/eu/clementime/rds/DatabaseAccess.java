@@ -31,6 +31,7 @@ public class DatabaseAccess {
 	//***********************************
 	// BACKGROUND
 	//***********************************   
+	
 	public String selectScreenPrefix(int screenId) {
 
 		String screenPrefix = "";
@@ -436,9 +437,11 @@ public class DatabaseAccess {
 		
 		return hm;
 	}
+
 	//***********************************
 	// INVENTORY
-	//*********************************** 
+	//***********************************
+	
 	public LinkedList<Map<String, String>> selectInventoryItems() {
 		
 		LinkedList<Map<String, String>> ll = new LinkedList<Map<String, String>>();
@@ -732,6 +735,7 @@ public class DatabaseAccess {
 			Log.e("Clementime", "InventoryFrame/updateInventoryField(): failed to update display field " + where + " - " + e.getMessage());
 		}
 	}
+
 	//***********************************
 	// GAME TOOLS
 	//***********************************  
@@ -895,6 +899,7 @@ public class DatabaseAccess {
 	//***********************************
 	// WORLD
 	//*********************************** 
+	
 	public int[] selectFirstScreenFeatures() {
 		
 		Log.i("Clementime", "World/getFirstScreenFeatures() ");

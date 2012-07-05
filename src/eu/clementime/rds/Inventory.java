@@ -229,7 +229,7 @@ public class Inventory {
 
 				InventoryItem item;
 				
-				while(it.hasNext()){
+				while(itItems.hasNext()){
 					item = itItems.next();
 
 					//scene.attachChild(item.zoom); // zoom must be drawn before big
@@ -247,8 +247,6 @@ public class Inventory {
 		}
 	}
 	
-	//*********************************************	
-
 	//*********************************************
 	//        USING INVENTORY during game 
 	//*********************************************
@@ -358,7 +356,6 @@ public class Inventory {
 			xBox = xBox + boxPlusInterval;
 		}	
 	}
-	//*********************************************
 	
 	public InventoryItem addItem(int itemId, Engine engine, Scene scene) {
 		
@@ -472,7 +469,7 @@ public class Inventory {
 
 		item.big.setVisible(false);
 		item.big.setPosition(-200, 0); // out of screen, avoiding sprite to be seen anywhere when set visible
-		
+
 		final PhysicsHandler physicsHandler = new PhysicsHandler(item.big);
 		item.big.registerUpdateHandler(physicsHandler);
 
