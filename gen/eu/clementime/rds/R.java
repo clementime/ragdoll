@@ -80,8 +80,9 @@ public final class R {
         public static final int screen1_bg_wood_part4=0x7f020042;
         public static final int screen1_char_spider=0x7f020043;
         public static final int screen1_fg_wood=0x7f020044;
-        public static final int settings=0x7f020045;
-        public static final int steph_zoom=0x7f020046;
+        public static final int screen2_bg_landscape=0x7f020045;
+        public static final int settings=0x7f020046;
+        public static final int steph_zoom=0x7f020047;
     }
     public static final class layout {
         public static final int main=0x7f030000;

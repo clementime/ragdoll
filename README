@@ -1,0 +1,75 @@
+****************************
+*** minimal requirements ***
+****************************
+
+- Eclipse (installation tested with Eclipse Indigo version: 3.7)
+- ADT plugin for Eclipse (Android Development Tools)
+- Android 2.2 (API 8) SDK Platform
+- Java 6
+- AndEngine GLES1 (master branch) commit 4bc42a5ad1 (Apr 09, 2012) or higher
+
+********************
+*** installation ***
+********************
+
+First install Eclipse, Java and SDK Platform.
+
+Java
+- download and install Java 6 (not 7), get it by synaptic or whatever. OpenJDK 6 or Sun version for Windows.
+
+Eclipse & Java
+- download and install Eclipse (Indigo is ok, higher should be too)
+- launch Eclipse
+- in Eclipse, go to Help/Install new software then Add:
+>> name: ADT plugin
+>> location: http://dl-ssl.google.com/android/eclipse/
+
+Android SDK
+- download android sdk http://developer.android.com/sdk/index.html
+- put it in a convenient location on your disk
+
+Eclipse/SDK link
+- in Eclipse Window/preferences/android browse to the SDK folder
+
+Then import AndEngine and Ragdoll projects into your workspace.
+
+- download AndEngine GLES1 (master branch)
+- in Eclipse, File/Import/General/Existing projects into workspace, add AndEngine directory
+- you may need to fix few errors, see AndEngine README
+
+- download ragdoll
+- import in Eclipse as done for AndEngine
+- right click on your imported project, then Build Path/Configure Build Path
+- Link source (browse AndEngine/src directory and choose a convenient name)
+
+**********************************
+*** run in smartphone/emulator ***
+**********************************
+
+smartphone
+- allow your smartphone to run non-Market applications in Settings/Applications/Unknown sources
+- connect your smartphone
+- right click your project and Run as Android application
+
+Emulator
+- in Eclipse, Window/AVD Manager, set a new Android Virtual Device
+  exemple for a Samsung Gio:
+> target Android 2.2
+> builtin WVGA854
+> LCD pixel height 480
+> LCD pixel width 320
+> abstracted LCD density 240
+- right click your project, Run as Android application/Launch a new Android Virtual Device
+
+****************
+*** see logs ***
+****************
+
+You can see logs in Eclipse but for full screen use adb logcat.
+
+- open a terminal and go into the SDK directory (the one you chose),
+- in platform-tools directory, then launch adb:
+$ cd ~/.../andsdk/platform-tools
+$ ./adb logcat
+- focus on the AndEngine and Clementime tags to read the logs
+
