@@ -1,3 +1,6 @@
+!!! don't try to run this project without images and database
+(not available at the moment)
+
 ****************************
 *** minimal requirements ***
 ****************************
@@ -37,10 +40,27 @@ Then import AndEngine and Ragdoll projects into your workspace.
 - in Eclipse, File/Import/General/Existing projects into workspace, add AndEngine directory
 - you may need to fix few errors, see AndEngine README
 
-- download ragdoll
-- import in Eclipse as done for AndEngine
+- download ragdoll sources
+- create a new Android Project (File menu)
+> target Android 2.2
+> package name eu.clementime.rds
+> don't create activity
+> minimum SDK 8
+
+- copy downloaded source files in your newly created project, in the same directories
+> src/eu/clementime/rds for java files
+> assets/font for fonts
+> res/layout for android layout
+> res/values for strings and themes
+> root directory for the others
+
+> res/raw for database
+> res/drawable-xxx for images
+!!! currently database and images are not on GitHub. You can't run the project without these files
+
 - right click on your imported project, then Build Path/Configure Build Path
 - Link source (browse AndEngine/src directory and choose a convenient name)
+
 
 **********************************
 *** run in smartphone/emulator ***
