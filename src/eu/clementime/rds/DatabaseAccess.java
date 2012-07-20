@@ -797,6 +797,30 @@ public class DatabaseAccess {
 		return text;
 	}
 
+	public int selectPlayingHand() {
+
+		String query = " select value as playing_hand from player_saving where reference = 'playing_hand' ";
+		
+		int playingHand = 1;
+		
+		try {
+			Cursor c = dbh.db.rawQuery(query, new String [] {});
+			
+			if (c.getCount() != 0) {
+				c.moveToFirst();
+				
+				playingHand = c.getInt(c.getColumnIndex("playing_hand"));
+			}
+	
+			c.close();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return playingHand;
+	}
+	
 	//***********************************
 	// DOLL
 	//***********************************  

@@ -52,6 +52,8 @@ public class GameTools extends Entity {
 	
 	public String language;
 	
+	public boolean rightHanded;
+	
 	public GameTools(DatabaseHandler dbh, Context context, Engine engine, Scene scene) {
 		
 		Log.i("Clementime", "GameTools/constructor()");
@@ -155,6 +157,10 @@ public class GameTools extends Entity {
 			rightArrow.setPosition(xMaxCamera + MOVE_RIGHT_ARROW_POSX, rightArrow.getY());
 			rightArrow.setVisible(true);
 		}
+	}
+
+	public int getPlayingHand() {
+		return db.selectPlayingHand();
 	}
 }
 

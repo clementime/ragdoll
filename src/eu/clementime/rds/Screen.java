@@ -44,6 +44,8 @@ import static eu.clementime.rds.Constants.CAMERA_HEIGHT;
 import static eu.clementime.rds.Constants.CAMERA_WIDTH;
 import static eu.clementime.rds.Constants.MARGIN_Y;
 import static eu.clementime.rds.Constants.INVENTORY_POSY_NORMALVIEW;
+import static eu.clementime.rds.Constants.PLAYING_HAND;
+import static eu.clementime.rds.Constants.BIG_ITEM_POSITION;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -190,7 +192,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	    	
 	       	CAMERA_WIDTH = dm.widthPixels;
 	    	CAMERA_HEIGHT = dm.heightPixels;
-	    	Constants.setDependingScreenConstants();	    	
+	    	Constants.setDependingScreenConstants();	
 
 	    	camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 	
@@ -240,6 +242,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		world = new World(dbh, context, doll.getScreen());
 		gameTools = new GameTools(dbh, context, mEngine, scene);
 		inventory = new Inventory(camera, context, dbh, mEngine, scene);
+		
+		PLAYING_HAND = gameTools.getPlayingHand();
+		
+		if (PLAYING_HAND == -1) Log.d("Clementime", "Screen/loadResources(): left handed player");
+		else  Log.d("Clementime", "Screen/loadResources(): right handed player");
 		
         //**********************
 		// FONTS
@@ -389,7 +396,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				//***************************************************************
 				//     CHASE ANIM or DOLL with camera, move everything needed
 				//***************************************************************
-				if ((!checkStopDoll() && doll.ph.getVelocityX() != 0) || chaseAnim) {	
+				if ((!checkStopDoll(pSecondsElapsed) && doll.ph.getVelocityX() != 0) || chaseAnim) {	
 					
 					//****************************************
 					//     MOVE SPRITES WITH CAMERA
@@ -409,15 +416,25 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		});	
 	}	
 
-	private boolean checkStopDoll() {
+	private boolean checkStopDoll(float pSecondsElapsed) {
 		
 		// if doll is moving, it can be stopped at runtime without player interaction if:
 		// it reaches borders or it reaches touchedX (if moving arrows aren't activated)
 		
 		boolean stop = false;
 		float stopX = 0;
-
-		//Log.d("Clementime", "**************" + doll.image.getX() + "-" + doll.image.getY());
+		
+		// DELAY log displayed in loop
+		//*****************************
+		if (lastLog >= nextLog) {
+			displayLog = true;
+			nextLog = nextLog + LOOP_LOG_INTERVAL;
+		} else {
+			lastLog += pSecondsElapsed;
+			displayLog = false;					
+		}
+		
+		if (displayLog) Log.d("Clementime", "Screen/checkStopDoll()");
 
 		// stop doll when reaching borders - if not during an animation
     	if ((doll.image.getX() < currentBg.xMin || doll.image.getX() > currentBg.xMax) && mode != MODE_ANIM_RUNNING) {	
@@ -461,6 +478,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 		    	// reasons why doll is stopping (other than simple moving on screen)
 		    	if (mode == MODE_ANIM_ACTION) {
+		    		
+		    		if (displayLog) Log.d("Clementime", "Screen/checkStopDoll(): doll reached action point");
 
 					gameTools.animatedCircle.stopAnimation(11);
 					
@@ -475,7 +494,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 					if (itemToBeRemoved != null) {								
 						currentBg.hideShowItem(scene, itemToBeRemoved);
 						touchedZoomItem = inventory.addItem(itemToBeRemoved.id, mEngine, scene);
+						
+						status = STATUS_INVENTORY;
+						mode = MODE_INVENTORY_ZOOM;
 						inventory.displayZoomView(camera.getMinX(), touchedZoomItem, scene);
+						
 						itemToBeRemoved = null;
 					}
 					
@@ -717,24 +740,13 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 							//**********************************************							
 							else if (pTouchArea instanceof Anim) activateActionOnAnim((Anim)pTouchArea);
 	
-							else {
-								mode = MODE_ANIM_ACTION;
-								
-								//***********************************
-								//     EXIT
-								//***********************************
-								if (pTouchArea instanceof Exit) {
+							//***********************************
+							//     EXIT
+							//***********************************
+							else if (pTouchArea instanceof Exit) {
+									mode = MODE_ANIM_ACTION;
 									touchedExit = (Exit)pTouchArea;
 									touchedX = touchedExit.getX() + touchedExit.getWidth()/2;
-								
-//								//**************************************************************************************
-//								//     ACTION MANAGER	>> move doll towards item/anim if talk/take and inside borders
-//								//**************************************************************************************
-//								} else {
-//									touchedAction = (AnimatedSprite)pTouchArea;
-//									if (touchedX > currentBg.xMin && touchedX < currentBg.xMax && touchedAction != gameTools.am.look) doll.move(status, touchedX);
-//									else actionsManagerOutsideBorders = true;	
-								}
 							}					
 						//******************************************************
 			    		//     SCREEN ITEM >> activate ACTION MANAGER on ITEM
@@ -814,7 +826,12 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 					//******************************************
 					//     CLOSE INVENTORY
 					//******************************************
-					else if (status == STATUS_INVENTORY && mode == MODE_INVENTORY_OPEN) closeInventory();
+					else if (status == STATUS_INVENTORY && mode == MODE_INVENTORY_OPEN) {
+						// zoom just closed, come back to normal inventory mode, switch clickCheck from ZOOM to OFF
+						if (clickCheck == CLICK_ZOOM && inventory.normalView.isVisible()) clickCheck = CLICK_OFF;
+						else closeInventory();
+					}
+
 					
 		    		// CLOSE MAP
 //					else if (status == STATUS_MAP && touchedMapItem != null) {
@@ -963,9 +980,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		//**********************************************
 		//     INVENTORY ITEM zooming and dropping
 		//********************************************** 
-			//TODO: right/left handed (-50 = right handed)
         	// coordinates are set from top left to centre of the sprite
-			float x = pSceneTouchEvent.getX() - touchedInventoryItem.big.getWidth() / 2  - 50;
+			float x = pSceneTouchEvent.getX() - touchedInventoryItem.big.getWidth() / 2  - BIG_ITEM_POSITION * PLAYING_HAND;
         	float y = pSceneTouchEvent.getY() - touchedInventoryItem.big.getHeight() / 2;
         	       	
         	//TODO: avoid mode drop when click zoom & dropping
@@ -1119,6 +1135,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	    	}
 	}
 	
+	
 	private void activateMovingArrow(int direction) {
 		
 		if (direction == DIRECTION_LEFT) {
@@ -1181,6 +1198,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
     	doll.image.stopAnimation(16);
     	gameTools.leftArrow.stopAnimation(4);
     	gameTools.rightArrow.stopAnimation(4);
+    	gameTools.am.deactivate();
 		
 		if (!inventory.items.isEmpty()) {
 			status = STATUS_INVENTORY;
@@ -1202,6 +1220,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			hideInventory();								
 		} else clickCheck = CLICK_OFF;
 	}
+	
 	
 	private void activateActionOnAnim(Anim anim) {
 		
@@ -1297,7 +1316,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		inventory.hideZoomView(touchedZoomItem, scene);
 		touchedInventoryItem = null;
 		touchedZoomItem = null;
-		clickCheck = CLICK_OFF;
+		//clickCheck = CLICK_OFF;
 	
 	}
 	

@@ -9,7 +9,7 @@ public final class Constants  {
 	/* DEV */
 	/*     */
 	public static final boolean DEVELOPMENT = true;	//TODO: TO INACTIVATE IN PRODUCTION
-	public static final float LOOP_LOG_INTERVAL = 2;
+	public static final float LOOP_LOG_INTERVAL = 5;
 	
 	/*         */
 	/* GENERAL */
@@ -30,6 +30,8 @@ public final class Constants  {
 	public static int WALK_AREA_SIZE = 40;
 	public static int WALK_AREA_UNDER_FEET = 10; // area under the feet where player can touch to move the doll
 	
+	public static int BIG_ITEM_POSITION = 50;	
+	
 	/*                   */
 	/* RUNTIME CONSTANTS */
 	/*                   */
@@ -40,6 +42,8 @@ public final class Constants  {
 	public static int INVENTORY_POSY_NORMALVIEW;
 	public static int TALK_POSX;
 	public static int TALK_POSY;
+	
+	public static int PLAYING_HAND;
 	
 	public static void setDependingScreenConstants() {
 		
@@ -67,10 +71,7 @@ public final class Constants  {
 	
 	public static final int ACTION_POINTER_SIZE = 60;
 	public static final int ACTION_POINTER_OUT = -1000;
-//	
-//	public static final int LEFT_HANDED = 75;
-//	public static final int RIGHT_HANDED = -75;
-//	
+	
 //	//*******************
 //	// STATUS & MODES
 //	//*******************
@@ -87,7 +88,7 @@ public final class Constants  {
 	public static final int MODE_INVENTORY_OPEN = 3;	// inventory is open
 	public static final int MODE_INVENTORY_ZOOM = 4;	// zoom is open
 	public static final int MODE_INVENTORY_DROP = 5;	// player is dragging an object from inventory
-	public static final int MODE_INVENTORY_ZOOM_CLOSED = 6;	// zoom just closed
+
 	// status anim modes
 	public static final int MODE_ANIM_ACTION = 6;		// an action (look, moving doll to talk, take or exit) is running 
 	public static final int MODE_ANIM_TALK = 7;		// an action (look, moving doll to talk, take or exit) is running 
