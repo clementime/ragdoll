@@ -72,16 +72,36 @@ public class ActionsManager extends Entity {
 		scene.attachChild(this);
 	}	
 		
-	public void activate(float x, float y, float width, float height, int[] itemStates, boolean area) {
+	public int activate(float x, float y, float width, float height, int[] itemStates, boolean area) {
 		
 		int take = itemStates[0];
 		int look = itemStates[1];
 		int talk = itemStates[2];
-		int exit = itemStates[3];
 
 		deactivate();
 
-		Log.d("Clementime", "ActionHandler/activate(): activate take: " + take + "-look: " + look + "-talk: " + talk + "-exit: " + exit);
+		int actions = 0;
+		
+		// take = 1
+		// look = 2
+		// talk = 4
+		// take && look = 3
+		// look && talk = 6 etc...
+		if (take > 0) actions = 1;
+		if (look > 0) actions += 2;
+		if (talk > 0) actions += 4;
+
+		Log.d("Clementime", "ActionHandler/activate(): activate actions result >> " + actions);
+
+		// several actions are activated
+		if (actions >= 3 && actions != 4) showPossibleActions(x, y, width, height, area, actions); 
+		
+		return actions;
+	}
+
+	public void showPossibleActions(float x, float y, float width, float height, boolean area, int actions) {
+
+		Log.d("Clementime", "ActionHandler/showPossibleActions()");
 		
 		// if area, pointers are shown in centre area, if item, above or below
 		if (area) {
@@ -92,85 +112,36 @@ public class ActionsManager extends Entity {
 			else y = y - ACTION_POINTER_SIZE;			
 		}
 
-		int count = 0;
-		
-		if (take > 0) count = count + 1;
-		if (look > 0) count = count + 1;
-		if (talk > 0) count = count + 1;
-		if (exit > 0) count = count + 1;
-
-		// only one pointer authorised for this item
-		if (count == 1) {
-			x = x + width/2 - ACTION_POINTER_SIZE/2;
-			this.setPosition(x, y + MARGIN_Y);
-			
-			if (take > 0) {
-				this.take.setPosition(0, 0);
-				this.take.setVisible(true);
-				this.take.animate(150, true);
-			} else if (look > 0) {
-				this.look.setPosition(0, 0);
-				this.look.setVisible(true);
-				this.look.animate(150, true);				
-			} else if (talk > 0) {
-				this.talk.setPosition(0, 0);
-				this.talk.setVisible(true);
-				this.talk.animate(150, true);
-			} else if (exit > 0) {
-				if (x <= 100) {
-					this.exitLeft.setPosition(0, 0);
-					this.exitLeft.setVisible(true);
-					this.exitLeft.animate(150, true);				
-				} else {
-					this.exitRight.setPosition(0, 0);
-					this.exitRight.setVisible(true);
-					this.exitRight.animate(150, true);				
-				}
-			}
-		}
-		// two pointers authorised for this item
-		else if (count == 2) {
+		// two actions authorised for this item
+		if (actions == 3 || actions == 5 || actions == 6) {
 			x = x + width/2 - ACTION_POINTER_SIZE;
 			this.setPosition(x, y + MARGIN_Y);
 			
-			if (take > 0 && look > 0) {
+			if (actions == 3) {
 				this.take.setPosition(0, 0);
 				this.take.setVisible(true);
 				this.take.animate(150, true);
 				this.look.setPosition(ACTION_POINTER_SIZE, 0);
 				this.look.setVisible(true);
 				this.look.animate(150, true);
-			} else if (take > 0 && talk > 0) {
+			} else if (actions == 5) {
 				this.take.setPosition(0, 0);
 				this.take.setVisible(true);
 				this.take.animate(150, true);
 				this.talk.setPosition(ACTION_POINTER_SIZE, 0);
 				this.talk.setVisible(true);
 				this.talk.animate(150, true);
-			} else if (look > 0 && talk > 0) {
+			} else if (actions == 6) {
 				this.look.setPosition(0, 0);
 				this.look.setVisible(true);
 				this.look.animate(150, true);
 				this.talk.setPosition(ACTION_POINTER_SIZE, 0);
 				this.talk.setVisible(true);
 				this.talk.animate(150, true);
-			} else if (look > 0 && exit > 0) {
-				if (exit == DIRECTION_LEFT) {
-					this.exitLeft.setPosition(0, 0);
-					this.exitLeft.setVisible(true);
-					this.exitLeft.animate(150, true);				
-				} else if (exit == DIRECTION_RIGHT) {
-					this.exitRight.setPosition(0, 0);
-					this.exitRight.setVisible(true);
-					this.exitRight.animate(150, true);				
-				}
-				this.look.setPosition(ACTION_POINTER_SIZE, 0);
-				this.look.setVisible(true);
-				this.look.animate(150, true);
 			}
 		}
 		// three pointers authorised for this item: take, look, talk only
-		else if (count == 3) {
+		else if (actions == 7) {
 			x = x + width/2 - 3*ACTION_POINTER_SIZE/2;
 			this.setPosition(x, y + MARGIN_Y);
 			this.take.setPosition(0, 0);

@@ -3,6 +3,7 @@ package eu.clementime.rds;
 import static eu.clementime.rds.Constants.ACTION_LOOK;
 import static eu.clementime.rds.Constants.ACTION_TAKE;
 import static eu.clementime.rds.Constants.ACTION_TALK;
+import static eu.clementime.rds.Constants.ACTION_EXIT;
 import static eu.clementime.rds.Constants.BACKGROUND_MAX_HEIGHT;
 import static eu.clementime.rds.Constants.CLICK_AGAIN_INVENTORY;
 import static eu.clementime.rds.Constants.CLICK_BAG;
@@ -128,7 +129,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	//*
 	//* touched objects, variables & booleans => keep trace at runtime
 	//*****************************************************************/	
-	private AnimatedSprite touchedAction = null;
+//	private AnimatedSprite touchedAction = null;
+	private int touchedAction = 0;
 	private Exit touchedExit = null;
 	private InventoryItem touchedInventoryItem = null;
 	private InventoryItem touchedZoomItem = null;
@@ -456,13 +458,13 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			// if looking or talking to an item until which the doll can't move 
 			if (mode == MODE_ANIM_ACTION && actionsManagerOutsideBorders) {
 				gameTools.animatedCircle.stopAnimation(11);
-				if (touchedAction == gameTools.am.talk)	talk();
+				if (touchedAction == ACTION_TALK)	talk();
 				
 				gameTools.am.deactivate();
 								
 				touchedItem = null;
 				touchedAnimation = null;
-				touchedAction = null;
+				touchedAction = 0;
 				touchedArea = null;	
 				
 				actionsManagerOutsideBorders = false;
@@ -486,8 +488,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			    	if (touchedExit != null) {
 						if (touchedExit.beforeTrigger == 0) goToNextScreen();
 						
-			    	} else if (touchedAction == gameTools.am.take)	take();
-					else if (touchedAction == gameTools.am.talk)	talk();
+			    	} else if (touchedAction == ACTION_TAKE) 	take();
+					else if (touchedAction == ACTION_TALK)	talk();
 					
 					gameTools.am.deactivate();
 					
@@ -504,7 +506,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 					
 					touchedItem = null;
 					touchedAnimation = null;
-					touchedAction = null;
+					touchedAction = 0;
 					touchedArea = null;		    	
 				}
 				
@@ -711,18 +713,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 							//**************************************************************************************
 							//     ACTION MANAGER	>> move doll towards item/anim if talk/take and inside borders
 							//**************************************************************************************
-							if (pTouchArea == gameTools.am.take
-									|| pTouchArea == gameTools.am.look
-									|| pTouchArea == gameTools.am.talk
-									|| pTouchArea == gameTools.am.exitLeft
-									|| pTouchArea == gameTools.am.exitRight) {
-								
-								mode = MODE_ANIM_ACTION;
-								
-								touchedAction = (AnimatedSprite)pTouchArea;
-								if (touchedX > currentBg.xMin && touchedX < currentBg.xMax && touchedAction != gameTools.am.look) doll.move(status, touchedX);
-								else actionsManagerOutsideBorders = true;	
-							}
+							if (pTouchArea == gameTools.am.take) doSingleAction(ACTION_TAKE);
+							else if (pTouchArea == gameTools.am.look) doSingleAction(ACTION_LOOK);
+							else if (pTouchArea == gameTools.am.talk) doSingleAction(ACTION_TALK);
+							else if (pTouchArea == gameTools.am.exitLeft) doSingleAction(ACTION_EXIT);
+							else if (pTouchArea == gameTools.am.exitRight) doSingleAction(ACTION_EXIT);
 						
 							//************************************
 				    		//     DOLL		>> OPEN INVENTORY
@@ -891,6 +886,19 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	/**************************************/
 	/* ON AREA/ON SCENE TOUCH SUB METHODS */
 	/**************************************/
+	private void doSingleAction(int action) {
+		
+		mode = MODE_ANIM_ACTION;
+		
+		touchedAction = action;
+		if (touchedX > currentBg.xMin && touchedX < currentBg.xMax && touchedAction != ACTION_LOOK) doll.move(status, touchedX);
+		else if (touchedAction == ACTION_LOOK) 	look();
+		else {
+			actionsManagerOutsideBorders = true;	
+			if (touchedAction == ACTION_TAKE) doll.sayNo();
+			if (touchedAction == ACTION_LOOK) talk();
+		}
+	}
 	
 	private void manageAction(float x, float y) {
 
@@ -901,12 +909,12 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		//**************************
 		// player activate an action or exit
 		if (mode == MODE_ANIM_ACTION) {
-			if (touchedAction == gameTools.am.look)	{
+			if (touchedAction == ACTION_LOOK)	{
 				gameTools.am.freeze(ACTION_LOOK);
 				look();
 			}
-			else if (touchedAction == gameTools.am.take)		gameTools.am.freeze(ACTION_TAKE);
-			else if (touchedAction == gameTools.am.talk)		gameTools.am.freeze(ACTION_TALK);
+			else if (touchedAction == ACTION_TAKE)		gameTools.am.freeze(ACTION_TAKE);
+			else if (touchedAction == ACTION_TALK)		gameTools.am.freeze(ACTION_TALK);
 			else { // exit
 				
 				touchedExit.stopAnimation();
@@ -1234,17 +1242,21 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				               currentBg.getAnimStates(touchedAnimation.id), false);
 	}
 	
+	
 	private void activateActionOnItem(ScreenItem screenItem) {
 		
-		// mode screen or another item has an action pending
-		mode = MODE_ACTION_WAIT;
 		touchedAnimation = null;
 		touchedArea = null;
 		touchedItem = screenItem;
 		touchedX = touchedItem.getX() + touchedItem.getWidth()/2;
 
-		gameTools.am.activate(touchedItem.getX(), touchedItem.getY(), touchedItem.getWidth(), touchedItem.getHeight(),
-				               currentBg.getItemStates(touchedItem.id), false);	
+		int actions = gameTools.am.activate(touchedItem.getX(), touchedItem.getY(), touchedItem.getWidth(), touchedItem.getHeight(),
+				               currentBg.getItemStates(touchedItem.id), false);
+		
+		if (actions == ACTION_TAKE) doSingleAction(ACTION_TAKE);
+		if (actions == ACTION_LOOK) doSingleAction(ACTION_LOOK);
+		if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
+		else if (actions > 0) mode = MODE_ACTION_WAIT;
 	}
 	
 	private void selectInventoryItem(InventoryItem item) {

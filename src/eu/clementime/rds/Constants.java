@@ -66,8 +66,8 @@ public final class Constants  {
 //	
 	public static final int ACTION_TAKE = 1;
 	public static final int ACTION_LOOK = 2;	
-	public static final int ACTION_TALK = 3;	
-	public static final int ACTION_EXIT = 4;
+	public static final int ACTION_TALK = 4;	
+	public static final int ACTION_EXIT = 8;
 	
 	public static final int ACTION_POINTER_SIZE = 60;
 	public static final int ACTION_POINTER_OUT = -1000;
