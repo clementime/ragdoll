@@ -947,7 +947,12 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				mode = MODE_ACTION_WAIT;
 				touchedX = area.x + area.width/2;
 				
-				gameTools.am.activate(area.x, area.y, area.width, area.height, currentBg.getAreaStates(area.id), true);
+				int actions = gameTools.am.activate(area.x, area.y, area.width, area.height, currentBg.getAreaStates(area.id), true);
+				
+				if (actions == ACTION_TAKE) doSingleAction(ACTION_TAKE);
+				if (actions == ACTION_LOOK) doSingleAction(ACTION_LOOK);
+				if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
+				else if (actions > 0) mode = MODE_ACTION_WAIT;
 				
 				touchedItem = null;
 				touchedAnimation = null;
@@ -1378,7 +1383,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 //			text = world.getDesc(touchedArea.id, OBJECT_TYPE_AREA, DB_DESCRIPTION_ACTION_AREA_LOOK);
 //		else if (touchedAnimation != null)
 //			text = world.getDesc(touchedAnimation.id, OBJECT_TYPE_CHAR, DB_DESCRIPTION_ACTION_CHAR_LOOK);
-
+		doll.ph.setVelocity(0,0);
+    	doll.image.stopAnimation(16);
 		displayTalk(0);
 	}
 
@@ -1416,6 +1422,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		
 		gameTools.am.deactivate();
 		gameTools.animatedCircle.setVisible(false);
+		gameTools.walkingPointer.setVisible(false);
 		status = STATUS_ACTION;
 		mode = MODE_ACTION_WALK;
 		
