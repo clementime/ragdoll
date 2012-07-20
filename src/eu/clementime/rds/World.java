@@ -302,8 +302,6 @@ public class World {
 		return db.selectAnimFeatures(animId);		
 	}
 
-
-
 	// features[0] = id exit, features[1] = to trigger before leaving	
 	public int[] getFirstScreenFeatures() {
 		return db.selectFirstScreenFeatures();
@@ -339,4 +337,17 @@ public class World {
 //		
 //		return features;
 //	}
+	public void calculateWalkArea(float dollFeetPosition) {	
+			Constants.WALK_AREA_Y_POS = dollFeetPosition + Constants.WALK_AREA_UNDER_FEET;
+			Log.i("Clementime", "Constants/calculateWalkArea: walk area Y pos bottom " + Constants.WALK_AREA_Y_POS);
+			Log.i("Clementime", "Constants/calculateWalkArea: walk area Y pos top " + (Constants.WALK_AREA_Y_POS - Constants.WALK_AREA_SIZE));
+	}
+	
+	public boolean checkWalkArea(float touchedY) {
+		Log.d("Clementime", "Constants/checkWalkArea: touch y " + touchedY);
+		
+		if (touchedY <= Constants.WALK_AREA_Y_POS && touchedY >= Constants.WALK_AREA_Y_POS - Constants.WALK_AREA_SIZE) return true;
+		else return false;
+	}
+
 }

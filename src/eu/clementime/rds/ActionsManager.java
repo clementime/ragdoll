@@ -9,7 +9,7 @@ import static eu.clementime.rds.Constants.ACTION_TALK;
 import static eu.clementime.rds.Constants.DIRECTION_LEFT;
 import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
 import static eu.clementime.rds.Constants.ZINDEX_ACTION;
-import static eu.clementime.rds.Global.MARGIN_Y;
+import static eu.clementime.rds.Constants.MARGIN_Y;
 
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.entity.Entity;

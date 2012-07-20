@@ -1,13 +1,22 @@
 package eu.clementime.rds;
 
-public final class Constants  {
+import android.util.Log;
 
-	/*         */
-	/* GENERAL */
-	/*         */
+
+public final class Constants  {
+	
+	/*     */
+	/* DEV */
+	/*     */
 	public static final boolean DEVELOPMENT = true;	//TODO: TO INACTIVATE IN PRODUCTION
 	public static final float LOOP_LOG_INTERVAL = 2;
 	
+	/*         */
+	/* GENERAL */
+	/*         */
+	
+	// size are based on the background height, but this height cannot exceed image size
+	// so be sure the following match real image size in pixels
 	public static final int BACKGROUND_MAX_HEIGHT = 320;
 	
 	public static final float MASK_ALPHA_LAYER = 0.4f;
@@ -17,9 +26,35 @@ public final class Constants  {
 	public static final String ANIMATION_IMAGE_PREFIX = "anim_";
 	public static final int NO_END_LOOP = 1000;
 	
-	/*             */
-	/* SIDE SCREEN */
-	/*             */
+	public static float WALK_AREA_Y_POS;
+	public static int WALK_AREA_SIZE = 40;
+	public static int WALK_AREA_UNDER_FEET = 10; // area under the feet where player can touch to move the doll
+	
+	/*                   */
+	/* RUNTIME CONSTANTS */
+	/*                   */
+	public static int MARGIN_Y;
+	public static int CAMERA_WIDTH;
+	public static int CAMERA_HEIGHT;
+	
+	public static int INVENTORY_POSY_NORMALVIEW;
+	public static int TALK_POSX;
+	public static int TALK_POSY;
+	
+	public static void setDependingScreenConstants() {
+		
+		// if screen exceed background max size, set a black margin
+    	MARGIN_Y = (CAMERA_HEIGHT - BACKGROUND_MAX_HEIGHT)/2;
+    	
+		INVENTORY_POSY_NORMALVIEW = CAMERA_HEIGHT-85;
+		
+		TALK_POSX = 0;
+		TALK_POSY = 0 + MARGIN_Y;
+	}
+	
+	/*        */
+	/* SCREEN */
+	/*        */
 	public static final int DIRECTION_LEFT = 1;
 	public static final int DIRECTION_RIGHT = 2;
 //
@@ -52,6 +87,7 @@ public final class Constants  {
 	public static final int MODE_INVENTORY_OPEN = 3;	// inventory is open
 	public static final int MODE_INVENTORY_ZOOM = 4;	// zoom is open
 	public static final int MODE_INVENTORY_DROP = 5;	// player is dragging an object from inventory
+	public static final int MODE_INVENTORY_ZOOM_CLOSED = 6;	// zoom just closed
 	// status anim modes
 	public static final int MODE_ANIM_ACTION = 6;		// an action (look, moving doll to talk, take or exit) is running 
 	public static final int MODE_ANIM_TALK = 7;		// an action (look, moving doll to talk, take or exit) is running 
@@ -81,7 +117,7 @@ public final class Constants  {
 	public static final int INVENTORY_BAG_POSY = 20;
 
 	public static final int INVENTORY_POSX_NORMALVIEW = 0;
-	public static final int INVENTORY_POSY_NORMALVIEW = 320-85;
+//	public static final int INVENTORY_POSY_NORMALVIEW = 320-85;
 	public static final int POSX_ZOOMVIEW = 2;
 	public static final int POSY_ZOOMVIEW = 46;
 	public static final int INVENTORY_POSX_ZOOMVIEW = 2;
@@ -137,8 +173,7 @@ public final class Constants  {
 //	/*                     */
 //	/*        TALK         */
 //	/*                     */
-	public static final int TALK_POSX = 0;
-	public static final int TALK_POSY = 0;
+
 //	public static final int INFORMATION_TEXT_MAX_SIZE = 32;
 //	public static final int INFORMATION_TEXT_POSX = 85;
 //	public static final int INFORMATION_TEXT_POSY = 6;

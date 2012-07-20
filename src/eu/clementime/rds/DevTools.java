@@ -1,9 +1,9 @@
 package eu.clementime.rds;
 
 import static eu.clementime.rds.Constants.MASK_ALPHA_LAYER;
-import static eu.clementime.rds.Global.CAMERA_HEIGHT;
-import static eu.clementime.rds.Global.CAMERA_WIDTH;
-import static eu.clementime.rds.Global.MARGIN_Y;
+import static eu.clementime.rds.Constants.CAMERA_HEIGHT;
+import static eu.clementime.rds.Constants.CAMERA_WIDTH;
+import static eu.clementime.rds.Constants.MARGIN_Y;
 
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;

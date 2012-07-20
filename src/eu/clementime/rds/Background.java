@@ -9,7 +9,7 @@ import static eu.clementime.rds.Constants.ZINDEX_GROUND_1;
 import static eu.clementime.rds.Constants.ZINDEX_FOREGROUND;
 import static eu.clementime.rds.Constants.ZINDEX_ITEM;
 import static eu.clementime.rds.Constants.ZINDEX_ANIM;
-import static eu.clementime.rds.Global.MARGIN_Y;
+import static eu.clementime.rds.Constants.MARGIN_Y;
 
 import java.util.ArrayList;
 import java.util.HashMap;
