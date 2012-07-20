@@ -321,11 +321,11 @@ public class DatabaseAccess {
 
 	public int[] selectAnimStates(int animId) {	
 		
-		int[] stateResults = {0,0,0,0};
+		int[] stateResults = {0,0,0};
 
-		String query  = " select look_state, talk_state ";
-		query += " from character ";
-		query += " where playing_anim_id = " + animId;
+		String query  = " select take_state, look_state, talk_state ";
+		query += " from playing_animation ";
+		query += " where _id = " + animId;
 		
 		// check if every items needed for activating are in inventory
 		try {
@@ -334,6 +334,7 @@ public class DatabaseAccess {
 			if (c.getCount() != 0) {
 				c.moveToFirst();
 				
+				stateResults[0] = c.getInt(c.getColumnIndex("take_state"));
 				stateResults[1] = c.getInt(c.getColumnIndex("look_state"));
 				stateResults[2] = c.getInt(c.getColumnIndex("talk_state"));
 				

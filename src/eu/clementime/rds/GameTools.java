@@ -6,7 +6,8 @@ import static eu.clementime.rds.Constants.MOVE_LEFT_ARROW_POSX;
 import static eu.clementime.rds.Constants.MOVE_RIGHT_ARROW_POSX;
 import static eu.clementime.rds.Constants.ZINDEX_ARROW;
 import static eu.clementime.rds.Constants.ZINDEX_CIRCLE;
-
+import static eu.clementime.rds.Constants.POINTER_CIRCLE;
+import static eu.clementime.rds.Constants.POINTER_WALK;
 import static eu.clementime.rds.Constants.CAMERA_WIDTH;
 import static eu.clementime.rds.Constants.CAMERA_HEIGHT;
 import static eu.clementime.rds.Constants.MARGIN_Y;
@@ -36,10 +37,12 @@ public class GameTools extends Entity {
 	private TiledTextureRegion TR1;
 	private TiledTextureRegion TR2;
 	private TiledTextureRegion TR3;
+	private TiledTextureRegion TR4;
 	
 	public AnimatedSprite leftArrow;
 	public AnimatedSprite rightArrow;
 	public AnimatedSprite animatedCircle;
+	public AnimatedSprite walkingPointer;
 	
 	public ActionsManager am;
 
@@ -74,17 +77,19 @@ public class GameTools extends Entity {
 		
 		Log.i("Clementime", "GameTools/loadGameItems()");
 		
-		BitmapTextureAtlas BTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		BitmapTextureAtlas BTA = new BitmapTextureAtlas(256, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
 		this.TR1 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.move_left, 0, 0, 5, 1);
 		this.TR2 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.move_right, 0, 30, 5, 1);
 		this.TR3 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.animated_circle, 0, 60, 4, 3);
+		this.TR4 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.walking_pointer, 0, 210, 4, 3);
 		
 		engine.getTextureManager().loadTexture(BTA);
 		
 		leftArrow = new AnimatedSprite(MOVE_LEFT_ARROW_POSX, CAMERA_HEIGHT + MOVE_ARROWS_POSY - MARGIN_Y, TR1);
 		rightArrow = new AnimatedSprite(CAMERA_WIDTH + MOVE_RIGHT_ARROW_POSX, CAMERA_HEIGHT + MOVE_ARROWS_POSY - MARGIN_Y, TR2);
 		animatedCircle = new AnimatedSprite(0, 0, TR3);
+		walkingPointer = new AnimatedSprite(0, 0, TR4);
 		
 		leftArrow.setVisible(false);
 		rightArrow.setVisible(false);
@@ -93,17 +98,20 @@ public class GameTools extends Entity {
 		rightArrow.setAlpha(0.7f);
 
 		animatedCircle.stopAnimation(11);
+		walkingPointer.stopAnimation(11);
 		leftArrow.stopAnimation(4);
 		rightArrow.stopAnimation(4);
 		
 		scene.attachChild(leftArrow);
 		scene.attachChild(rightArrow);
 		scene.attachChild(animatedCircle);
+		scene.attachChild(walkingPointer);
 		
 		scene.registerTouchArea(leftArrow);
 		scene.registerTouchArea(rightArrow);
 		
 		animatedCircle.setZIndex(ZINDEX_CIRCLE);
+		walkingPointer.setZIndex(ZINDEX_CIRCLE);
 		leftArrow.setZIndex(ZINDEX_ARROW);
 		rightArrow.setZIndex(ZINDEX_ARROW);
 		
@@ -127,13 +135,27 @@ public class GameTools extends Entity {
 		engine.getTextureManager().loadTexture(defaultFont2BTA);
 	}
 
-	public void showAnimatedCircle(float x, float y) {
+	public void showAnimatedCircle(float x, float y, int type) {
 		
 		Log.i("Clementime", "GameTools/showAnimatedCircle()");
 		
-		animatedCircle.setPosition(x, y);
-		animatedCircle.setVisible(true);
-		animatedCircle.animate(50, false);
+		if (type == POINTER_WALK) {
+			walkingPointer.setPosition(x, y);
+			walkingPointer.setVisible(true);
+			walkingPointer.animate(50, false);		
+		} else {
+			animatedCircle.setPosition(x, y);
+			animatedCircle.setVisible(true);
+			animatedCircle.animate(50, false);
+		}
+	}
+
+	public void hideAnimatedCircle() {
+		
+		Log.i("Clementime", "GameTools/hideAnimatedCircle()");
+		
+		walkingPointer.setVisible(false);
+		animatedCircle.setVisible(false);
 	}
 	
 	public void checkBorders(float xMinCamera, float xMaxCamera, float xMinScreen, float xMaxScreen) {

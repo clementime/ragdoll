@@ -30,7 +30,10 @@ public final class Constants  {
 	public static int WALK_AREA_SIZE = 40;
 	public static int WALK_AREA_UNDER_FEET = 10; // area under the feet where player can touch to move the doll
 	
-	public static int BIG_ITEM_POSITION = 50;	
+	public static int BIG_ITEM_POSITION = 50;
+	
+	public static int POINTER_WALK = 1;	
+	public static int POINTER_CIRCLE = 2;	
 	
 	/*                   */
 	/* RUNTIME CONSTANTS */

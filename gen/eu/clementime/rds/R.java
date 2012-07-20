@@ -83,6 +83,7 @@ public final class R {
         public static final int screen2_bg_landscape=0x7f020045;
         public static final int settings=0x7f020046;
         public static final int steph_zoom=0x7f020047;
+        public static final int walking_pointer=0x7f020048;
     }
     public static final class layout {
         public static final int main=0x7f030000;

@@ -1,10 +1,12 @@
 package eu.clementime.rds;
 
+import static eu.clementime.rds.Constants.ACTION_EXIT;
 import static eu.clementime.rds.Constants.ACTION_LOOK;
 import static eu.clementime.rds.Constants.ACTION_TAKE;
 import static eu.clementime.rds.Constants.ACTION_TALK;
-import static eu.clementime.rds.Constants.ACTION_EXIT;
-import static eu.clementime.rds.Constants.BACKGROUND_MAX_HEIGHT;
+import static eu.clementime.rds.Constants.BIG_ITEM_POSITION;
+import static eu.clementime.rds.Constants.CAMERA_HEIGHT;
+import static eu.clementime.rds.Constants.CAMERA_WIDTH;
 import static eu.clementime.rds.Constants.CLICK_AGAIN_INVENTORY;
 import static eu.clementime.rds.Constants.CLICK_BAG;
 import static eu.clementime.rds.Constants.CLICK_DOLL;
@@ -21,32 +23,31 @@ import static eu.clementime.rds.Constants.DIRECTION_LEFT;
 import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
 import static eu.clementime.rds.Constants.INVBOX_ALPHA_LAYER;
 import static eu.clementime.rds.Constants.INVENTORY_POSX_ZOOM_ITEM;
+import static eu.clementime.rds.Constants.INVENTORY_POSY_NORMALVIEW;
 import static eu.clementime.rds.Constants.INVENTORY_POSY_ZOOM_ITEM;
 import static eu.clementime.rds.Constants.INV_ALPHA_LAYER;
 import static eu.clementime.rds.Constants.LOOP_LOG_INTERVAL;
+import static eu.clementime.rds.Constants.MARGIN_Y;
 import static eu.clementime.rds.Constants.MODE_ACTION_WAIT;
 import static eu.clementime.rds.Constants.MODE_ACTION_WALK;
 import static eu.clementime.rds.Constants.MODE_ANIM_ACTION;
-import static eu.clementime.rds.Constants.MODE_ANIM_TALK;
 import static eu.clementime.rds.Constants.MODE_ANIM_RUNNING;
+import static eu.clementime.rds.Constants.MODE_ANIM_TALK;
 import static eu.clementime.rds.Constants.MODE_INVENTORY_DROP;
 import static eu.clementime.rds.Constants.MODE_INVENTORY_OPEN;
 import static eu.clementime.rds.Constants.MODE_INVENTORY_ZOOM;
 import static eu.clementime.rds.Constants.NO_END_LOOP;
+import static eu.clementime.rds.Constants.PLAYING_HAND;
 import static eu.clementime.rds.Constants.STATUS_ACTION;
 import static eu.clementime.rds.Constants.STATUS_ANIM;
 import static eu.clementime.rds.Constants.STATUS_INVENTORY;
 import static eu.clementime.rds.Constants.STATUS_MAP;
-import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM;
-import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM_IN_USE;
 import static eu.clementime.rds.Constants.TALK_CLOSING_HEIGHT;
 import static eu.clementime.rds.Constants.TALK_POSX;
-import static eu.clementime.rds.Constants.CAMERA_HEIGHT;
-import static eu.clementime.rds.Constants.CAMERA_WIDTH;
-import static eu.clementime.rds.Constants.MARGIN_Y;
-import static eu.clementime.rds.Constants.INVENTORY_POSY_NORMALVIEW;
-import static eu.clementime.rds.Constants.PLAYING_HAND;
-import static eu.clementime.rds.Constants.BIG_ITEM_POSITION;
+import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM;
+import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM_IN_USE;
+import static eu.clementime.rds.Constants.POINTER_CIRCLE;
+import static eu.clementime.rds.Constants.POINTER_WALK;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -67,7 +68,6 @@ import org.anddev.andengine.entity.scene.Scene.ITouchArea;
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.entity.text.ChangeableText;
-import org.anddev.andengine.entity.text.Text;
 import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.input.touch.detector.ClickDetector;
@@ -798,12 +798,12 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				//************************************
 				//     ANIMATED CIRCLE
 				//************************************ 
-				// show animated circle when status is ACTION
-				if (status == STATUS_ACTION) {
-					float xCircle = pSceneTouchEvent.getX() - gameTools.animatedCircle.getWidth() / 2;
-			    	float yCircle = pSceneTouchEvent.getY() - gameTools.animatedCircle.getHeight() / 2;
-					gameTools.showAnimatedCircle(xCircle, yCircle);	
-				}	
+				// show animated circle when status is ACTION and not in walk area
+//				if (status == STATUS_ACTION) {
+//					float xCircle = pSceneTouchEvent.getX() - gameTools.animatedCircle.getWidth() / 2;
+//			    	float yCircle = pSceneTouchEvent.getY() - gameTools.animatedCircle.getHeight() / 2;
+//					gameTools.showAnimatedCircle(xCircle, yCircle);	
+//				}	
 				
 				//**********************************************
 				//     INVENTORY ITEM zooming and dropping
@@ -813,6 +813,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 					inventoryDragAndDrop(pSceneTouchEvent);			
  
 				} else if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
+					
 					//******************************************
 					//     TOUCH SCREEN IN ACTION MODE
 					//******************************************
@@ -887,6 +888,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	/* ON AREA/ON SCENE TOUCH SUB METHODS */
 	/**************************************/
 	private void doSingleAction(int action) {
+
+		Log.d("Clementime", "Screen/doSingleAction(): action " + action);
 		
 		mode = MODE_ANIM_ACTION;
 		
@@ -904,6 +907,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 		Log.d("Clementime", "Screen/manageAction(): status " + status + " - mode " + mode);
 
+		int pointer = POINTER_CIRCLE;
+		
 		//**************************
 		//     ACTION
 		//**************************
@@ -968,7 +973,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 					touchedX = x;
 					
 					// move doll until touched point if walk area touched
-					if (world.checkWalkArea(y)) doll.move(status, touchedX);						
+					if (world.checkWalkArea(y)) {
+						pointer = POINTER_WALK;
+						doll.move(status, touchedX);						
+					}
 				} else movingArrowPressed = false;
 				
 			} else clickCheck = CLICK_OFF;				
@@ -978,7 +986,16 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	    	gameTools.rightArrow.stopAnimation(4);
 			
 			if (mode == MODE_ACTION_WAIT) mode = MODE_ACTION_WALK;					
-		}				
+		}	
+		
+		//************************************
+		//     ANIMATED CIRCLE
+		//************************************ 
+		// show animated circle when status is ACTION and not in walk area
+
+		float xCircle = x - gameTools.animatedCircle.getWidth() / 2;
+    	float yCircle = y - gameTools.animatedCircle.getHeight() / 2;
+		gameTools.showAnimatedCircle(xCircle, yCircle, pointer);	
 	}
 	
 	private void inventoryDragAndDrop(TouchEvent pSceneTouchEvent) {
@@ -1232,14 +1249,20 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void activateActionOnAnim(Anim anim) {
 		
-		mode = MODE_ACTION_WAIT;
+		Log.d("Clementime", "Screen/activateActionOnAnim(): anim " + anim.toString()); 
+		
 		touchedItem = null;
 		touchedArea = null;
 		touchedAnimation = anim;
 		touchedX = touchedAnimation.getX() + touchedAnimation.getWidth()/2;
 		
-		gameTools.am.activate(touchedAnimation.getX(), touchedAnimation.getY(), touchedAnimation.getWidth(), touchedAnimation.getHeight(),
+		int actions = gameTools.am.activate(touchedAnimation.getX(), touchedAnimation.getY(), touchedAnimation.getWidth(), touchedAnimation.getHeight(),
 				               currentBg.getAnimStates(touchedAnimation.id), false);
+		
+		if (actions == ACTION_TAKE) doSingleAction(ACTION_TAKE);
+		if (actions == ACTION_LOOK) doSingleAction(ACTION_LOOK);
+		if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
+		else if (actions > 0) mode = MODE_ACTION_WAIT;
 	}
 	
 	

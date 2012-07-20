@@ -101,7 +101,7 @@ public class ActionsManager extends Entity {
 
 	public void showPossibleActions(float x, float y, float width, float height, boolean area, int actions) {
 
-		Log.d("Clementime", "ActionHandler/showPossibleActions()");
+		Log.d("Clementime", "ActionHandler/showPossibleActions(): actions >> " + actions);
 		
 		// if area, pointers are shown in centre area, if item, above or below
 		if (area) {
@@ -140,7 +140,7 @@ public class ActionsManager extends Entity {
 				this.talk.animate(150, true);
 			}
 		}
-		// three pointers authorised for this item: take, look, talk only
+		// three pointers authorised for this item: take, look, talk
 		else if (actions == 7) {
 			x = x + width/2 - 3*ACTION_POINTER_SIZE/2;
 			this.setPosition(x, y + MARGIN_Y);
