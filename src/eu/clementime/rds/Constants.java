@@ -1,5 +1,6 @@
 package eu.clementime.rds;
 
+import static eu.clementime.rds.Constants.SCALE;
 import android.util.Log;
 
 
@@ -17,7 +18,7 @@ public final class Constants  {
 	
 	// size are based on the background height, but this height cannot exceed image size
 	// so be sure the following match real image size in pixels
-	public static final int BACKGROUND_MAX_HEIGHT = 320;
+	public static final int BACKGROUND_MAX_HEIGHT = 480;
 	
 	public static final float MASK_ALPHA_LAYER = 0.4f;
 	public static final float INV_ALPHA_LAYER = 0.8f;
@@ -38,9 +39,10 @@ public final class Constants  {
 	/*                   */
 	/* RUNTIME CONSTANTS */
 	/*                   */
-	public static int MARGIN_Y;
 	public static int CAMERA_WIDTH;
 	public static int CAMERA_HEIGHT;
+	public static int MARGIN_Y = 0;
+	public static float SCALE = 1;
 	
 	public static int INVENTORY_POSY_NORMALVIEW;
 	public static int TALK_POSX;
@@ -51,12 +53,15 @@ public final class Constants  {
 	public static void setDependingScreenConstants() {
 		
 		// if screen exceed background max size, set a black margin
-    	MARGIN_Y = (CAMERA_HEIGHT - BACKGROUND_MAX_HEIGHT)/2;
-    	
+		int scaleCalculation = CAMERA_HEIGHT - BACKGROUND_MAX_HEIGHT;
+    	if (scaleCalculation > 0) MARGIN_Y = scaleCalculation/2;
+    	else if (scaleCalculation < 0) SCALE = (float)CAMERA_HEIGHT / (float)BACKGROUND_MAX_HEIGHT;
+		
 		INVENTORY_POSY_NORMALVIEW = CAMERA_HEIGHT-85;
 		
 		TALK_POSX = 0;
 		TALK_POSY = 0 + MARGIN_Y;
+
 	}
 	
 	/*        */

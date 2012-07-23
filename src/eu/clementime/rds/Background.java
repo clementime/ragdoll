@@ -3,13 +3,14 @@ package eu.clementime.rds;
 import static eu.clementime.rds.Constants.ANIMATION_IMAGE_PREFIX;
 import static eu.clementime.rds.Constants.DB_INVENTORY_VALUE_ON_SCREEN;
 import static eu.clementime.rds.Constants.DEFAULT_IMAGE;
+import static eu.clementime.rds.Constants.MARGIN_Y;
+import static eu.clementime.rds.Constants.SCALE;
 import static eu.clementime.rds.Constants.ZINDEX_ACTION;
+import static eu.clementime.rds.Constants.ZINDEX_ANIM;
+import static eu.clementime.rds.Constants.ZINDEX_FOREGROUND;
 import static eu.clementime.rds.Constants.ZINDEX_GROUND_0;
 import static eu.clementime.rds.Constants.ZINDEX_GROUND_1;
-import static eu.clementime.rds.Constants.ZINDEX_FOREGROUND;
 import static eu.clementime.rds.Constants.ZINDEX_ITEM;
-import static eu.clementime.rds.Constants.ZINDEX_ANIM;
-import static eu.clementime.rds.Constants.MARGIN_Y;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +20,6 @@ import java.util.Map;
 
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
@@ -82,7 +82,7 @@ public class Background {
 		try {			
 			// -height- x -max scale- x -background & foreground- => 320 x 1.5 x 2 =  960px 
 			// -width-  x -max scale- x -max size screen-         => 1360 x 1.5    = 2040px 
-			bgBTA = new BitmapTextureAtlas(2048, 1024, TextureOptions.DEFAULT);
+			bgBTA = new BitmapTextureAtlas(4096, 1024, TextureOptions.DEFAULT);
 		
 			Map<String, String> hm = db.selectBackground(this.screenId);
 			
@@ -110,6 +110,9 @@ public class Background {
 			TextureRegion TRBack = BitmapTextureAtlasTextureRegionFactory.createFromResource(bgBTA, context, bgFile, 0, 0);
 			
 			bgImage = new Sprite(0, 0 + MARGIN_Y, TRBack);
+			bgImage.setScaleCenter(0,0);
+			bgImage.setScale(SCALE);
+			//bgImage.setPosition(0,0);
 		
 			xMin = Integer.parseInt(hm.get("x_min"));
 			xMax = Integer.parseInt(hm.get("x_max"));
