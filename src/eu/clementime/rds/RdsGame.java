@@ -1,6 +1,7 @@
 package eu.clementime.rds;
 
 import static eu.clementime.rds.Constants.DEVELOPMENT;
+import static eu.clementime.rds.Constants.DATABASE_FILE;
 
 import android.app.Application;
 import android.content.res.Configuration;
@@ -23,8 +24,8 @@ public class RdsGame extends Application {
     	
      	String dbDir = getFilesDir().getAbsolutePath().replace("files", "databases");
      	
-    	if (DEVELOPMENT) dbHandler = new DatabaseHandler(getApplicationContext(), dbDir, "samdata.sqlite", getResources().openRawResource(R.raw.samdata), getResources().openRawResource(R.raw.current_samdata));
-    	else dbHandler = new DatabaseHandler(getApplicationContext(), dbDir, "samdata.sqlite", getResources().openRawResource(R.raw.samdata));
+    	if (DEVELOPMENT) dbHandler = new DatabaseHandler(getApplicationContext(), dbDir, DATABASE_FILE, getResources().openRawResource(R.raw.rdsgame), getResources().openRawResource(R.raw.current_rdsgame));
+    	else dbHandler = new DatabaseHandler(getApplicationContext(), dbDir, DATABASE_FILE, getResources().openRawResource(R.raw.rdsgame));
     }  
 
     @Override

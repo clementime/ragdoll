@@ -41,7 +41,7 @@ public class Talk {
 		BitmapTextureAtlas BTA = new BitmapTextureAtlas(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		BitmapTextureAtlas BTA2 = new BitmapTextureAtlas(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.TR1 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA, context, R.drawable.dialog_bubble, 0, 0);
-		this.TR2 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA2, context, R.drawable.s1_bubble_test, 0, 0);
+		this.TR2 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA2, context, R.drawable.dialog_bubble_test, 0, 0);
 
 		engine.getTextureManager().loadTextures(BTA,BTA2);
 		

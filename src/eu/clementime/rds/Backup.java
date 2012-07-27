@@ -22,10 +22,10 @@ public class Backup {
 	DatabaseHandler dbh;
 	Context context;
 	
-  	String[] outFileName = {"comb", "comb_desc", "item_display", "item_take", "item_look", "item_takeable", "area_look", "area_exit", "char_talk", "char_look", "anim_display", "question_state", "leave_screen", "start_screen"};
-  	String[] tableName = {"combination", "combination", "item", "screen_item", "screen_item", "screen_item", "screen_area", "screen_area", "character", "character", "playing_animation", "text_question", "exit", "exit"}; 
-  	String[] fieldName = {"state", "desc_state", DB_FIELD_DISPLAY, "take_state", "look_state", "takeable", "look_state", "exit", "talk_state", "look_state", "display", "state", "before_trigger_id", "after_trigger_id"};
-  	String[] idFieldName = {"_id", "_id", "_id", "item_id", "item_id", "item_id", "_id", "_id", "_id", "_id", "_id", "_id", "_id", "_id"};
+  	String[] outFileName = {"comb", "item_display", "item_take", "item_look", "item_takeable", "area_look", "char_talk", "char_look", "anim_display", "leave_screen", "start_screen"};
+  	String[] tableName = {"combination", "item", "screen_item", "screen_item", "screen_item", "screen_area", "character", "character", "playing_animation", "exit", "exit"}; 
+  	String[] fieldName = {"state", DB_FIELD_DISPLAY, "take_state", "look_state", "takeable", "look_state", "talk_state", "look_state", "display", "before_trigger_id", "after_trigger_id"};
+  	String[] idFieldName = {"_id", "_id", "item_id", "item_id", "item_id", "_id", "_id", "_id", "_id", "_id", "_id"};
 	
 	public Backup(DatabaseHandler dbh, Context context) {
 		this.dbh = dbh;
@@ -64,24 +64,6 @@ public class Backup {
 					id = c.getInt(c.getColumnIndex("_id"));
 					state = c.getInt(c.getColumnIndex("state"));
 				    out.write("UPDATE combination set state = " + state + " where _id = " + id + ";" + System.getProperty("line.separator"));
-				}
-			    
-				c.close();
-				
-			    //********************************
-			    // COMBINATION - desc_state
-			    //********************************
-				query = " select _id, desc_state from combination ";
-				
-				c = dbh.db.rawQuery(query, new String [] {});
-				
-			    out.write("-- combinations/desc_state");
-			    
-			    while (c.moveToNext()) {
-					// retrieve combination states
-					id = c.getInt(c.getColumnIndex("_id"));
-					state = c.getInt(c.getColumnIndex("desc_state"));
-				    out.write("UPDATE combination set desc_state = " + state + " where _id = " + id + ";" + System.getProperty("line.separator"));
 				}
 			    
 				c.close();
@@ -177,24 +159,6 @@ public class Backup {
 				c.close();
 				
 			    //********************************
-			    // SCREEN AREAS - exit
-			    //********************************
-				query = " select _id, exit from screen_area ";
-				
-				c = dbh.db.rawQuery(query, new String [] {});
-
-			    out.write("-- screen areas/exit");
-			    
-				while (c.moveToNext()) {
-					// retrieve combination states
-					id = c.getInt(c.getColumnIndex("_id"));
-					state = c.getInt(c.getColumnIndex("exit"));
-				    out.write("UPDATE screen_area set exit = " + state + " where _id = " + id + ";" + System.getProperty("line.separator"));
-				}
-		
-				c.close();	
-				
-			    //********************************
 			    // CHARACTER - look_state
 			    //********************************
 				query = " select _id, look_state from character ";
@@ -244,24 +208,6 @@ public class Backup {
 					id = c.getInt(c.getColumnIndex("_id"));
 					state = c.getInt(c.getColumnIndex("display"));
 				    out.write("UPDATE playing_animation set display = " + state + " where _id = " + id + ";" + System.getProperty("line.separator"));
-				}
-				
-				c.close();
-				
-			    //********************************
-			    // QUESTION - state
-			    //********************************
-				query = " select _id, state from text_question ";
-				
-				c = dbh.db.rawQuery(query, new String [] {});
-
-			    out.write("-- question/state");
-			    
-				while (c.moveToNext()) {
-					// retrieve combination states
-					id = c.getInt(c.getColumnIndex("_id"));
-					state = c.getInt(c.getColumnIndex("state"));
-				    out.write("UPDATE question set state = " + state + " where _id = " + id + ";" + System.getProperty("line.separator"));
 				}
 				
 				c.close();

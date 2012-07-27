@@ -1,9 +1,5 @@
 package eu.clementime.rds;
 
-import static eu.clementime.rds.Constants.SCALE;
-import android.util.Log;
-
-
 public final class Constants  {
 	
 	/*     */
@@ -12,6 +8,7 @@ public final class Constants  {
 	public static final boolean DEVELOPMENT = true;	//TODO: TO INACTIVATE IN PRODUCTION
 	public static final boolean LOG_ON = true;	//TODO: TO INACTIVATE IN PRODUCTION
 	public static final float LOOP_LOG_INTERVAL = 5;
+	public static final String DATABASE_FILE = "rdsgame.sqlite";
 	
 	/*         */
 	/* GENERAL */

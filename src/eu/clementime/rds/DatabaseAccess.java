@@ -33,28 +33,6 @@ public class DatabaseAccess {
 	// BACKGROUND
 	//***********************************   
 	
-	public String selectScreenPrefix(int screenId) {
-
-		String screenPrefix = "";
-		
-		String query = " select image_prefix ";
-		query += " from screen where _id = " + screenId;
-		
-		try {
-			Cursor c = dbh.db.rawQuery(query, new String [] {});
-
-			c.moveToFirst();		
-			screenPrefix = c.getString(c.getColumnIndex("image_prefix"));
-			c.close();
-			
-		} catch (Exception e) {
-			Log.e("Clementime", "DatabaseAccess/selectScreenPrefix(): failed to access data " + e.getMessage());
-		}
-		
-		return screenPrefix;
-		
-	}
-	
 	public Map<String, String> selectBackground(int screenId) {
 		
 		Map<String, String> hm = new HashMap<String, String>();

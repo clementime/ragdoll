@@ -48,7 +48,6 @@ public class Background {
 	
 	private Context context;
 	public int screenId;
-	public String screenPrefix = "";
 	
 	public BitmapTextureAtlas bgBTA;
 	public BitmapTextureAtlas itemsBTA;
@@ -60,8 +59,6 @@ public class Background {
 		this.db = new DatabaseAccess(dbh);
 		this.context = context;
 		this.screenId = screenId;
-
-		this.screenPrefix = db.selectScreenPrefix(screenId);
 		
 		// load images & data
 		load(engine, scene);
@@ -87,19 +84,19 @@ public class Background {
 		
 			Map<String, String> hm = db.selectBackground(this.screenId);
 			
-			int bgFile = context.getResources().getIdentifier(this.screenPrefix + hm.get("background"), "drawable", context.getPackageName());
+			int bgFile = context.getResources().getIdentifier(hm.get("background"), "drawable", context.getPackageName());
 			if (bgFile == 0) {
 				bgFile = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
 				if (LOG_ON) Log.w("Clementime", "Background/loadBackground(): cannot find background screen " + screenId + " " + hm.get("background"));
-			} else if (LOG_ON) Log.d("Clementime", "Background/loadBackground(): load background " + this.screenPrefix + hm.get("background"));
+			} else if (LOG_ON) Log.d("Clementime", "Background/loadBackground(): load background " + hm.get("background"));
 			
 			// load foreground only if available
 			if (hm.get("foreground") != "" && hm.get("foreground") != null) {	
-				int fgFile = context.getResources().getIdentifier(this.screenPrefix + hm.get("foreground"), "drawable", context.getPackageName());
+				int fgFile = context.getResources().getIdentifier(hm.get("foreground"), "drawable", context.getPackageName());
 				if (fgFile == 0) {
 					fgFile = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
 					if (LOG_ON) Log.w("Clementime", "Background/loadBackground(): cannot find foreground screen " + screenId + " " + hm.get("foreground"));
-				} else if (LOG_ON) Log.d("Clementime", "Background/loadBackground(): load foreground " + this.screenPrefix + hm.get("foreground"));
+				} else if (LOG_ON) Log.d("Clementime", "Background/loadBackground(): load foreground " + hm.get("foreground"));
 
 				TextureRegion TRFore = BitmapTextureAtlasTextureRegionFactory.createFromResource(bgBTA, context, fgFile, 0, 480);
 				fgImage = new Sprite(0, 0 + MARGIN_Y, TRFore);
@@ -322,7 +319,7 @@ public class Background {
 		int width = 0;
 
 		// retrieve image
-		String file = this.screenPrefix + ANIMATION_IMAGE_PREFIX + hm.get("image");
+		String file = hm.get("image");
 		res = context.getResources().getIdentifier(file, "drawable", context.getPackageName());
 		if (res == 0) {
 			res = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
