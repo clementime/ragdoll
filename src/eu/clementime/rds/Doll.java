@@ -6,6 +6,7 @@ import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
 import static eu.clementime.rds.Constants.STATUS_ACTION;
 import static eu.clementime.rds.Constants.ZINDEX_DOLL;
 import static eu.clementime.rds.Constants.SCALE;
+import static eu.clementime.rds.Constants.LOG_ON;
 
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.handler.physics.PhysicsHandler;
@@ -71,20 +72,18 @@ public class Doll {
 
 	public void move(int status, float touchedX) {
 		
-		Log.i("Clementime", "Screen/moveDoll()");
+		if (LOG_ON) Log.i("Clementime", "Screen/moveDoll()");
 
 		// if doll wasn't previously walking, launch walking animation	
 		if (ph.getVelocityX() == 0) {
 			
 			if (touchedX > image.getX()) {
-				changeSkin(1);
 				walkDirection = DIRECTION_RIGHT;
 				image.animate(new long[]{120, 120, 120, 120, 120, 120, 120, 120}, 0, 7, true);	
 				if (status == STATUS_ACTION || YVelocity == -1000) ph.setVelocity(70, standardYVelocityRight);
 				else ph.setVelocity(70, YVelocity);
 			}
 			else if (touchedX < image.getX()) {
-				changeSkin(2);
 				walkDirection = DIRECTION_LEFT;
 				image.animate(new long[]{120, 120, 120, 120, 120, 120, 120, 120}, 8, 15, true);				
 				if (status == STATUS_ACTION || YVelocity == -1000) ph.setVelocity(-70, standardYVelocityLeft);
@@ -119,8 +118,8 @@ public class Doll {
 		int bgFile = context.getResources().getIdentifier("doll_skin_" + skinId, "drawable", context.getPackageName());
 		if (bgFile == 0) {
 			bgFile = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
-			Log.w("Clementime", "Doll/changeSkin(): cannot find skin " + skinId);
-		} else Log.d("Clementime", "Doll/changeSkin(): load skin " +  + skinId);
+			if (LOG_ON) Log.w("Clementime", "Doll/changeSkin(): cannot find skin " + skinId);
+		} else if (LOG_ON) Log.d("Clementime", "Doll/changeSkin(): load skin " +  + skinId);
 		
 		BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, context, bgFile, 0, 0, 6, 4);
 		image.setScale(SCALE);

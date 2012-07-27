@@ -10,6 +10,7 @@ public final class Constants  {
 	/* DEV */
 	/*     */
 	public static final boolean DEVELOPMENT = true;	//TODO: TO INACTIVATE IN PRODUCTION
+	public static final boolean LOG_ON = true;	//TODO: TO INACTIVATE IN PRODUCTION
 	public static final float LOOP_LOG_INTERVAL = 5;
 	
 	/*         */
@@ -18,7 +19,7 @@ public final class Constants  {
 	
 	// size are based on the background height, but this height cannot exceed image size
 	// so be sure the following match real image size in pixels
-	public static final int BACKGROUND_MAX_HEIGHT = 480;
+	public static final int BACKGROUND_MAX_HEIGHT = 480;	//TODO: CHANGE DEPENDING BACKGROUND PICTURE SIZE
 	
 	public static final float MASK_ALPHA_LAYER = 0.4f;
 	public static final float INV_ALPHA_LAYER = 0.8f;
@@ -59,8 +60,8 @@ public final class Constants  {
 		
 		INVENTORY_POSY_NORMALVIEW = CAMERA_HEIGHT-85;
 		
-		TALK_POSX = 0;
-		TALK_POSY = 0 + MARGIN_Y;
+		TALK_POSX = 10;
+		TALK_POSY = 30 + MARGIN_Y;
 
 	}
 	
@@ -190,7 +191,8 @@ public final class Constants  {
 //	public static final int INFORMATION_TEXT_WIDTH = 300;
 //	public static final int INFORMATION_MAX_LINE = 5;
 //	public static final float INFORMATION_AVERAGE_LETTER_WIDTH = 8.7f;
-	public static final int TALK_CLOSING_HEIGHT = 140;
+//	public static final int TALK_CLOSING_HEIGHT = 140;
+	public static final int TALK_DISTANCE = 20;
 //	
 //	public static final int OBJECT_TYPE_ITEM = 1;
 //	public static final int OBJECT_TYPE_AREA = 2;

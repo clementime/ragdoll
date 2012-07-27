@@ -42,12 +42,14 @@ import static eu.clementime.rds.Constants.STATUS_ACTION;
 import static eu.clementime.rds.Constants.STATUS_ANIM;
 import static eu.clementime.rds.Constants.STATUS_INVENTORY;
 import static eu.clementime.rds.Constants.STATUS_MAP;
-import static eu.clementime.rds.Constants.TALK_CLOSING_HEIGHT;
+import static eu.clementime.rds.Constants.TALK_DISTANCE;
 import static eu.clementime.rds.Constants.TALK_POSX;
 import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM;
 import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM_IN_USE;
 import static eu.clementime.rds.Constants.POINTER_CIRCLE;
 import static eu.clementime.rds.Constants.POINTER_WALK;
+import static eu.clementime.rds.Constants.SCALE;
+import static eu.clementime.rds.Constants.LOG_ON;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -146,6 +148,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 	// doll moving
 	private float touchedX = 0;
+	private int scaledBgWidth;
 
 	// status
 	private int status = STATUS_ACTION;
@@ -186,7 +189,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
     @Override
     public Engine onLoadEngine() {   	
 		
-		Log.i("Clementime", "Screen/onLoadEngine()");
+		if (LOG_ON) Log.i("Clementime", "Screen/onLoadEngine()");
 		
 		try {
 	    	context = getApplicationContext();
@@ -211,7 +214,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	@Override
 	public void onLoadResources() {	
 		
-		Log.i("Clementime", "Screen/onLoadResources()");
+		if (LOG_ON) Log.i("Clementime", "Screen/onLoadResources()");
 		
 		try {
 	//		loadingBTA = new BitmapTextureAtlas(512, 512, TextureOptions.DEFAULT);
@@ -231,7 +234,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		/* starting game, persistent objects are set up
 		/**************************************************/
 		
-		Log.i("Clementime", "Screen/loadResources()");
+		if (LOG_ON) Log.i("Clementime", "Screen/loadResources()");
 
         //**********************	
 		// DOLL
@@ -247,8 +250,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		
 		PLAYING_HAND = gameTools.getPlayingHand();
 		
-		if (PLAYING_HAND == -1) Log.d("Clementime", "Screen/loadResources(): left handed player");
-		else  Log.d("Clementime", "Screen/loadResources(): right handed player");
+		if (LOG_ON) {
+			if (PLAYING_HAND == -1) Log.d("Clementime", "Screen/loadResources(): left handed player");
+			else Log.d("Clementime", "Screen/loadResources(): right handed player");
+		}
 		
         //**********************
 		// FONTS
@@ -257,7 +262,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		getFontManager().loadFont(gameTools.defaultFont);
 		getFontManager().loadFont(gameTools.defaultFont2);
 		
-		talk = new Talk(context, mEngine, scene);
+		talk = new Talk(dbh, context, doll.getScreen(), mEngine, scene);
+		//talk = new Talk(context, mEngine, scene);
 //		map = new Map(dbh, CAMERA_WIDTH, CAMERA_HEIGHT);
 		
 		// map
@@ -303,7 +309,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			currentBg = nextBg;
 			initNewScene();	
 			
-			Log.i("Clementime", "Screen/onLoadScene()");
+			if (LOG_ON) Log.i("Clementime", "Screen/onLoadScene()");
 	
 	//		scene.attachChild(new Sprite(0, 0, loadingTR));
 
@@ -318,7 +324,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void setLoop() {
 		
-		Log.i("Clementime", "Screen/setLoop()");
+		if (LOG_ON) Log.i("Clementime", "Screen/setLoop()");
 
 	
 		// checks during runtime
@@ -334,12 +340,14 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				
 				// DELAY log displayed in loop
 				//*****************************
-				if (lastLog >= nextLog) {
-					displayLog = true;
-					nextLog = nextLog + LOOP_LOG_INTERVAL;
-				} else {
-					lastLog += pSecondsElapsed;
-					displayLog = false;					
+				if (LOG_ON) {
+					if (lastLog >= nextLog) {
+						displayLog = true;
+						nextLog = nextLog + LOOP_LOG_INTERVAL;
+					} else {
+						lastLog += pSecondsElapsed;
+						displayLog = false;					
+					}
 				}
 				
 				if (displayLog) Log.d("Clementime", "Screen/setLoop(): status " + status + " - mode " + mode);
@@ -529,7 +537,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void loadNewScreen() {
 		
-		Log.i("Clementime", "Screen/loadNewScreen()");
+		if (LOG_ON) Log.i("Clementime", "Screen/loadNewScreen()");
 
 		//******************************************************************************
 		// items, areas, animations and talk screen chars (scene depending objects)
@@ -547,7 +555,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			startingPosition[1] = touchedExit.startingY; 
 			createNewBackground(touchedExit.toScreen);
 			
-			Log.i("Clementime", "Screen/loadNewScreen(): enter a new screen from 'last' exit: " + touchedExit.id);
+			if (LOG_ON) Log.i("Clementime", "Screen/loadNewScreen(): enter a new screen from 'last' exit: " + touchedExit.id);
 		} else if (startingPosition[0] == -1) {
 			int[] features = world.getFirstScreenFeatures();
 			startingPosition[0] = features[1]; 
@@ -555,7 +563,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			firstScreenTriggerId = features[0];
 			createNewBackground(1);
 			
-			Log.i("Clementime", "Screen/loadNewScreen(): starting new game ");
+			if (LOG_ON) Log.i("Clementime", "Screen/loadNewScreen(): starting new game ");
 //		} else if(touchedMapItem != null) {
 //			int[] features = world.getScreenFeatures(world.screenId);
 //			startingPosition[0] = features[1]; 
@@ -568,7 +576,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		} else {
 			createNewBackground(doll.getScreen());
 			
-			Log.i("Clementime", "Screen/loadNewScreen(): player in screen: " + nextBg.screenId);
+			if (LOG_ON) Log.i("Clementime", "Screen/loadNewScreen(): player in screen: " + nextBg.screenId);
 		}
 	}
 	
@@ -581,7 +589,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	public void initNewScene() {
 		
-		Log.i("Clementime", "Screen/initNewScene()");
+		if (LOG_ON) Log.i("Clementime", "Screen/initNewScene()");
 		
 		deactivateTouchEvents = true; // do not do anything during scene initialisation
 		
@@ -595,19 +603,20 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			scene.setOnAreaTouchListener(this);
 			
 			// variables to chase doll or animation with the camera
+			scaledBgWidth = (int)(currentBg.bgImage.getWidth() * SCALE);
 			minChasingX = CAMERA_WIDTH / 2;
-			maxChasingX = currentBg.bgImage.getWidth() - CAMERA_WIDTH / 2;	
+			maxChasingX = scaledBgWidth - CAMERA_WIDTH / 2 ;	
 			
 			/*
 			/* set persistent objects in position
 			/********************************************/		
 			doll.image.setPosition(startingPosition[0], startingPosition[1] + MARGIN_Y);
-			world.calculateWalkArea(startingPosition[1] + doll.image.getHeight() + MARGIN_Y);
+			world.calculateWalkArea(startingPosition[1] + doll.image.getHeight() * SCALE + MARGIN_Y);
 			
 			// set camera focus on doll at start
-			if (startingPosition[0] >= currentBg.bgImage.getWidth() - CAMERA_WIDTH/2)	camera.setCenter(currentBg.bgImage.getWidth() - CAMERA_WIDTH/2, CAMERA_HEIGHT/2);
-			else if (startingPosition[0] <= CAMERA_WIDTH/2)								camera.setCenter(CAMERA_WIDTH/2, CAMERA_HEIGHT/2);			
-			else 																		camera.setCenter(startingPosition[0] + doll.centerX, CAMERA_HEIGHT/2);
+			if (startingPosition[0] >= scaledBgWidth - CAMERA_WIDTH/2)		camera.setCenter(scaledBgWidth - CAMERA_WIDTH/2, CAMERA_HEIGHT/2);
+			else if (startingPosition[0] <= CAMERA_WIDTH/2)					camera.setCenter(CAMERA_WIDTH/2, CAMERA_HEIGHT/2);			
+			else 															camera.setCenter(startingPosition[0] + doll.centerX, CAMERA_HEIGHT/2);
 
 			setToolsInPosition();
 
@@ -654,7 +663,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void showPersistentObjects(boolean choice) {
 		
-		Log.i("Clementime", "Screen/showPersistentObjects(): " + choice);
+		if (LOG_ON) Log.i("Clementime", "Screen/showPersistentObjects(): " + choice);
 		
 		doll.setVisible(choice);
 		gameTools.setVisible(choice);
@@ -680,9 +689,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	@Override
 	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final ITouchArea pTouchArea, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		
-		if (deactivateTouchEvents) Log.i("Clementime", "Screen/onAreaTouched(): scene initialisation - touchArea desactivated"); 
+		if (deactivateTouchEvents && LOG_ON) Log.i("Clementime", "Screen/onAreaTouched(): scene initialisation - touchArea desactivated"); 
 		else {
-			Log.i("Clementime", "Screen/onAreaTouched(): status " + status + " - mode " + mode + " - click " + clickCheck + " - touch " + pTouchArea.toString());
+			if (LOG_ON) Log.i("Clementime", "Screen/onAreaTouched(): status " + status + " - mode " + mode + " - click " + clickCheck + " - touch " + pTouchArea.toString());
 			
 			try {	
 				if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
@@ -789,10 +798,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		
 		clickDetector.onSceneTouchEvent(null, pSceneTouchEvent);
 		
-		if (deactivateTouchEvents) Log.i("Clementime", "Screen/onSceneTouchEvent(): scene initialisation - sceneTouchEvent desactivated"); 
+		if (deactivateTouchEvents && LOG_ON) Log.i("Clementime", "Screen/onSceneTouchEvent(): scene initialisation - sceneTouchEvent desactivated"); 
 		else {
 			
-			Log.d("Clementime", "Screen/onSceneTouchEvent(): status " + status + " - mode " + mode + " - click " + clickCheck);
+			if (LOG_ON) Log.d("Clementime", "Screen/onSceneTouchEvent(): status " + status + " - mode " + mode + " - click " + clickCheck);
 			
 			try {
 				//************************************
@@ -863,7 +872,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	@Override
 	public void onClick(final ClickDetector pClickDetector, final TouchEvent pTouchEvent) {
 
-		if (deactivateTouchEvents) Log.i("Clementime", "Screen/onClick(): scene initialisation - click desactivated"); 
+		if (deactivateTouchEvents && LOG_ON) Log.i("Clementime", "Screen/onClick(): scene initialisation - click desactivated"); 
 		else {
 			try {
 				
@@ -871,7 +880,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				else if (clickCheck == CLICK_AGAIN_INVENTORY)	switchZoomedItem();
 				else if (clickCheck == CLICK_ZOOM)				closeZoom();
 				
-				else Log.i("Clementime", "Screen/onClick(): clic outside inventory");
+				else if (LOG_ON) Log.i("Clementime", "Screen/onClick(): clic outside inventory");
 				
 			} catch (Exception e) {
 				Log.e("Clementime", "Screen/onClick(): raise error: " + e.getMessage());
@@ -889,7 +898,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	/**************************************/
 	private void doSingleAction(int action) {
 
-		Log.d("Clementime", "Screen/doSingleAction(): action " + action);
+		if (LOG_ON) Log.d("Clementime", "Screen/doSingleAction(): action " + action);
 		
 		mode = MODE_ANIM_ACTION;
 		
@@ -905,7 +914,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void manageAction(float x, float y) {
 
-		Log.d("Clementime", "Screen/manageAction(): status " + status + " - mode " + mode);
+		if (LOG_ON) Log.d("Clementime", "Screen/manageAction(): status " + status + " - mode " + mode);
 
 		int pointer = POINTER_CIRCLE;
 		
@@ -930,7 +939,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				else launchTrigger(touchedExit.beforeTrigger, false);
 			}
 			
-			touchedX = x;
+			if (touchedAction == ACTION_TALK) touchedX = touchedAnimation.getX() - TALK_DISTANCE;
+			else touchedX = x;
 		//*********************************
 		//     SPECIAL AREAS ON SCREEN
 		//*********************************
@@ -942,7 +952,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			area = currentBg.checkAreas(x, y);
 
 			if (area != null) {
-				Log.d("Clementime", "Screen/onSceneTouchEvent(): activated area: " + area.id);
+				if (LOG_ON) Log.d("Clementime", "Screen/onSceneTouchEvent(): activated area: " + area.id);
 				
 				mode = MODE_ACTION_WAIT;
 				touchedX = area.x + area.width/2;
@@ -978,7 +988,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 					touchedX = x;
 					
 					// move doll until touched point if walk area touched
-					if (world.checkWalkArea(y)) {
+					if (world.checkWalkArea(currentBg.xMin, currentBg.xMax, x, y)) {
 						pointer = POINTER_WALK;
 						doll.move(status, touchedX);						
 					}
@@ -1005,166 +1015,165 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void inventoryDragAndDrop(TouchEvent pSceneTouchEvent) {
 		
-		Log.i("Clementime", "Screen/inventoryDragAndDrop()"); 
+		if (LOG_ON) Log.i("Clementime", "Screen/inventoryDragAndDrop()"); 
 		
 		//**********************************************
 		//     INVENTORY ITEM zooming and dropping
 		//********************************************** 
-        	// coordinates are set from top left to centre of the sprite
-			float x = pSceneTouchEvent.getX() - touchedInventoryItem.big.getWidth() / 2  - BIG_ITEM_POSITION * PLAYING_HAND;
-        	float y = pSceneTouchEvent.getY() - touchedInventoryItem.big.getHeight() / 2;
-        	       	
-        	//TODO: avoid mode drop when click zoom & dropping
+    	// coordinates are set from top left to centre of the sprite
+		float x = pSceneTouchEvent.getX() - touchedInventoryItem.big.getWidth() / 2  - BIG_ITEM_POSITION * PLAYING_HAND;
+    	float y = pSceneTouchEvent.getY() - touchedInventoryItem.big.getHeight() / 2;
+    	       	
+    	//TODO: avoid mode drop when click zoom & dropping
+    	
+    	// mode DROP launched when an item is dragged outside the "list" of inventory items
+    	if (mode == MODE_INVENTORY_OPEN && (pSceneTouchEvent.getY() < INVENTORY_POSY_NORMALVIEW
+    								|| pSceneTouchEvent.getX() > camera.getMinX() + inventory.items.size() * inventory.boxPlusInterval)) {
+    		mode = MODE_INVENTORY_DROP;
+    		hideInventory();
+   		}
+    	
+		switch(pSceneTouchEvent.getAction()) {
+		
+        case TouchEvent.ACTION_DOWN:   
+        	downTime = pSceneTouchEvent.getMotionEvent().getDownTime();
         	
-        	// mode DROP launched when an item is dragged outside the "list" of inventory items
-        	if (mode == MODE_INVENTORY_OPEN && (pSceneTouchEvent.getY() < INVENTORY_POSY_NORMALVIEW
-        								|| pSceneTouchEvent.getX() > camera.getMinX() + inventory.items.size() * inventory.boxPlusInterval)) {
-        		mode = MODE_INVENTORY_DROP;
-        		hideInventory();
-       		}
+        	touchedInventoryItem.setAlpha(INVBOX_ALPHA_LAYER);
+        	touchedInventoryItem.small.setAlpha(INV_ALPHA_LAYER);       		
+        	touchedInventoryItem.big.setVisible(true);
+
+        	break;
+        case TouchEvent.ACTION_MOVE:
+        	if (pSceneTouchEvent.getMotionEvent().getEventTime() > downTime + 200 && pSceneTouchEvent.getMotionEvent().getEventTime() < downTime + 400) {
+            	touchedInventoryItem.big.setZIndex(ZINDEX_INV_ITEM_IN_USE);
+        		scene.sortChildren();
+        	}
+        	if (pSceneTouchEvent.getMotionEvent().getEventTime() > downTime + 200) touchedInventoryItem.big.setPosition(x, y);
         	
-			switch(pSceneTouchEvent.getAction()) {
-			
-	        case TouchEvent.ACTION_DOWN:   
-	        	downTime = pSceneTouchEvent.getMotionEvent().getDownTime();
+            break;
+            
+		//********************************************************
+		//     COMBINATIONS: item dropped on something else
+		//********************************************************  
+        case TouchEvent.ACTION_UP:
+        	
+    		int[] combinationResult = {0,0,0,0,0};	        	
+        	
+    		//************************************
+    		//     ITEM DROPPED ON SCREEN
+    		//************************************        		
+    		if (mode == MODE_INVENTORY_DROP) {
+
+	        	ListIterator<ScreenItem> it = currentBg.items.listIterator();
 	        	
-            	touchedInventoryItem.setAlpha(INVBOX_ALPHA_LAYER);
-            	touchedInventoryItem.small.setAlpha(INV_ALPHA_LAYER);       		
-            	touchedInventoryItem.big.setVisible(true);
-
-            	break;
-            case TouchEvent.ACTION_MOVE:
-            	if (pSceneTouchEvent.getMotionEvent().getEventTime() > downTime + 200 && pSceneTouchEvent.getMotionEvent().getEventTime() < downTime + 400) {
-                	touchedInventoryItem.big.setZIndex(ZINDEX_INV_ITEM_IN_USE);
-            		scene.sortChildren();
-            	}
-            	if (pSceneTouchEvent.getMotionEvent().getEventTime() > downTime + 200) touchedInventoryItem.big.setPosition(x, y);
-            	
-                break;
-                
-    		//********************************************************
-    		//     COMBINATIONS: item dropped on something else
-    		//********************************************************  
-	        case TouchEvent.ACTION_UP:
-	        	
-        		int[] combinationResult = {0,0,0,0,0};	        	
-	        	
-        		//************************************
-        		//     ITEM DROPPED ON SCREEN
-        		//************************************        		
-        		if (mode == MODE_INVENTORY_DROP) {
-
-		        	ListIterator<ScreenItem> it = currentBg.items.listIterator();
-		        	
-		        	boolean lookForCombination = true;
-    				
-		    		while(it.hasNext() && lookForCombination) {
-		    			
-		    			ScreenItem item = it.next();
-		    			
-		    			if (RectangularShapeCollisionChecker.checkCollision(touchedInventoryItem.big, item)) {   	    		
-
-		    				//********************************************************************************************************
-		    				// results table:
-		    				// results[0]: combination        - id combination if combination ok, 0 if no combination		
-		    				// results[1]: combination        - id of resulting item
-		    				// results[2]: on screen creation - 0 if combination is in inventory, 1 if new item has to be created on screen
-		    				//********************************************************************************************************
-		    				combinationResult = world.combineItems(touchedInventoryItem.id, item.id, DB_COMBINATION_VALUE_ON_SCREEN);
-		    				
-			    			if (combinationResult[0] != 0) {
-			    				
-			    				lookForCombination = false;
-			    				
-			    				//******************************************** 
-			    				//   LAUNCH TRIGGERS  if needed
-			    				//********************************************
-		    					// before removing item from inventory, in case trigger use item from inventory
-			    				ArrayList<Integer> triggers = world.getTriggers(combinationResult[0], DB_TABLE_COMBINATION);
-
-		    					ListIterator<Integer> itTriggers = triggers.listIterator();
-		    					
-		    					while(itTriggers.hasNext())	launchTrigger(itTriggers.next(), false);
-			    			}		    			
-
-			    			if (combinationResult[1] != 0)	{
-			    				//************************************** 
-			    				//   REMOVE ITEMS if needed
-			    				//**************************************		    				
-		    					inventory.hideItem(touchedInventoryItem);
-
-			    				//************************************** 
-			    				//   CREATE NEW ITEM if needed
-			    				//************************************** 			    				
-			    				// a combination on screen can change an item on screen or inventory (or just launch a trigger, if combinationResult[1] == 0)
-			    				if (combinationResult[2] == DB_COMBINATION_VALUE_ON_SCREEN) {
-			    					//TODO: doesn't work
-				    				ScreenItem newItem = currentBg.addItemOnScreen(combinationResult[1], mEngine, scene);			    					
-									scene.registerTouchArea(newItem);
-			    				} else {
-				    				touchedZoomItem  = inventory.addItem(combinationResult[1], mEngine, scene); // should be done after redrawing
-					    			inventory.displayZoomView(camera.getMinX(), touchedZoomItem, scene);
-			    				}			    					
-				    		}
-			    		}  			
-		    		}
-
+	        	boolean lookForCombination = true;
+				
+	    		while(it.hasNext() && lookForCombination) {
 	    			
-		        	clickCheck = CLICK_OFF;
-		        	if (status != STATUS_ANIM) {
-		        		status = STATUS_ACTION;
-		    			mode = MODE_ACTION_WALK;
-		        	}
-		        	
-		       	//************************************
-	        	//   ITEM COMBINATION (in inventory)
-	        	//************************************        		    	 
-	        	} else if (mode == MODE_INVENTORY_ZOOM) {
+	    			ScreenItem item = it.next();
+	    			
+	    			if (RectangularShapeCollisionChecker.checkCollision(touchedInventoryItem.big, item)) {   	    		
 
-		    		if (RectangularShapeCollisionChecker.checkCollision(touchedInventoryItem.big, touchedZoomItem.big)) {
+	    				//********************************************************************************************************
+	    				// results table:
+	    				// results[0]: combination        - id combination if combination ok, 0 if no combination		
+	    				// results[1]: combination        - id of resulting item
+	    				// results[2]: on screen creation - 0 if combination is in inventory, 1 if new item has to be created on screen
+	    				//********************************************************************************************************
+	    				combinationResult = world.combineItems(touchedInventoryItem.id, item.id, DB_COMBINATION_VALUE_ON_SCREEN);
+	    				
+		    			if (combinationResult[0] != 0) {
 		    				
-		    			combinationResult = world.combineItems(touchedInventoryItem.id, touchedZoomItem.id, DB_COMBINATION_VALUE_IN_INVENTORY);
-		    			if (combinationResult[0] != 0)	{
+		    				lookForCombination = false;
 		    				
-		    				// clean zoom view, detach all sprites, update db and remove items
-		    				// don't detach sprites because it cause andEngine to crash
-		    				inventory.zoomView.detachChildren();
-	    					inventory.hideItem(touchedInventoryItem);
-	    					inventory.hideItem(touchedZoomItem);
-	    												
 		    				//******************************************** 
-		    				//   LAUNCHING TRIGGERS  if needed
+		    				//   LAUNCH TRIGGERS  if needed
 		    				//********************************************
-							//TODO: check if change is working
+	    					// before removing item from inventory, in case trigger use item from inventory
 		    				ArrayList<Integer> triggers = world.getTriggers(combinationResult[0], DB_TABLE_COMBINATION);
 
 	    					ListIterator<Integer> itTriggers = triggers.listIterator();
 	    					
-	    					while(itTriggers.hasNext())	launchTrigger(itTriggers.next(),false);							
-		    				
-		    				inventory.redrawInventory(); // change position of boxes							
+	    					while(itTriggers.hasNext())	launchTrigger(itTriggers.next(), false);
+		    			}		    			
 
-		    				InventoryItem newItem = inventory.addItem(combinationResult[1], mEngine, scene); // should be done after redrawing
-							float xPos = camera.getMinX() + INVENTORY_POSX_ZOOM_ITEM - newItem.big.getWidth()/2;
-							float yPos = INVENTORY_POSY_ZOOM_ITEM - newItem.big.getHeight()/2;
-							newItem.big.setPosition(xPos, yPos);
-							newItem.big.setVisible(true);
-							scene.registerTouchArea(newItem);
-							touchedZoomItem = newItem;
-		    			}
-	    			}
+		    			if (combinationResult[1] != 0)	{
+		    				//************************************** 
+		    				//   REMOVE ITEMS if needed
+		    				//**************************************		    				
+	    					inventory.hideItem(touchedInventoryItem);
+
+		    				//************************************** 
+		    				//   CREATE NEW ITEM if needed
+		    				//************************************** 			    				
+		    				// a combination on screen can change an item on screen or inventory (or just launch a trigger, if combinationResult[1] == 0)
+		    				if (combinationResult[2] == DB_COMBINATION_VALUE_ON_SCREEN) {
+		    					//TODO: doesn't work
+			    				ScreenItem newItem = currentBg.addItemOnScreen(combinationResult[1], mEngine, scene);			    					
+								scene.registerTouchArea(newItem);
+		    				} else {
+			    				touchedZoomItem  = inventory.addItem(combinationResult[1], mEngine, scene); // should be done after redrawing
+				    			inventory.displayZoomView(camera.getMinX(), touchedZoomItem, scene);
+		    				}			    					
+			    		}
+		    		}  			
 	    		}
 
-	        	hideBigItem();
+    			
+	        	clickCheck = CLICK_OFF;
+	        	if (status != STATUS_ANIM) {
+	        		status = STATUS_ACTION;
+	    			mode = MODE_ACTION_WALK;
+	        	}
+	        	
+	       	//************************************
+        	//   ITEM COMBINATION (in inventory)
+        	//************************************        		    	 
+        	} else if (mode == MODE_INVENTORY_ZOOM) {
 
-	        	// if still positioned in CLICK_INVENTORY, clickCheck has to be reinitialised
-	        	// because it means that an item was moved but not clicked or used
-	        	if (clickCheck == CLICK_INVENTORY) clickCheck = CLICK_OFF;   
-		        
-	        	break;
-	    	}
+	    		if (RectangularShapeCollisionChecker.checkCollision(touchedInventoryItem.big, touchedZoomItem.big)) {
+	    				
+	    			combinationResult = world.combineItems(touchedInventoryItem.id, touchedZoomItem.id, DB_COMBINATION_VALUE_IN_INVENTORY);
+	    			if (combinationResult[0] != 0)	{
+	    				
+	    				// clean zoom view, detach all sprites, update db and remove items
+	    				// don't detach sprites because it cause andEngine to crash
+	    				inventory.zoomView.detachChildren();
+    					inventory.hideItem(touchedInventoryItem);
+    					inventory.hideItem(touchedZoomItem);
+    												
+	    				//******************************************** 
+	    				//   LAUNCHING TRIGGERS  if needed
+	    				//********************************************
+						//TODO: check if change is working
+	    				ArrayList<Integer> triggers = world.getTriggers(combinationResult[0], DB_TABLE_COMBINATION);
+
+    					ListIterator<Integer> itTriggers = triggers.listIterator();
+    					
+    					while(itTriggers.hasNext())	launchTrigger(itTriggers.next(),false);							
+	    				
+	    				inventory.redrawInventory(); // change position of boxes							
+
+	    				InventoryItem newItem = inventory.addItem(combinationResult[1], mEngine, scene); // should be done after redrawing
+						float xPos = camera.getMinX() + INVENTORY_POSX_ZOOM_ITEM - newItem.big.getWidth()/2;
+						float yPos = INVENTORY_POSY_ZOOM_ITEM - newItem.big.getHeight()/2;
+						newItem.big.setPosition(xPos, yPos);
+						newItem.big.setVisible(true);
+						scene.registerTouchArea(newItem);
+						touchedZoomItem = newItem;
+	    			}
+    			}
+    		}
+
+        	hideBigItem();
+
+        	// if still positioned in CLICK_INVENTORY, clickCheck has to be reinitialised
+        	// because it means that an item was moved but not clicked or used
+        	if (clickCheck == CLICK_INVENTORY) clickCheck = CLICK_OFF;   
+	        
+        	break;
+    	}
 	}
-	
 	
 	private void activateMovingArrow(int direction) {
 		
@@ -1205,12 +1214,12 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	private void closeTalk(float x) {
 		
 		// avoid closing frame when touching the decorated part
-		if (x <= TALK_CLOSING_HEIGHT) {
+//		if (x <= TALK_CLOSING_HEIGHT) {
 			talk.hide();
 			talk.background.detachChildren();
 	        scene.unregisterTouchArea(talk.background);
 //			if (touchedZoomItem != null) inventory.displayZoomView(camera.getMinX(), touchedZoomItem, scene);
-		}	
+//		}	
 		
 //		if (mode == MODE_ANIM_TALK) {
 //			// check if there are relies
@@ -1254,7 +1263,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void activateActionOnAnim(Anim anim) {
 		
-		Log.d("Clementime", "Screen/activateActionOnAnim(): anim " + anim.toString()); 
+		if (LOG_ON) Log.d("Clementime", "Screen/activateActionOnAnim(): anim " + anim.toString()); 
 		
 		touchedItem = null;
 		touchedArea = null;
@@ -1299,7 +1308,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 	private void openCloseDevTools() {
 				
-		Log.i("Clementime", "Screen/openCloseDevTools()");
+		if (LOG_ON) Log.i("Clementime", "Screen/openCloseDevTools()");
 		
     	if (!devTools.mask.isVisible()) {
 	        scene.setChildScene(devTools);
@@ -1322,7 +1331,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void zoomOnItem() {
 		
-		Log.i("Clementime", "Screen/ZoomOnItem()");
+		if (LOG_ON) Log.i("Clementime", "Screen/ZoomOnItem()");
 		
 		mode = MODE_INVENTORY_ZOOM;
 		touchedZoomItem = touchedInventoryItem;
@@ -1334,7 +1343,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	private void switchZoomedItem() {
 		// accept consecutive clicks (= zoom again when already in zoom mode)
 		
-		Log.i("Clementime", "Screen/onClick(): clic again on inventory");
+		if (LOG_ON) Log.i("Clementime", "Screen/onClick(): clic again on inventory");
 
 		// clean zoom image before drawing another
 		touchedZoomItem.big.setPosition(-200, 0);
@@ -1350,7 +1359,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void closeZoom() {
 		
-		Log.i("Clementime", "Screen/closeZoom()");
+		if (LOG_ON) Log.i("Clementime", "Screen/closeZoom()");
 
     	if (status == STATUS_INVENTORY) mode = MODE_INVENTORY_OPEN;	
 		inventory.hideZoomView(touchedZoomItem, scene);
@@ -1366,7 +1375,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 	private void take() {
 		
-		Log.i("Clementime", "Screen/take()");
+		if (LOG_ON) Log.i("Clementime", "Screen/take()");
 		
 		if (world.isItemTakeable(touchedItem.id)) itemToBeRemoved = touchedItem;
 		
@@ -1375,7 +1384,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 	private void look() {
 
-		Log.i("Clementime", "Screen/look()");
+		if (LOG_ON) Log.i("Clementime", "Screen/look()");
 		
 //		if (touchedItem != null)
 //			text = world.getDesc(touchedItem.id, OBJECT_TYPE_ITEM, DB_DESCRIPTION_ACTION_LOOK);
@@ -1390,7 +1399,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 	private void talk() {
 
-		Log.i("Clementime", "Screen/talk()");
+		if (LOG_ON) Log.i("Clementime", "Screen/talk()");
 
 		status = STATUS_ANIM;
 		mode = MODE_ANIM_TALK;
@@ -1399,10 +1408,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void displayTalk(int pictureId) {
 		
-		Log.i("Clementime", "Screen/displayTalk()");
+		if (LOG_ON) Log.i("Clementime", "Screen/displayTalk()");
 		
 		talk.background.setPosition(camera.getMinX() + TALK_POSX, talk.background.getY());
-		talk.display(pictureId, gameTools.font);
+		//talk.display(pictureId, gameTools.font);
+		talk.display(scene, pictureId, gameTools.font);
         scene.registerTouchArea(talk.background);
 		status = STATUS_ANIM;
 		//mode = MODE_ANIM_OFF;
@@ -1410,9 +1420,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 	private void goToNextScreen() {
 		
-		if (touchedExit != null) Log.i("Clementime", "Screen/goToNextScreen(): from exit " + touchedExit.id);
+		if (touchedExit != null && LOG_ON) Log.i("Clementime", "Screen/goToNextScreen(): from exit " + touchedExit.id);
 //		else if (touchedMapItem != null) Log.i("Clementime", "Screen/goToNextScreen(): from map " + touchedMapItem);
-		else Log.i("Clementime", "Screen/goToNextScreen()");
+		else if (LOG_ON) Log.i("Clementime", "Screen/goToNextScreen()");
 		
 		garbageCollector();
 		
@@ -1436,7 +1446,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	public void displayInventory() {
 
-		Log.i("Clementime", "Screen/displayInventory()");
+		if (LOG_ON) Log.i("Clementime", "Screen/displayInventory()");
 		
 		this.enableAccelerometerSensor(this);
 		inventory.display(camera.getMinX(), scene);
@@ -1444,7 +1454,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	public void hideInventory() {
 		
-		Log.i("Clementime", "Screen/hideInventory()");
+		if (LOG_ON) Log.i("Clementime", "Screen/hideInventory()");
 		
 		this.disableAccelerometerSensor();
 		inventory.hide();	
@@ -1468,17 +1478,20 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		// results[8]: hide/show animation
 		// results[9]: simultaneous trigger		- if there is another trigger to launch at the same time, id of the trigger
 		//********************************************************************************************************
-		
-		if (simultaneous) Log.i("Clementime", "Screen/launchTrigger(): launch simultaneous trigger " + triggerId);
-		else Log.i("Clementime", "Screen/launchTrigger(): launch pending trigger " + triggerId);
+		if (LOG_ON) {
+			if (simultaneous) Log.i("Clementime", "Screen/launchTrigger(): launch simultaneous trigger " + triggerId);
+			else Log.i("Clementime", "Screen/launchTrigger(): launch pending trigger " + triggerId);
+		}
 		
 		simultaneousTriggerId = 0;
 		
 		// check and launch any trigger or trigger sequence
 		int[] triggerResult = world.activateTrigger(triggerId);
 
-		Log.d("Clementime", "Screen/launchTrigger(): Trigger results (trigger " + triggerId + ")");
-		for (int i=0; i<triggerResult.length; i++) Log.d("Clementime", "Screen/launchTrigger(): " + i + ": " + triggerResult[i]);
+		if (LOG_ON) {
+			Log.d("Clementime", "Screen/launchTrigger(): Trigger results (trigger " + triggerId + ")");
+			for (int i=0; i<triggerResult.length; i++) Log.d("Clementime", "Screen/launchTrigger(): " + i + ": " + triggerResult[i]);
+		}
 		
 		// the trigger launch an animation
 		if (triggerResult[1] != 0) {
@@ -1490,7 +1503,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			
 		// the trigger move the doll (special animation)
 		if (triggerResult[2] != 0) {
-			Log.d("Clementime", "Screen/launchTrigger(): move Doll ");
+			if (LOG_ON) Log.d("Clementime", "Screen/launchTrigger(): move Doll ");
 			
 			touchedX = triggerResult[2] + doll.centerX; // doll.getWidth()/2 is removed when check stop doll 
 
@@ -1504,7 +1517,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 		// the trigger display a text
 		if (triggerResult[4] != 0) {
-			Log.d("Clementime", "Screen/launchTrigger(): display text ");
+			if (LOG_ON) Log.d("Clementime", "Screen/launchTrigger(): display text ");
 			
 			displayTalk(0);
 			status = STATUS_ANIM;
@@ -1551,7 +1564,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		//****************************************************************
 		Map<String, Integer> animFeatures = world.getAnimFeatures(animId);
 		
-		Log.i("Clementime","Screen/launchanim(): launch animation " + animId);
+		if (LOG_ON) Log.i("Clementime","Screen/launchanim(): launch animation " + animId);
 		
 		ListIterator<Anim> it = currentBg.anims.listIterator();
 		
@@ -1602,7 +1615,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void hideBigItem() {
 		
-		Log.i("Clementime", "Screen/hideBigItem()");
+		if (LOG_ON) Log.i("Clementime", "Screen/hideBigItem()");
 		
     	touchedInventoryItem.big.setVisible(false);
        	touchedInventoryItem.big.setPosition(-200, 0); // out of screen
@@ -1617,19 +1630,21 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	
 	private void garbageCollector() {
 		
-		Log.i("Clementime", "Screen/garbageCollector(): List all scene children:");
+		if (LOG_ON) {
+			Log.i("Clementime", "Screen/garbageCollector(): List all scene children:");
 
-		for (int i=0;i<scene.getChildCount();i++) {
-			Log.i("Clementime", "Screen/garbageCollector(): " + scene.getChild(i).toString());
+			for (int i=0;i<scene.getChildCount();i++) {
+				Log.i("Clementime", "Screen/garbageCollector(): " + scene.getChild(i).toString());
+			}
 		}
 		
 		try {
-            Log.v("Clementime", "Screen/garbageCollector(): background " + currentBg.bgImage.toString() + " removed.");
+            if (LOG_ON) Log.v("Clementime", "Screen/garbageCollector(): background " + currentBg.bgImage.toString() + " removed.");
 	        scene.detachChild(currentBg.bgImage);
 	        mEngine.getTextureManager().unloadTexture(currentBg.bgBTA);
 			
 			if (currentBg.fgImage != null) {
-	            Log.v("Clementime", "Screen/garbageCollector(): foreground " + currentBg.fgImage.toString() + " removed.");
+	            if (LOG_ON) Log.v("Clementime", "Screen/garbageCollector(): foreground " + currentBg.fgImage.toString() + " removed.");
 	        	scene.detachChild(currentBg.fgImage);
 			}
 			
@@ -1639,11 +1654,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				while(itItems.hasNext()){
 					try {
 						ScreenItem toRemove = itItems.next();
-						Log.v("Clementime", "Screen/garbageCollector(): item " + toRemove.toString() + " removed.");
+						if (LOG_ON) Log.v("Clementime", "Screen/garbageCollector(): item " + toRemove.toString() + " removed.");
 						scene.unregisterTouchArea(toRemove);
 						scene.detachChild(toRemove);
 					} catch (Exception e) {
-						Log.w("Clementime", "Screen/garbageCollector(): unable to destroy sprite: " + e);
+						if (LOG_ON) Log.w("Clementime", "Screen/garbageCollector(): unable to destroy sprite: " + e);
 					}
 				}
 				currentBg.items.clear();
@@ -1657,14 +1672,14 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 					try {
 						Anim toRemove = itAnims.next();
 						
-						Log.v("Clementime", "Screen/garbageCollector(): item " + toRemove.toString() + " removed.");
+						if (LOG_ON) Log.v("Clementime", "Screen/garbageCollector(): item " + toRemove.toString() + " removed.");
 
 						scene.unregisterTouchArea(toRemove);
 						scene.detachChild(toRemove);
 						toRemove.clearUpdateHandlers();
 						
 					} catch (Exception e) {
-						Log.w("Clementime", "Screen/garbageCollector(): unable to destroy sprite: " + e);
+						Log.e("Clementime", "Screen/garbageCollector(): unable to destroy sprite: " + e);
 					}
 				}
 				currentBg.anims.clear();
@@ -1694,11 +1709,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			while(itExits.hasNext()){
 				try {
 					Exit toRemove = itExits.next();
-					Log.v("Clementime", "Screen/garbageCollector(): exit " + toRemove.toString() + " removed.");
+					if (LOG_ON) Log.v("Clementime", "Screen/garbageCollector(): exit " + toRemove.toString() + " removed.");
 					scene.unregisterTouchArea(toRemove);
 					scene.detachChild(toRemove);
 				} catch (Exception e) {
-					Log.w("Clementime", "Screen/garbageCollector(): unable to destroy exit: " + e);
+					Log.e("Clementime", "Screen/garbageCollector(): unable to destroy exit: " + e);
 				}
 			}
 	        currentBg.exits.clear(); 
@@ -1707,7 +1722,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 			System.gc();
         } catch (Exception e) {
-            Log.w("Clementime", "Screen/garbageCollector(): problem during cleaning: " + e);
+            Log.e("Clementime", "Screen/garbageCollector(): problem during cleaning: " + e);
         }
 	}
 	
@@ -1718,7 +1733,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	@Override
 	public void onResume() {
 		
-		Log.i("Clementime","Screen/onResume()");
+		if (LOG_ON) Log.i("Clementime","Screen/onResume()");
 		
 		super.onResume();
 		
@@ -1731,11 +1746,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		try {
 			if (dbh.checkDatabase()) dbh.open();
 			else {
-	  			Log.w("Clementime", "Screen/onResume(): cannot open database. Close RDS"); 
+	  			Log.e("Clementime", "Screen/onResume(): cannot open database. Close RDS"); 
 				this.finish();
 			}		
 		} catch (Exception e) {
-  			Log.w("Clementime", "Screen/onResume(): cannot open database. Close RDS"); 
+  			Log.e("Clementime", "Screen/onResume(): cannot open database. Close RDS"); 
 			this.finish();		
 		}
 		
@@ -1751,14 +1766,16 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				backup.loadPlayerData("_current");
 			} else Log.i("Clementime","Screen/onResume(): --- DEV ON ---  start a new game");	
 		}
-		else if (!dbh.newGame)	Log.i("Clementime","Screen/onResume(): keep current version");					
-		else					Log.i("Clementime","Screen/onResume(): start a new game");	
+		else if (LOG_ON) { 		
+			if (!dbh.newGame)	Log.i("Clementime","Screen/onResume(): keep current version");					
+			else				Log.i("Clementime","Screen/onResume(): start a new game");
+		}
 	}
 	
 	@Override
 	public void onPause() {
 		
-		Log.i("Clementime", "Screen/onPause()");
+		if (LOG_ON) Log.i("Clementime", "Screen/onPause()");
 		
 		super.onPause();
 		if(dbh.db.isOpen()) {

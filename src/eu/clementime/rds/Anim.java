@@ -1,5 +1,7 @@
 package eu.clementime.rds;
 
+import static eu.clementime.rds.Constants.SCALE;
+
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
@@ -40,11 +42,15 @@ public class Anim extends AnimatedSprite {
 //		
 //		this.loop = loop;
 		
+		this.setScaleCenter(0,0);
+		this.setScale(SCALE);
+		
 		this.width = width;
-		this.x = x - width/2;
-		this.y = y;
-		this.moveToX = moveToX;
-		this.moveToY = moveToY;
+		this.x = (x - width/2) * SCALE;
+		this.y = y * SCALE;
+		
+		this.moveToX = moveToX * SCALE;
+		this.moveToY = moveToY * SCALE;
 //		this.xVelocity = xVelocity;
 //		this.yVelocity = yVelocity;
 //		

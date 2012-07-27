@@ -19,19 +19,31 @@ import android.content.Context;
 
 public class Talk {
 	
+	private DatabaseAccess db;
+	
+	private Context context;
+	public int screenId;
+	
 	private TextureRegion TR1;
+	private TextureRegion TR2;
 	
 	public Sprite background;
 	public Sprite selectedItem = null;
 	
 	private Sprite picture;
 	
-	public Talk(Context context, Engine engine, Scene scene) {
+	public Talk(DatabaseHandler dbh, Context context, int screenId, Engine engine, Scene scene) {
+		
+		this.db = new DatabaseAccess(dbh);
+		this.context = context;
+		this.screenId = screenId;
 		
 		BitmapTextureAtlas BTA = new BitmapTextureAtlas(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		this.TR1 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA, context, R.drawable.look_bg, 0, 0);
+		BitmapTextureAtlas BTA2 = new BitmapTextureAtlas(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		this.TR1 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA, context, R.drawable.dialog_bubble, 0, 0);
+		this.TR2 = BitmapTextureAtlasTextureRegionFactory.createFromResource(BTA2, context, R.drawable.s1_bubble_test, 0, 0);
 
-		engine.getTextureManager().loadTexture(BTA);
+		engine.getTextureManager().loadTextures(BTA,BTA2);
 		
 		background = new Sprite(TALK_POSX, TALK_POSY, TR1);	
 		background.setVisible(false);
@@ -40,22 +52,26 @@ public class Talk {
 		background.setZIndex(ZINDEX_TALK);
 	}
 	
-	public void display(int pictureId, Font font) {
+	public void display(Scene scene, int pictureId, Font font) {
 		background.setVisible(true);
-		displayPicture(pictureId, font);
+		displayPicture(scene, pictureId, font);
 	}
 		
 	public void hide() {
 		background.setVisible(false);
 	}
 	
-	private void displayPicture(int pictureId, Font font) {	
+	private void displayPicture(Scene scene, int pictureId, Font font) {	
 		
 		background.detachChildren();
-		Text displayedText;
-
-		displayedText = new Text(60, 20, font, "yop", HorizontalAlign.LEFT);
-		background.attachChild(displayedText);
+//		Text displayedText;
+//
+//		displayedText = new Text(60, 20, font, "yop", HorizontalAlign.LEFT);
+//		background.attachChild(displayedText);
+		
+		picture = new Sprite(10, 10, TR2);	
+		background.attachChild(picture);
+		//picture.setZIndex(ZINDEX_TALK);
 	}
 
 }

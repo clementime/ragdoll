@@ -5,6 +5,7 @@ import static eu.clementime.rds.Constants.DB_INVENTORY_VALUE_IN;
 import static eu.clementime.rds.Constants.DB_TABLE_ITEM;
 import static eu.clementime.rds.Constants.DIRECTION_LEFT;
 import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
+import static eu.clementime.rds.Constants.LOG_ON;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -174,7 +175,7 @@ public class DatabaseAccess {
 		query += " from exit ";
 		query += " where screen_id = " + screenId + " order by id";	// conditions
 		
-		Log.i("Clementime", "Background/loadExits(): ***load exits*** ");	
+		if (LOG_ON) Log.i("Clementime", "Background/loadExits(): ***load exits*** ");	
 
 		int id;
 		int direction;
@@ -193,7 +194,7 @@ public class DatabaseAccess {
 				y = c.getInt(c.getColumnIndex("y")) + MARGIN;
 				display = c.getInt(c.getColumnIndex("display"));
 				
-				Log.v("Clementime", "Background/loadExits(): load exit " + id);
+				if (LOG_ON) Log.v("Clementime", "Background/loadExits(): load exit " + id);
 				
 				if (c.getInt(c.getColumnIndex("direction")) == DIRECTION_LEFT) {
 					Exit exit = new Exit(id, direction, x, y, display, TRLeft);
@@ -221,7 +222,7 @@ public class DatabaseAccess {
 			c.close();
 			
 		} catch (Exception e) {
-			Log.w("Clementime", "Background/loadExits(): failed to load exits - " + e.getMessage());
+			Log.e("Clementime", "Background/loadExits(): failed to load exits - " + e.getMessage());
 		}
 		
 		return exits;
@@ -241,7 +242,7 @@ public class DatabaseAccess {
 		query += " from screen_area ";
 		query += " where screen_id = " + screenId + " order by id";	// conditions
 		
-		Log.d("Clementime", "Background/loadAreas(): ***load areas*** ");	
+		if (LOG_ON) Log.d("Clementime", "Background/loadAreas(): ***load areas*** ");	
 		
 		try {
 			Cursor c = dbh.db.rawQuery(query, new String [] {});
@@ -254,14 +255,14 @@ public class DatabaseAccess {
 				width = c.getInt(c.getColumnIndex("width"));
 				height = c.getInt(c.getColumnIndex("height"));
 	
-				Log.d("Clementime", "Background/loadAreas(): load area " + id + " xMin: " + x + "-yMin: " + y + "-xMax: " + (x + width) + "-yMax: " + (y + height));
+				if (LOG_ON) Log.d("Clementime", "Background/loadAreas(): load area " + id + " xMin: " + x + "-yMin: " + y + "-xMax: " + (x + width) + "-yMax: " + (y + height));
 				areas.add(new Area(id, x, y, width, height));
 			}
 			
 			c.close();
 			
 		} catch (Exception e) {
-			Log.w("Clementime", "Background/loadAreas(): failed to load areas - " + e.getMessage());
+			Log.e("Clementime", "Background/loadAreas(): failed to load areas - " + e.getMessage());
 		}
 		
 		return areas;
@@ -284,7 +285,7 @@ public class DatabaseAccess {
 			c.close();
 			
 		} catch (Exception e) {
-			Log.w("Clementime", "Background/showAnims(): failed to load playing animations - " + e.getMessage());
+			Log.e("Clementime", "Background/showAnims(): failed to load playing animations - " + e.getMessage());
 		}
 		
 		return displayedAnims;
@@ -433,7 +434,7 @@ public class DatabaseAccess {
 			c.close();
 			
 		} catch (Exception e) {
-			Log.w("Clementime", "Background/loadItem(): failed to load item " + itemId + " - " + e.getMessage());
+			Log.e("Clementime", "Background/loadItem(): failed to load item " + itemId + " - " + e.getMessage());
 		}
 		
 		return hm;
@@ -477,7 +478,7 @@ public class DatabaseAccess {
 
 	public void updateInventoryField(String where, int value) {
 		
-		Log.d("Clementime", "InventoryFrame/updateInventoryField()");
+		if (LOG_ON) Log.d("Clementime", "InventoryFrame/updateInventoryField()");
 
 		try {	
 		    ContentValues args = new ContentValues();
@@ -724,7 +725,7 @@ public class DatabaseAccess {
 	
 	public void updateWithModifier(String tableName, String fieldName, int newState, String where) {
 		
-		Log.d("Clementime", "InventoryFrame/updateInventoryField()");
+		if (LOG_ON) Log.d("Clementime", "InventoryFrame/updateInventoryField()");
 
 		try {	
 		    ContentValues args = new ContentValues();
@@ -881,7 +882,7 @@ public class DatabaseAccess {
 	// find where the doll is at launching time
 	public int[] selectDollPosition() {
 		
-		Log.d("Clementime", "World/getDollPosition()");
+		if (LOG_ON) Log.d("Clementime", "World/getDollPosition()");
 		
 		String query = "";
 		int[] dollPos = {0,0};
@@ -899,7 +900,7 @@ public class DatabaseAccess {
 			c.close();
 			
 		} catch (Exception e) {
-			Log.w("Clementime", "World/getDollPosition(): failed to get x position from player table.");
+			Log.e("Clementime", "World/getDollPosition(): failed to get x position from player table.");
 		}
 		
 		try {		
@@ -915,19 +916,19 @@ public class DatabaseAccess {
 			c1.close();
 			
 		} catch (Exception e) {
-			Log.w("Clementime", "World/getDollPosition(): failed to get y position from player table.");
+			Log.e("Clementime", "World/getDollPosition(): failed to get y position from player table.");
 		}
 		
 		return dollPos;	
 	}
-
+	
 	//***********************************
 	// WORLD
 	//*********************************** 
 	
 	public int[] selectFirstScreenFeatures() {
 		
-		Log.i("Clementime", "World/getFirstScreenFeatures() ");
+		if (LOG_ON) Log.i("Clementime", "World/getFirstScreenFeatures() ");
 
 		// features[0] = id exit, features[1] = to trigger before leaving	
 		int[] features = {0,0,0,0};
@@ -945,7 +946,7 @@ public class DatabaseAccess {
 				features[0] = c.getInt(c.getColumnIndex("after_trigger_id"));
 				features[1] = c.getInt(c.getColumnIndex("starting_x"));
 				features[2] = c.getInt(c.getColumnIndex("starting_y"));
-				Log.v("Clementime", "World/getFirstScreenFeatures(): starting x: " + features[2] + " starting y: " + features[3] + " starting trigger: " + features[1]);
+				if (LOG_ON) Log.v("Clementime", "World/getFirstScreenFeatures(): starting x: " + features[2] + " starting y: " + features[3] + " starting trigger: " + features[1]);
 			}
 
 			c.close();
@@ -1001,5 +1002,13 @@ public class DatabaseAccess {
 		    
 			args.put("value", y);
 		    dbh.db.update("player_saving", args, " reference = 'y_doll' ", null);	
+	}
+
+	//***********************************
+	// TALK
+	//***********************************
+	
+	public void selectTalks(int screenId) {
+		
 	}
 }

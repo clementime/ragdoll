@@ -11,6 +11,7 @@ import static eu.clementime.rds.Constants.POINTER_WALK;
 import static eu.clementime.rds.Constants.CAMERA_WIDTH;
 import static eu.clementime.rds.Constants.CAMERA_HEIGHT;
 import static eu.clementime.rds.Constants.MARGIN_Y;
+import static eu.clementime.rds.Constants.LOG_ON;
 
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.entity.Entity;
@@ -59,7 +60,7 @@ public class GameTools extends Entity {
 	
 	public GameTools(DatabaseHandler dbh, Context context, Engine engine, Scene scene) {
 		
-		Log.i("Clementime", "GameTools/constructor()");
+		if (LOG_ON) Log.i("Clementime", "GameTools/constructor()");
 		
 		this.db = new DatabaseAccess(dbh);
 		
@@ -75,7 +76,7 @@ public class GameTools extends Entity {
 	// TODO: check size of all BTA to reduce them as much as possible
 	public void loadGameItems(Engine engine, Scene scene) {
 		
-		Log.i("Clementime", "GameTools/loadGameItems()");
+		if (LOG_ON) Log.i("Clementime", "GameTools/loadGameItems()");
 		
 		BitmapTextureAtlas BTA = new BitmapTextureAtlas(256, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
@@ -137,7 +138,7 @@ public class GameTools extends Entity {
 
 	public void showAnimatedCircle(float x, float y, int type) {
 		
-		Log.i("Clementime", "GameTools/showAnimatedCircle()");
+		if (LOG_ON) Log.i("Clementime", "GameTools/showAnimatedCircle()");
 		
 		if (type == POINTER_WALK) {
 			walkingPointer.setPosition(x, y);
@@ -152,7 +153,7 @@ public class GameTools extends Entity {
 
 	public void hideAnimatedCircle() {
 		
-		Log.i("Clementime", "GameTools/hideAnimatedCircle()");
+		if (LOG_ON) Log.i("Clementime", "GameTools/hideAnimatedCircle()");
 		
 		walkingPointer.setVisible(false);
 		animatedCircle.setVisible(false);
