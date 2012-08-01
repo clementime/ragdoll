@@ -20,7 +20,7 @@ import android.content.Context;
 public class Talk {
 	
 	private DatabaseAccess db;
-	
+	private String className = "Talk";
 	private Context context;
 	public int screenId;
 	

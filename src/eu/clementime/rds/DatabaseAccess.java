@@ -24,6 +24,9 @@ import android.util.Log;
 public class DatabaseAccess {
 	
 	private DatabaseHandler dbh;
+	private String className = "DatabaseAccess";
+	
+	//TODO: put as much as possible in classes to reduce database access during game (ex.: take, look, talk states should be updated in classes at runtime) 
 	
 	public DatabaseAccess(DatabaseHandler dbh) {
 		this.dbh = dbh;
@@ -53,23 +56,25 @@ public class DatabaseAccess {
 			c.close();
 			
 		} catch (Exception e) {
-			Log.e("Clementime", "DatabaseAccess/selectBackground(): failed to access data " + e.getMessage());
+			Log.e("Clementime", className + "/selectBackground(): failed to access data " + e.getMessage());
 		}
 		
 		return hm;	
 	}
 	
-	public LinkedList<Map<String, String>> selectscreenItems(int screenId) {
+	public LinkedList<Map<String, String>> selectScreenItems(int screenId) {
 		
 		LinkedList<Map<String, String>> ll = new LinkedList<Map<String, String>>();
 		
 		String query = " select _id as id, image, height, width, " + DB_FIELD_DISPLAY + ", ";
-		query += " x, y, take_state, look_state, talk_state, takeable, foreground ";	// select field
+		query += " x, y, take_state, look_state, takeable, foreground ";	// select field
 		query += " from item left join screen_item on _id = item_id ";
 		query += " where screen_id = " + screenId;	// conditions
 		query += " and " + DB_FIELD_DISPLAY + " = 1 ";
 		query += " order by height desc ";
-			
+
+		if (LOG_ON) Log.d("Clementime", className + "/selectScreenItems(): query: " + query);
+		
 		try {
 			Cursor c = dbh.db.rawQuery(query, new String [] {});
 			
@@ -87,7 +92,6 @@ public class DatabaseAccess {
 				hm.put("take_state", c.getString(c.getColumnIndex("take_state")));
 				hm.put("look_state", c.getString(c.getColumnIndex("look_state")));
 				hm.put("take_state", c.getString(c.getColumnIndex("take_state")));
-				hm.put("talk_state", c.getString(c.getColumnIndex("talk_state")));
 				hm.put("takeable", c.getString(c.getColumnIndex("takeable")));
 				hm.put("foreground", c.getString(c.getColumnIndex("foreground")));
 
@@ -97,7 +101,7 @@ public class DatabaseAccess {
 			c.close();
 			
 		} catch (Exception e) {
-			Log.e("Clementime", "Background/countScreenItems(): failed to select screen items on screen " + screenId);
+			Log.e("Clementime", className + "/selectScreenItems(): failed to select screen items on screen " + screenId);
 		}		
 
 		return ll;
@@ -139,7 +143,7 @@ public class DatabaseAccess {
 			c.close();
 			
 		} catch (Exception e) {
-			Log.e("Clementime", "Background/countScreenItems(): failed to select screen items on screen " + screenId);
+			Log.e("Clementime", className + "/selectAnimations(): failed to select screen items on screen " + screenId);
 		}		
 
 		return ll;
@@ -153,7 +157,7 @@ public class DatabaseAccess {
 		query += " from exit ";
 		query += " where screen_id = " + screenId + " order by id";	// conditions
 		
-		if (LOG_ON) Log.i("Clementime", "Background/loadExits(): ***load exits*** ");	
+		if (LOG_ON) Log.i("Clementime", className + "/loadExits(): ***load exits*** ");	
 
 		int id;
 		int direction;
@@ -172,7 +176,7 @@ public class DatabaseAccess {
 				y = c.getInt(c.getColumnIndex("y")) + MARGIN;
 				display = c.getInt(c.getColumnIndex("display"));
 				
-				if (LOG_ON) Log.v("Clementime", "Background/loadExits(): load exit " + id);
+				if (LOG_ON) Log.v("Clementime", className + "/loadExits(): load exit " + id);
 				
 				if (c.getInt(c.getColumnIndex("direction")) == DIRECTION_LEFT) {
 					Exit exit = new Exit(id, direction, x, y, display, TRLeft);
@@ -200,7 +204,7 @@ public class DatabaseAccess {
 			c.close();
 			
 		} catch (Exception e) {
-			Log.e("Clementime", "Background/loadExits(): failed to load exits - " + e.getMessage());
+			Log.e("Clementime", className + "/loadExits(): failed to load exits - " + e.getMessage());
 		}
 		
 		return exits;
@@ -220,7 +224,7 @@ public class DatabaseAccess {
 		query += " from screen_area ";
 		query += " where screen_id = " + screenId + " order by id";	// conditions
 		
-		if (LOG_ON) Log.d("Clementime", "Background/loadAreas(): ***load areas*** ");	
+		if (LOG_ON) Log.d("Clementime", className + "/loadAreas(): ***load areas*** ");	
 		
 		try {
 			Cursor c = dbh.db.rawQuery(query, new String [] {});
@@ -233,14 +237,14 @@ public class DatabaseAccess {
 				width = c.getInt(c.getColumnIndex("width"));
 				height = c.getInt(c.getColumnIndex("height"));
 	
-				if (LOG_ON) Log.d("Clementime", "Background/loadAreas(): load area " + id + " xMin: " + x + "-yMin: " + y + "-xMax: " + (x + width) + "-yMax: " + (y + height));
+				if (LOG_ON) Log.d("Clementime", className + "/loadAreas(): load area " + id + " xMin: " + x + "-yMin: " + y + "-xMax: " + (x + width) + "-yMax: " + (y + height));
 				areas.add(new Area(id, x, y, width, height));
 			}
 			
 			c.close();
 			
 		} catch (Exception e) {
-			Log.e("Clementime", "Background/loadAreas(): failed to load areas - " + e.getMessage());
+			Log.e("Clementime", className + "/loadAreas(): failed to load areas - " + e.getMessage());
 		}
 		
 		return areas;
@@ -263,7 +267,7 @@ public class DatabaseAccess {
 			c.close();
 			
 		} catch (Exception e) {
-			Log.e("Clementime", "Background/showAnims(): failed to load playing animations - " + e.getMessage());
+			Log.e("Clementime", className + "/showAnims(): failed to load playing animations - " + e.getMessage());
 		}
 		
 		return displayedAnims;
@@ -330,11 +334,12 @@ public class DatabaseAccess {
 		
 		int[] stateResults = {0,0,0,0};
 
-		String query  = " select item_id as id, take_state, look_state, talk_state, exit ";
+		String query  = " select item_id as id, take_state, look_state ";
 		query += " from screen_item ";
 		query += " where id = " + itemId;
 		
-		// check if every items needed for activating are in inventory
+		if (LOG_ON) Log.d("Clementime", className + "/selectItemStates(): query: " + query);
+		
 		try {
 			Cursor c = dbh.db.rawQuery(query, new String [] {});
 			
@@ -343,13 +348,11 @@ public class DatabaseAccess {
 				
 				stateResults[0] = c.getInt(c.getColumnIndex("take_state"));
 				stateResults[1] = c.getInt(c.getColumnIndex("look_state"));
-				stateResults[2] = c.getInt(c.getColumnIndex("talk_state"));
-				stateResults[3] = c.getInt(c.getColumnIndex("exit"));
 				
 				c.close();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (LOG_ON) Log.e("Clementime", className + "/selectItemStates(): failed");
 		}
 		
 		return stateResults;
@@ -412,7 +415,7 @@ public class DatabaseAccess {
 			c.close();
 			
 		} catch (Exception e) {
-			Log.e("Clementime", "Background/loadItem(): failed to load item " + itemId + " - " + e.getMessage());
+			Log.e("Clementime", className + "/loadItem(): failed to load item " + itemId + " - " + e.getMessage());
 		}
 		
 		return hm;

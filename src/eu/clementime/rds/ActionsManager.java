@@ -10,6 +10,7 @@ import static eu.clementime.rds.Constants.DIRECTION_LEFT;
 import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
 import static eu.clementime.rds.Constants.ZINDEX_ACTION;
 import static eu.clementime.rds.Constants.MARGIN_Y;
+import static eu.clementime.rds.Constants.LOG_ON;
 
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.entity.Entity;
@@ -36,10 +37,12 @@ public class ActionsManager extends Entity {
 	public AnimatedSprite talk;
 	public AnimatedSprite exitLeft;
 	public AnimatedSprite exitRight;
+	
+  	private String className ="ActionsManager";
 
 	public void load(Context context, Engine engine, Scene scene) {
 				
-		Log.d("Clementime", "ActionHandler/loadImages()");
+		Log.d("Clementime", className + "/loadImages()");
 		
 		final BitmapTextureAtlas BTA = new BitmapTextureAtlas(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		takeTR = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.action_take, 0, 0, 6, 1);
@@ -78,6 +81,8 @@ public class ActionsManager extends Entity {
 		int look = itemStates[1];
 		int talk = itemStates[2];
 
+		if (LOG_ON) Log.d("Clementime", className + "/activate(): activate actions send >> take: " + take + "-look: " + look + "-talk: " +talk);
+		
 		deactivate();
 
 		int actions = 0;
@@ -91,7 +96,7 @@ public class ActionsManager extends Entity {
 		if (look > 0) actions += 2;
 		if (talk > 0) actions += 4;
 
-		Log.d("Clementime", "ActionHandler/activate(): activate actions result >> " + actions);
+		if (LOG_ON) Log.d("Clementime", className + "/activate(): activate actions result >> " + actions);
 
 		// several actions are activated
 		if (actions >= 3 && actions != 4) showPossibleActions(x, y, width, height, area, actions); 
@@ -101,7 +106,7 @@ public class ActionsManager extends Entity {
 
 	public void showPossibleActions(float x, float y, float width, float height, boolean area, int actions) {
 
-		Log.d("Clementime", "ActionHandler/showPossibleActions(): actions >> " + actions);
+		Log.d("Clementime", className + "/showPossibleActions(): actions >> " + actions);
 		
 		// if area, pointers are shown in centre area, if item, above or below
 		if (area) {
@@ -158,7 +163,7 @@ public class ActionsManager extends Entity {
 
 	public void deactivate() {
 		
-		Log.d("Clementime", "ActionHandler/deactivate()");
+		Log.d("Clementime", className + "/deactivate()");
 
 		this.take.setVisible(false);
 		this.look.setVisible(false);
@@ -181,7 +186,7 @@ public class ActionsManager extends Entity {
 	
 	public void freeze(int action) {
 		
-		Log.d("Clementime", "ActionHandler/freeze()");
+		Log.d("Clementime", className + "/freeze()");
 		
 		this.take.stopAnimation();
 		this.look.stopAnimation();

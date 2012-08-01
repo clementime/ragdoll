@@ -11,6 +11,10 @@ public class InventoryItem  extends Sprite {
 	public Sprite big;
 	public Sprite small;
 	
+	public float scaledCenterX;
+	public float scaledWidth;
+	public float scaledHeight;
+	
 	public InventoryItem(int id, Sprite big, Sprite small, TextureRegion box) {
 		super(0, 0, box.getWidth(), box.getHeight(), box);
 		

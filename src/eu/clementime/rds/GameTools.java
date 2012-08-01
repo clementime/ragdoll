@@ -33,6 +33,7 @@ public class GameTools extends Entity {
 		
 	private Context context;
 	private DatabaseAccess db;
+	private String className = "GameTools";
 	public int screenId;
 	
 	private TiledTextureRegion TR1;
@@ -60,7 +61,7 @@ public class GameTools extends Entity {
 	
 	public GameTools(DatabaseHandler dbh, Context context, Engine engine, Scene scene) {
 		
-		if (LOG_ON) Log.i("Clementime", "GameTools/constructor()");
+		if (LOG_ON) Log.i("Clementime", className + "/constructor()");
 		
 		this.db = new DatabaseAccess(dbh);
 		
@@ -76,7 +77,7 @@ public class GameTools extends Entity {
 	// TODO: check size of all BTA to reduce them as much as possible
 	public void loadGameItems(Engine engine, Scene scene) {
 		
-		if (LOG_ON) Log.i("Clementime", "GameTools/loadGameItems()");
+		if (LOG_ON) Log.i("Clementime", className + "/loadGameItems()");
 		
 		BitmapTextureAtlas BTA = new BitmapTextureAtlas(256, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
@@ -138,7 +139,7 @@ public class GameTools extends Entity {
 
 	public void showAnimatedCircle(float x, float y, int type) {
 		
-		if (LOG_ON) Log.i("Clementime", "GameTools/showAnimatedCircle()");
+		if (LOG_ON) Log.i("Clementime", className + "/showAnimatedCircle()");
 		
 		if (type == POINTER_WALK) {
 			walkingPointer.setPosition(x, y);
@@ -153,7 +154,7 @@ public class GameTools extends Entity {
 
 	public void hideAnimatedCircle() {
 		
-		if (LOG_ON) Log.i("Clementime", "GameTools/hideAnimatedCircle()");
+		if (LOG_ON) Log.i("Clementime", className + "/hideAnimatedCircle()");
 		
 		walkingPointer.setVisible(false);
 		animatedCircle.setVisible(false);

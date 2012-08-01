@@ -36,7 +36,6 @@ public class Background {
 	public ArrayList<ScreenItem> items = new ArrayList<ScreenItem>();
 	public ArrayList<Area> areas = new ArrayList<Area>();
 	public ArrayList<Anim> anims = new ArrayList<Anim>();
-//	public ArrayList<Sprite> chars = new ArrayList<Sprite>();
 	public ArrayList<Exit> exits = new ArrayList<Exit>();
 
 	public Sprite bgImage;
@@ -45,6 +44,7 @@ public class Background {
 	public int xMax;
 		
 	private DatabaseAccess db;
+	private String className = "Background";
 	
 	private Context context;
 	public int screenId;
@@ -87,16 +87,16 @@ public class Background {
 			int bgFile = context.getResources().getIdentifier(hm.get("background"), "drawable", context.getPackageName());
 			if (bgFile == 0) {
 				bgFile = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
-				if (LOG_ON) Log.w("Clementime", "Background/loadBackground(): cannot find background screen " + screenId + " " + hm.get("background"));
-			} else if (LOG_ON) Log.d("Clementime", "Background/loadBackground(): load background " + hm.get("background"));
+				if (LOG_ON) Log.w("Clementime", className + "/loadBackground(): cannot find background screen " + screenId + " " + hm.get("background"));
+			} else if (LOG_ON) Log.d("Clementime", className + "/loadBackground(): load background " + hm.get("background"));
 			
 			// load foreground only if available
-			if (hm.get("foreground") != "" && hm.get("foreground") != null) {	
+			if (hm.get("foreground") != "" && hm.get("foreground") != null && hm.get("foreground").length() > 1) {	
 				int fgFile = context.getResources().getIdentifier(hm.get("foreground"), "drawable", context.getPackageName());
 				if (fgFile == 0) {
 					fgFile = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
-					if (LOG_ON) Log.w("Clementime", "Background/loadBackground(): cannot find foreground screen " + screenId + " " + hm.get("foreground"));
-				} else if (LOG_ON) Log.d("Clementime", "Background/loadBackground(): load foreground " + hm.get("foreground"));
+					if (LOG_ON) Log.w("Clementime", className + "/loadBackground(): cannot find foreground screen " + screenId + " " + hm.get("foreground"));
+				} else if (LOG_ON) Log.d("Clementime", className + "/loadBackground(): load foreground " + hm.get("foreground"));
 
 				TextureRegion TRFore = BitmapTextureAtlasTextureRegionFactory.createFromResource(bgBTA, context, fgFile, 0, 480);
 				fgImage = new Sprite(0, 0 + MARGIN_Y, TRFore);
@@ -105,7 +105,7 @@ public class Background {
 				
 				scene.attachChild(fgImage);
 				fgImage.setZIndex(ZINDEX_GROUND_1);
-			}
+			} else if (LOG_ON) Log.i("Clementime", className + "/loadBackground(): no foreground to load");
 			
 			TextureRegion TRBack = BitmapTextureAtlasTextureRegionFactory.createFromResource(bgBTA, context, bgFile, 0, 0);
 			
@@ -124,13 +124,13 @@ public class Background {
 			//bgImage.setVisible(false); // used to test if a zindex is not correctly set
 			
 		} catch (Exception e) {
-			Log.e("Clementime", "Background/loadBackground():failed to load screen " + screenId);		
+			Log.e("Clementime", className + "/loadBackground():failed to load screen " + screenId);		
 		}
 	}
 	
 	public void loadItems(Engine engine, Scene scene) {
 		
-		LinkedList<Map<String, String>> ll = db.selectscreenItems(this.screenId);
+		LinkedList<Map<String, String>> ll = db.selectScreenItems(this.screenId);
 		
 		// avoid errors if BTAs are empty
 		if (!ll.isEmpty()) {
@@ -154,7 +154,7 @@ public class Background {
 					
 					hm = it.next();
 					
-					if (LOG_ON) Log.d("Clementime", "Background/loadItems(): load item " + hm.get("image"));
+					if (LOG_ON) Log.d("Clementime", className + "/loadItems(): load item " + hm.get("image"));
 	
 					// manage position on AtlasBitmap
 					nextPosOnAtlasX = posOnAtlasX + Integer.parseInt(hm.get("width"));
@@ -164,15 +164,15 @@ public class Background {
 						posOnAtlasY = posOnAtlasY + nextPosOnAtlasY;
 						nextPosOnAtlasY = 0;
 					}
-					
+
 					createItem(hm, itemsBTA, posOnAtlasX, posOnAtlasY);
-		
+					
 					// manage position on AtlasBitmap
 					posOnAtlasX = posOnAtlasX + Integer.parseInt(hm.get("width"));
 				}
 				
 			} catch (Exception e) {
-				Log.e("Clementime", "Background/loadItems(): failed to load items - " + e.getMessage());
+				Log.e("Clementime", className + "/loadItems(): failed to load items - " + e.getMessage());
 			}
 			
 			engine.getTextureManager().loadTexture(itemsBTA);
@@ -183,7 +183,7 @@ public class Background {
 				spriteToAttach = itItems.next();
 				scene.attachChild(spriteToAttach);
 				
-				if (LOG_ON) Log.d("Clementime", "Background/loadItems(): *** display item " + spriteToAttach.id + " ***");
+				if (LOG_ON) Log.d("Clementime", className + "/loadItems(): *** display item " + spriteToAttach.id + " ***");
 				
 				if (spriteToAttach.foreground) spriteToAttach.setZIndex(ZINDEX_FOREGROUND);
 				else spriteToAttach.setZIndex(ZINDEX_ITEM);
@@ -191,7 +191,7 @@ public class Background {
 				spriteToAttach.andEngineId = scene.getChildIndex(spriteToAttach);
 			}
 			
-		} else if (LOG_ON) Log.d("Clementime", "Background/loadItems(): ***screen " + screenId + " has no item***");
+		} else if (LOG_ON) Log.d("Clementime", className + "/loadItems(): ***screen " + screenId + " has no item***");
 	}
 		
 	private void createItem(Map<String, String> hm, BitmapTextureAtlas BTA, int xPos, int yPos) {
@@ -203,7 +203,6 @@ public class Background {
 		float y;
 		int take;
 		int look;
-		int talk;
 		boolean takeable;
 		boolean foreground;
 		
@@ -223,16 +222,15 @@ public class Background {
 
 		take = Integer.parseInt(hm.get("take_state"));
 		look = Integer.parseInt(hm.get("look_state"));
-		talk = Integer.parseInt(hm.get("talk_state"));
 		//exit = Integer.parseInt(hm.get("exit"));
 		if (Integer.parseInt(hm.get("foreground")) == 1) takeable = true;
 		else takeable = false;
 		if (Integer.parseInt(hm.get("foreground")) == 1) foreground = true;
 		else foreground = false;
 
-		items.add(new ScreenItem(id, x, y + MARGIN_Y, take, look, talk, takeable, foreground, TR));
+		items.add(new ScreenItem(id, x, y + MARGIN_Y, take, look, takeable, foreground, TR));
 		
-		if (LOG_ON) Log.d("Clementime", "Background/createItem(): create item " + file + " -id: " + id);
+		if (LOG_ON) Log.d("Clementime", className + "/createItem(): create item " + file + " -id: " + id);
 	}
 	
 	public void loadAnimations(Engine engine, Scene scene) {
@@ -260,7 +258,7 @@ public class Background {
 					
 					hm = it.next();
 							
-					if (LOG_ON) Log.d("Clementime", "Background/loadAnimations(): load animation " +  Integer.parseInt(hm.get("id")));
+					if (LOG_ON) Log.d("Clementime", className + "/loadAnimations(): load animation " +  Integer.parseInt(hm.get("id")));
 	
 					// manage position on AtlasBitmap
 					nextPosOnAtlasX = posOnAtlasX + Integer.parseInt(hm.get("width"));
@@ -285,7 +283,7 @@ public class Background {
 					spriteToAttach = itAnims.next();
 					scene.attachChild(spriteToAttach);
 					
-					if (LOG_ON) Log.d("Clementime", "Background/loadItems(): *** display anim " + spriteToAttach.id + " ***");
+					if (LOG_ON) Log.d("Clementime", className + "/loadItems(): *** display anim " + spriteToAttach.id + " ***");
 					
 					spriteToAttach.setZIndex(ZINDEX_ANIM);
 					scene.registerTouchArea(spriteToAttach);
@@ -293,7 +291,7 @@ public class Background {
 				}
 				
 			} catch (Exception e) {
-				Log.e("Clementime", "Background/loadAnimations(): failed to load animations - " + e.getMessage());
+				Log.e("Clementime", className + "/loadAnimations(): failed to load animations - " + e.getMessage());
 			}
 		}
 	}
@@ -345,7 +343,7 @@ public class Background {
 		
 //		anims.add(new Animation(id, frameDuration, firstFrame, lastFrame, stopFrame, loop, width, x, y, moveToX, xVelocity, yVelocity, dollIsHidden, toChase, triggerId, TR));
 		anims.add(new Anim(id, width, x, y + MARGIN_Y, stopFrame, moveToX, moveToY, toChase, TR));
-		if (LOG_ON) Log.d("Clementime", "Background/createAnimation(): create animation " + id);
+		if (LOG_ON) Log.d("Clementime", className + "/createAnimation(): create animation " + id);
 
 	}
 	
@@ -367,62 +365,6 @@ public class Background {
 	public void createExits(TiledTextureRegion TRLeft, TiledTextureRegion TRRight) {
 		exits = db.selectExits(screenId, TRLeft, TRRight, MARGIN_Y);
 	}
-
-//	public void loadChars() {
-//		
-//		if (LOG_ON) Log.i("Clementime", "Background/loadChars()");
-//		
-//		int posX = 0;
-//		int posY = 0;
-//		int j = 1;
-//		
-//		charsBTA = new BitmapTextureAtlas(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-//		TextureRegion TR;
-//		
-//		String query = " select distinct c._id as id, c.image as image ";
-//		query += " from character c left join playing_animation p on c.playing_anim_id = p._id ";
-//		query += " left join animation a on p.anim_id = a._id ";
-//		query += " where a.screen_id = " + screenId + " and " + DB_FIELD_DISPLAY + " = 1";	// conditions	
-//
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//	
-//			while (c.moveToNext()) {
-//				// retrieve images
-//				String file = screenPrefix + CHAR_IMAGE_PREFIX + hm.get("image"));
-//			
-//				int res = context.getResources().getIdentifier(file, "drawable", context.getPackageName());
-//				if (res == 0) {
-//					res = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
-//					if (LOG_ON) Log.i("Clementime", "Background/loadChars() unable to find file " + file );
-//				} else if (LOG_ON) Log.i("Clementime", "Background/loadChars() load file " + file );
-//				
-//				TR = BitmapTextureAtlasTextureRegionFactory.createFromResource(charsBTA, context, res, posX, posY);
-//
-//				Sprite sprite = new Sprite(0, 0, TR);
-//				sprite.setUserData(Integer.parseInt(hm.get("id")));
-//				chars.add(sprite);
-//
-//				posX = posX + CHARS_MAX_SIZE;
-//				
-//				j++;
-//				
-//				if (j >= 4) {
-//
-//					j = 1;
-//					posX = 0;
-//					
-//					posY = posY + CHARS_MAX_SIZE;
-//				}
-//
-//			}
-//			
-//			c.close();
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
 	
 	public void showStaticAnims(Scene scene) {
 		
@@ -458,7 +400,7 @@ public class Background {
 				
 				animation.animate(frameDuration, animFeatures[0], animFeatures[1], true);
 
-				if (animation.moveToX != 0 || animation.moveToY != 0) animation.setPosition(animation.moveToX, animation.moveToY);					
+				if (animation.scaledMoveToX != 0 || animation.scaledMoveToY != 0) animation.setPosition(animation.scaledMoveToX, animation.scaledMoveToY);					
 
 				animation.setVisible(true);
 				scene.registerTouchArea(animation);
@@ -496,7 +438,7 @@ public class Background {
 	
 	public void hideShowItem(Scene scene, ScreenItem item) {
 		
-		if (LOG_ON) Log.i("Clementime", "Background/hideShowItem()");	
+		if (LOG_ON) Log.i("Clementime", className + "/hideShowItem()");	
 
 		if (item.isVisible()) {
 			item.setVisible(false);

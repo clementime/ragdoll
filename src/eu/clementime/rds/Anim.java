@@ -15,10 +15,8 @@ public class Anim extends AnimatedSprite {
 	public int stopFrame;
 //	public int loop;
 
-	public float x;
-	public float y;
-	public float moveToX;
-	public float moveToY;
+	public float scaledMoveToX;
+	public float scaledMoveToY;
 //	public int xVelocity;
 //	public int yVelocity;
 //	
@@ -26,7 +24,10 @@ public class Anim extends AnimatedSprite {
 	public boolean toChase;
 //	public int triggerId;
 	
-	public int width;
+	public float scaledWidth;
+	public float scaledStaticCenterX;
+	public float scaledX;
+	public float scaledY;
 
 	public Anim(int id, int width, float x, float y, int stopFrame, float moveToX, float moveToY, boolean toChase, TiledTextureRegion tr) {
 	//public Animation(int id, int frameDuration, int firstFrame, int lastFrame, int stopFrame, int loop, int width, float x, float y, float moveToX, int xVelocity, int yVelocity, boolean dollIsHidden, boolean toChase, int triggerId, TiledTextureRegion tr) {
@@ -45,18 +46,20 @@ public class Anim extends AnimatedSprite {
 		this.setScaleCenter(0,0);
 		this.setScale(SCALE);
 		
-		this.width = width;
-		this.x = (x - width/2) * SCALE;
-		this.y = y * SCALE;
+		this.scaledWidth = width * SCALE;
+		this.scaledStaticCenterX = (x - width/2) * SCALE;
+		this.scaledX = x * SCALE;
+		this.scaledY = y * SCALE;
 		
-		this.moveToX = moveToX * SCALE;
-		this.moveToY = moveToY * SCALE;
+		this.scaledMoveToX = moveToX * SCALE;
+		this.scaledMoveToY = moveToY * SCALE;
 //		this.xVelocity = xVelocity;
 //		this.yVelocity = yVelocity;
 //		
 //		this.dollIsHidden = dollIsHidden;
 		this.toChase = toChase;
 //		this.triggerId = triggerId;
+		this.setPosition(scaledX, scaledY);
 		this.setVisible(false);
 	}
 }

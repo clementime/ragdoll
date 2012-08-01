@@ -66,6 +66,7 @@ import android.util.Log;
 public class World {
 
 	private DatabaseAccess db;
+	private String className = "World";
 	
 	public World(DatabaseHandler dbh, Context context, int startingScreen) {
 		this.db = new DatabaseAccess(dbh);	
@@ -130,9 +131,9 @@ public class World {
 					if (hmDoll.get("doll_is_hidden") != null)	triggerResults[3] = Integer.parseInt(hmDoll.get("doll_is_hidden"));
 					if (hmDoll.get("y_velocity") != null)		triggerResults[6] = Integer.parseInt(hmDoll.get("y_velocity"));
 					
-					if (LOG_ON) Log.d("Clementime", "World/activateTrigger(): Trigger results 2 " + hmDoll.get("to_x"));
-					if (LOG_ON) Log.d("Clementime", "World/activateTrigger(): Trigger results 3 " + hmDoll.get("doll_is_hidden"));
-					if (LOG_ON) Log.d("Clementime", "World/activateTrigger(): Trigger results 6 " + hmDoll.get("y_velocity"));
+					if (LOG_ON) Log.d("Clementime", className + "/activateTrigger(): Trigger results 2 " + hmDoll.get("to_x"));
+					if (LOG_ON) Log.d("Clementime", className + "/activateTrigger(): Trigger results 3 " + hmDoll.get("doll_is_hidden"));
+					if (LOG_ON) Log.d("Clementime", className + "/activateTrigger(): Trigger results 6 " + hmDoll.get("y_velocity"));
 					
 					break;
 					
@@ -152,9 +153,9 @@ public class World {
 					break;
 			}
 		
-			if (LOG_ON) Log.d("Clementime", "World/activateTrigger(): Trigger results 0 " + hm.get("next_trigger_id"));
-			if (LOG_ON) Log.d("Clementime", "World/activateTrigger(): Trigger results 5 " + triggerResults[5]);
-			if (LOG_ON) Log.d("Clementime", "World/activateTrigger(): Trigger results 1, 4, 7 & 8: " + toTriggerId);
+			if (LOG_ON) Log.d("Clementime", className + "/activateTrigger(): Trigger results 0 " + hm.get("next_trigger_id"));
+			if (LOG_ON) Log.d("Clementime", className + "/activateTrigger(): Trigger results 5 " + triggerResults[5]);
+			if (LOG_ON) Log.d("Clementime", className + "/activateTrigger(): Trigger results 1, 4, 7 & 8: " + toTriggerId);
 			
 			if (hm.get("next_trigger_id") != null)	triggerResults[0] = Integer.parseInt(hm.get("next_trigger_id"));
 			if (hm.get("simultaneous_trigger_id") != null)	triggerResults[9] = Integer.parseInt(hm.get("simultaneous_trigger_id"));
@@ -292,7 +293,8 @@ public class World {
 	}
 	
 	public void save(int screenId, float x, float y) {
-		db.updateWhenSaving(screenId, x, y);
+		// don't forget to scale position to standard size before saving
+		db.updateWhenSaving(screenId, x/SCALE, y/SCALE);
 	}	
 	
 	public int isItemDisplayed(int itemId) {
@@ -305,12 +307,15 @@ public class World {
 
 	// features[0] = id exit, features[1] = to trigger before leaving	
 	public int[] getFirstScreenFeatures() {
-		return db.selectFirstScreenFeatures();
+		int[] dollPosition = db.selectFirstScreenFeatures();
+		dollPosition[1] = (int)((float)dollPosition[1] * SCALE);
+		dollPosition[2] = (int)((float)dollPosition[2] * SCALE); 
+		return dollPosition;
 	}
 //	
 //	public int[] getScreenFeatures(int screenId) {
 //		
-//		if (LOG_ON) Log.i("Clementime", "World/getFirstScreenFeatures() ");
+//		if (LOG_ON) Log.i("Clementime", className + "/getFirstScreenFeatures() ");
 //
 //		// features[0] = to trigger when arriving - features[1] = x - features[2] = y	
 //		int[] features = {0,0,0,0};
@@ -327,7 +332,7 @@ public class World {
 //				features[0] = c.getInt(c.getColumnIndex("after_trigger_id"));
 //				features[1] = c.getInt(c.getColumnIndex("starting_x"));
 //				features[2] = c.getInt(c.getColumnIndex("starting_y"));
-//				if (LOG_ON) Log.v("Clementime", "World/getFirstScreenFeatures(): starting x: " + features[2] + " starting y: " + features[3] + " starting trigger: " + features[1]);
+//				if (LOG_ON) Log.v("Clementime", className + "/getFirstScreenFeatures(): starting x: " + features[2] + " starting y: " + features[3] + " starting trigger: " + features[1]);
 //			}
 //
 //			c.close();
@@ -340,12 +345,12 @@ public class World {
 //	}
 	public void calculateWalkArea(float dollFeetPosition) {	
 			Constants.WALK_AREA_Y_POS = dollFeetPosition + Constants.WALK_AREA_UNDER_FEET;
-			if (LOG_ON) Log.i("Clementime", "Constants/calculateWalkArea: walk area Y pos bottom " + Constants.WALK_AREA_Y_POS);
-			if (LOG_ON) Log.i("Clementime", "Constants/calculateWalkArea: walk area Y pos top " + (Constants.WALK_AREA_Y_POS - Constants.WALK_AREA_SIZE));
+			if (LOG_ON) Log.i("Clementime", className + "/calculateWalkArea: walk area Y pos bottom " + Constants.WALK_AREA_Y_POS);
+			if (LOG_ON) Log.i("Clementime", className + "/calculateWalkArea: walk area Y pos top " + (Constants.WALK_AREA_Y_POS - Constants.WALK_AREA_SIZE));
 	}
 	
 	public boolean checkWalkArea(int xMin, int xMax, float touchedX, float touchedY) {
-		if (LOG_ON) Log.d("Clementime", "Constants/checkWalkArea: touch y " + touchedY);
+		if (LOG_ON) Log.d("Clementime", className + "/checkWalkArea: touch y " + touchedY);
 		
 		if (touchedY <= Constants.WALK_AREA_Y_POS
 				&& touchedY >= Constants.WALK_AREA_Y_POS - Constants.WALK_AREA_SIZE

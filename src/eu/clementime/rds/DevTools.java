@@ -30,6 +30,7 @@ import android.util.Log;
 public class DevTools extends HUD implements IOnAreaTouchListener {
 
 	DatabaseHandler dbh;
+	private String className = "DevTools";
 	Backup backup;
 	public Rectangle mask;
 	
@@ -51,7 +52,7 @@ public class DevTools extends HUD implements IOnAreaTouchListener {
 	
 	public DevTools(Camera camera, Font font, DatabaseHandler dbh, Backup backup, Context context, Engine engine, Scene scene) {
 		
-		Log.i("Clementime", "DevTools/constructor");
+		Log.i("Clementime", className + "/constructor");
 		
 		this.mCamera = camera;
 		this.font = font;
@@ -73,7 +74,7 @@ public class DevTools extends HUD implements IOnAreaTouchListener {
 	
 	public void loadFonts(Engine engine, Scene scene) {
 		
-		Log.i("Clementime", "DevTools/loadFonts()");
+		Log.i("Clementime", className + "/loadFonts()");
 
         FontFactory.setAssetBasePath("font/");
         
@@ -84,7 +85,7 @@ public class DevTools extends HUD implements IOnAreaTouchListener {
 		
 	public void setup(Scene scene) {
 		
-		Log.i("Clementime", "DevTools/setup()");
+		Log.i("Clementime", className + "/setup()");
 		
 		openX = new Text(0, 0, devFont, "X", HorizontalAlign.LEFT);
 		openX.setPosition(CAMERA_WIDTH/2-openX.getWidth()/2, MARGIN_Y);
@@ -119,7 +120,7 @@ public class DevTools extends HUD implements IOnAreaTouchListener {
 	
 	public void display() {
 		
-		Log.i("Clementime", "DevTools/display()");
+		Log.i("Clementime", className + "/display()");
 
 		mask.setVisible(true);
 		
@@ -140,7 +141,7 @@ public class DevTools extends HUD implements IOnAreaTouchListener {
 			backup.createStateFile("");
 			backup.createStateFiles("");
 			backup.savePlayerData("");
-			Log.d("Clementime","backupManager/hide: save in S" + saveId);
+			Log.d("Clementime", className + "hide: save in S" + saveId);
 
 			saveId = 0;
 			load = 2;

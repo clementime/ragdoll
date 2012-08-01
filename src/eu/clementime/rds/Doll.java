@@ -33,13 +33,16 @@ public class Doll {
 	public float standardYVelocityLeft;
 	public float YVelocity = 0;
 	
-	public float centerX;
+	public float scaledCenterX;
+	public float scaledWidth;
+	public float scaledHeight;
 	
 	public int walkDirection;
 	public boolean isChased = true;
 	
 	private DatabaseAccess db;
 	private Context context;
+	private String className = "Doll";
 	
 	public Doll(DatabaseHandler dbh, Context context, Engine engine, Scene scene) {
 		
@@ -67,12 +70,14 @@ public class Doll {
 		
 		scene.registerTouchArea(image);
 		
-		this.centerX = image.getWidth()/2;
+		this.scaledCenterX = image.getWidth()/2 * SCALE;
+		this.scaledWidth = this.image.getWidth() * SCALE;
+		this.scaledHeight = this.image.getHeight() * SCALE;
 	}
 
 	public void move(int status, float touchedX) {
 		
-		if (LOG_ON) Log.i("Clementime", "Screen/moveDoll()");
+		if (LOG_ON) Log.i("Clementime", className + "/moveDoll()");
 
 		// if doll wasn't previously walking, launch walking animation	
 		if (ph.getVelocityX() == 0) {
@@ -109,8 +114,11 @@ public class Doll {
 		return db.selectDollScreen();
 	}
 	
-	public int[] getPosition() {
-		return db.selectDollPosition();
+	public int[] getScaledStartedPosition() {
+		int[] position = db.selectDollPosition();
+		position[0] = (int)((float)position[0] * SCALE); 
+		position[1] = (int)((float)position[1] * SCALE); 
+		return position;
 	}
 	
 	public void changeSkin(int skinId) {
@@ -118,8 +126,8 @@ public class Doll {
 		int bgFile = context.getResources().getIdentifier("doll_skin_" + skinId, "drawable", context.getPackageName());
 		if (bgFile == 0) {
 			bgFile = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
-			if (LOG_ON) Log.w("Clementime", "Doll/changeSkin(): cannot find skin " + skinId);
-		} else if (LOG_ON) Log.d("Clementime", "Doll/changeSkin(): load skin " +  + skinId);
+			if (LOG_ON) Log.w("Clementime", className + "/changeSkin(): cannot find skin " + skinId);
+		} else if (LOG_ON) Log.d("Clementime", className + "/changeSkin(): load skin " +  + skinId);
 		
 		BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, context, bgFile, 0, 0, 6, 4);
 		image.setScale(SCALE);

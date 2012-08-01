@@ -31,14 +31,17 @@ public final class R {
         public static final int loading=0x7f020011;
         public static final int move_left=0x7f020012;
         public static final int move_right=0x7f020013;
-        public static final int s1_hyppolite_poster=0x7f020014;
-        public static final int screen1_anim_flies=0x7f020015;
-        public static final int screen1_bg_rubbish=0x7f020016;
-        public static final int screen1_fg_rubbish=0x7f020017;
-        public static final int settings=0x7f020018;
-        public static final int skin_anim_drunk=0x7f020019;
-        public static final int steph_zoom=0x7f02001a;
-        public static final int walking_pointer=0x7f02001b;
+        public static final int s1_fly=0x7f020014;
+        public static final int s1_fly_zoom=0x7f020015;
+        public static final int s1_hyppolite_poster=0x7f020016;
+        public static final int screen1_anim_flies=0x7f020017;
+        public static final int screen1_bg=0x7f020018;
+        public static final int screen2_bg=0x7f020019;
+        public static final int screen3_bg=0x7f02001a;
+        public static final int settings=0x7f02001b;
+        public static final int skin_anim_drunk=0x7f02001c;
+        public static final int steph_zoom=0x7f02001d;
+        public static final int walking_pointer=0x7f02001e;
     }
     public static final class layout {
         public static final int main=0x7f030000;

@@ -32,10 +32,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	private final Context myContext;
 	public boolean newGame = false;
 	
+	private String className = "DatabaseHandler";
+	
 	public DatabaseHandler(Context context, String dbPath, String dbFile, InputStream data) {
 		super(context, dbFile, null, 1);
 		
-		Log.i("Clementime","DatabaseHandler/Constructor()");
+		Log.i("Clementime", className + "/Constructor()");
 		
 	    this.myContext = context;
 	    
@@ -51,7 +53,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	public DatabaseHandler(Context context, String dbPath, String dbFile, InputStream data, InputStream currentData) {
 		super(context, dbFile, null, 1);
 		
-		Log.i("Clementime","DatabaseHandler/Constructor()");
+		Log.i("Clementime", className + "/Constructor()");
 
 	    this.myContext = context;
 	    
@@ -66,15 +68,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	
 	public void checkNewGame() {
 		
-		Log.i("Clementime","DatabaseHandler/checkNewGame()");
+		Log.i("Clementime", className + "/checkNewGame()");
 	    
 		File file = new File(this.path + this.fileName);
 	    
 		if (!file.exists()) {
-			Log.v("Clementime", "DatabaseHandler/constructor: file " + this.path + this.fileName + " doesn't exist");
+			Log.v("Clementime", className + "/constructor: file " + this.path + this.fileName + " doesn't exist");
 			newGame = true;
 		} else {
-			Log.v("Clementime", "DatabaseHandler/constructor: file " + this.path + this.fileName + " exist");
+			Log.v("Clementime", className + "/constructor: file " + this.path + this.fileName + " exist");
 			newGame = false;
 		}		
 	}
@@ -89,7 +91,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	 
 	public boolean checkDatabase() {
 		
-		Log.i("Clementime","DatabaseHandler/checkDatabase()");
+		Log.i("Clementime", className + "/checkDatabase()");
 
 		boolean checkedDatabaseFile = false;
 		
@@ -99,32 +101,32 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		if (newGame) {		
 			try {    	
 		  		this.getWritableDatabase();
-				Log.v("Clementime", "DatabaseHandler/checkDatabase(): copy database " + this.path + this.fileName + " from " + this.startingDbFileName);
+				Log.v("Clementime", className + "/checkDatabase(): copy database " + this.path + this.fileName + " from " + this.startingDbFileName);
 				this.copyDatabase(this.startingDbFileName);
 			} catch (Exception e) {
-	  			Log.w("Clementime", "DatabaseHandler/checkDatabase(): error while copying database" + this.path + this.fileName + e.getMessage()); 			
+	  			Log.w("Clementime", className + "/checkDatabase(): error while copying database" + this.path + this.fileName + e.getMessage()); 			
 	      	}	
 		}
 		
 		if (DEVELOPMENT) {
 	  		this.getWritableDatabase();
-			Log.v("Clementime", "DatabaseHandler/checkDatabase(): copy database " + this.path + this.fileName + " from " + this.startingDbFileName);
+			Log.v("Clementime", className + "/checkDatabase(): copy database " + this.path + this.fileName + " from " + this.startingDbFileName);
 			this.copyDatabase(this.startingDbFileName);	
 		}
 		
 		if (file.length() < 5000) {
-			Log.w("Clementime", "DatabaseHandler/checkDatabase(): Database " + file.getAbsolutePath() + " corrupted. Cannot open Sam");
+			Log.w("Clementime", className + "/checkDatabase(): Database " + file.getAbsolutePath() + " corrupted. Cannot open Sam");
 			checkedDatabaseFile = false;
 		} else checkedDatabaseFile = true; 
 			
 	  			//TODO: remove these 2 lines:
 	  	try	{copyDatabaseOnSDCard(this.fileName);}
-	  	catch (Exception e) {Log.w("Clementime", "DatabaseHandler/checkDatabase(): copy database ");}
+	  	catch (Exception e) {Log.w("Clementime", className + "/checkDatabase(): copy database ");}
 	  			//checkedDatabaseFile = this.copyFromAssets();
 	    
 		if (!checkedDatabaseFile) {
 			file.delete();
-			Log.w("Clementime", "DatabaseHandler/Constructor: Database deleted from " + this.path + this.fileName);
+			Log.w("Clementime", className + "/Constructor: Database deleted from " + this.path + this.fileName);
 		}
 		
 	    return checkedDatabaseFile;
@@ -132,12 +134,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	
 	public DatabaseHandler open() throws SQLException {
 		
-		Log.i("Clementime","DatabaseHandler/open()");
+		Log.i("Clementime", className + "/open()");
 		
 		try {
 			this.db = SQLiteDatabase.openDatabase(this.path + this.fileName, null, SQLiteDatabase.OPEN_READWRITE);
   		} catch (Exception SQLException) {
-  			Log.w("Clementime", "DatabaseHandler/open() : failed to open database" + this.path + this.fileName);
+  			Log.w("Clementime", className + "/open() : failed to open database" + this.path + this.fileName);
       	}
 		
 		return this;
@@ -145,10 +147,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 	private void storeStartingDatabase(InputStream data) {
 		
-		Log.i("Clementime","DatabaseHandler/storeStartingDatabase()");
+		Log.i("Clementime", className + "/storeStartingDatabase()");
 		
 		try {
-			Log.v("Clementime", "DatabaseHandler/storeStartingDatabase(): store starting database with no player change in " + this.path + this.startingDbFileName);
+			Log.v("Clementime", className + "/storeStartingDatabase(): store starting database with no player change in " + this.path + this.startingDbFileName);
 			OutputStream output = new FileOutputStream(this.path + this.startingDbFileName);
 		
 			byte[] buffer = new byte[1024];
@@ -161,16 +163,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 			data.close();
 
         } catch (Exception e) {
-  			Log.w("Clementime", "DatabaseHandler/storeStartingDatabase(): abort copying. Exception " + e.getMessage());
+  			Log.w("Clementime", className + "/storeStartingDatabase(): abort copying. Exception " + e.getMessage());
         }	
 	}
 	
 	private void storeCurrentDatabase(InputStream currentData) {
 		
-		Log.i("Clementime","DatabaseHandler/storeCurrentDatabase()");
+		Log.i("Clementime", className + "/storeCurrentDatabase()");
 		
 		try {
-			Log.v("Clementime", "DatabaseHandler/storeCurrentDatabase(): store current database in " + this.path + this.currentDbFileName);
+			Log.v("Clementime", className + "/storeCurrentDatabase(): store current database in " + this.path + this.currentDbFileName);
 			OutputStream output = new FileOutputStream(this.path + this.currentDbFileName);
 		
 			byte[] buffer = new byte[1024];
@@ -183,16 +185,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 			currentData.close();
 
         } catch (Exception e) {
-  			Log.w("Clementime", "DatabaseHandler/storeCurrentDatabase(): abort copying. Exception " + e.getMessage());
+  			Log.w("Clementime", className + "/storeCurrentDatabase(): abort copying. Exception " + e.getMessage());
         }	
 	}
 	
 	private void copyDatabase(String databaseFileName) {
 		
-		Log.i("Clementime","DatabaseHandler/copyDatabase()");
+		Log.i("Clementime", className + "/copyDatabase()");
 		
 		try {
-			Log.v("Clementime", "DatabaseHandler/copyStartingDatabase(): load database from starting database");
+			Log.v("Clementime", className + "/copyStartingDatabase(): load database from starting database");
 			
 		  	InputStream input = new FileInputStream(new File(this.path + databaseFileName));
 			OutputStream output = new FileOutputStream(this.path + this.fileName);
@@ -207,36 +209,36 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 			input.close();
 
         } catch (Exception e) {
-  			Log.w("Clementime", "DatabaseHandler/copyFromAssets(): abort copying. Exception " + e.getMessage());
+  			Log.w("Clementime", className + "/copyFromAssets(): abort copying. Exception " + e.getMessage());
         }
 		
 	}
 	
 	public void deleteDatabase() {
 		
-		Log.i("Clementime","DatabaseHandler/deleteDatabase()");
+		Log.i("Clementime", className + "/deleteDatabase()");
 		
 		//this.db.close();
 		
 	  	try{
 		    File file = new File(this.path + this.fileName);
 		    
-			if (file.delete()) Log.i("Clementime", "DatabaseHandler/delete(): Delete database");   
-			else Log.w("Clementime", "DatabaseHandler/delete(): Failed to delete database");	
+			if (file.delete()) Log.i("Clementime", className + "/delete(): Delete database");   
+			else Log.w("Clementime", className + "/delete(): Failed to delete database");	
 			
 	  	} catch(Exception e) {
-	  		Log.w("Clementime", "DatabaseHandler/delete(): Failed to delete database: " + e);
+	  		Log.w("Clementime", className + "/delete(): Failed to delete database: " + e);
 	  	}
 
 	}
 		
 	public void save(int SavingId) {
 		
-		Log.i("Clementime","DatabaseHandler/save()");
+		Log.i("Clementime", className + "/save()");
 		
   		try {
   			copyDatabaseOnSDCard(this.fileName);
-			Log.i("Clementime", "DatabaseHandler/save(): save database in S" + SavingId);	
+			Log.i("Clementime", className + "/save(): save database in S" + SavingId);	
 
   		} catch (IOException e) {
   			throw new Error("Error while saving database");
@@ -246,7 +248,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	
 	private void copyDatabaseOnSDCard(String dbName) throws IOException {
 		
-		Log.i("Clementime","DatabaseHandler/copyDatabaseOnSDCard()");
+		Log.i("Clementime", className + "/copyDatabaseOnSDCard()");
 		 	
 	  	// write on sdCard
 	  	File sdCard = Environment.getExternalStorageDirectory();
@@ -270,13 +272,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		  	myInput.close();
 	  	} else { 	
 		  	if (Environment.MEDIA_MOUNTED.equals(sdCard)) {
-		  		Log.i("Clementime", "DatabaseHandler/copyDatabase(): sdcard mounted and writable");
+		  		Log.i("Clementime", className + "/copyDatabase(): sdcard mounted and writable");
 		  	}
 		  	else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(sdCard)) {
-		  		Log.i("Clementime", "DatabaseHandler/copyDatabase(): sdcard mounted readonly");
+		  		Log.i("Clementime", className + "/copyDatabase(): sdcard mounted readonly");
 		  	}
 		  	else {
-		  		Log.i("Clementime", "DatabaseHandler/copyDatabase(): sdcard: " + sdCard);
+		  		Log.i("Clementime", className + "/copyDatabase(): sdcard: " + sdCard);
 		  	}
 		}
 	}
@@ -284,14 +286,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	@Override
 	public synchronized void close() {
 		
-		Log.i("Clementime","DatabaseHandler/close()");
+		Log.i("Clementime", className + "/close()");
  
 		try {
     	    if(db.isOpen()) db.close();
-    	    else Log.w("Clementime", "DatabaseHandler/close() : Database " + this.path + this.fileName + " was already closed");
+    	    else Log.w("Clementime", className + "/close() : Database " + this.path + this.fileName + " was already closed");
     	    super.close();
     	} catch (Exception e) {
-  			Log.w("Clementime", "DatabaseHandler/close() : failed to close database: " + e.getMessage());
+  			Log.w("Clementime", className + "/close() : failed to close database: " + e.getMessage());
       	}
 
  	}

@@ -27,6 +27,8 @@ public class Backup {
   	String[] fieldName = {"state", DB_FIELD_DISPLAY, "take_state", "look_state", "takeable", "look_state", "talk_state", "look_state", "display", "before_trigger_id", "after_trigger_id"};
   	String[] idFieldName = {"_id", "_id", "item_id", "item_id", "item_id", "_id", "_id", "_id", "_id", "_id", "_id"};
 	
+  	private String className ="Backup";
+  	
 	public Backup(DatabaseHandler dbh, Context context) {
 		this.dbh = dbh;
 		this.context = context;
@@ -262,7 +264,7 @@ public class Backup {
 			}
 
 		} catch (IOException e) {
-	  		Log.i("Clementime", "DevTools/createStatesFile(): cannot write states");
+	  		Log.i("Clementime", className + "/createStatesFile(): cannot write states");
 		}
 	}
 	
@@ -285,7 +287,7 @@ public class Backup {
 			  	if (!dir.exists()) dir.mkdirs();
 			  	
 				for (int i = 0; i < outFileName.length; i++) {
-				    Log.i("Clementime", "DevTools/createStateFiles(): " + outFileName[i] + extension);
+				    Log.i("Clementime", className + "/createStateFiles(): " + outFileName[i] + extension);
 
 					out = new BufferedWriter(new FileWriter(dir + "/" + outFileName[i] + extension + ".sql"));
 				    out2 = new BufferedWriter(new FileWriter("/data/data/" +context.getPackageName() + "/databases/" + outFileName[i] + extension + ".sql"));
@@ -303,7 +305,7 @@ public class Backup {
 					    out.write(id + ";" + state + System.getProperty("line.separator"));
 					    out2.write(id + ";" + state + System.getProperty("line.separator"));
 
-					    Log.v("Clementime", "DevTools/createStateFiles(): " + tableName[i] + "-" + fieldName[i] + "-" + idFieldName[i] + ": " + id + "/ " + fieldName[i] + ": " + state);
+					    Log.v("Clementime", className + "/createStateFiles(): " + tableName[i] + "-" + fieldName[i] + "-" + idFieldName[i] + ": " + id + "/ " + fieldName[i] + ": " + state);
 
 					}
 			
@@ -325,7 +327,7 @@ public class Backup {
 			}
 
 		} catch (IOException e) {
-	  		Log.i("Clementime", "DevTools/createStateFiles(): cannot write states");
+	  		Log.i("Clementime", className + "/createStateFiles(): cannot write states");
 		}
 	}
 
@@ -347,7 +349,7 @@ public class Backup {
 			  	File dir = new File (sdCard.getAbsolutePath() + "/sam");
 			  	if (!dir.exists()) dir.mkdirs();
 			  	
-			    Log.i("Clementime", "DevTools/savePlayerData(): write player data");
+			    Log.i("Clementime", className + "/savePlayerData(): write player data");
 
 				out = new BufferedWriter(new FileWriter(dir + "/" + outFileName + extension + ".sql"));
 			    out2 = new BufferedWriter(new FileWriter("/data/data/" +context.getPackageName() + "/databases/" + outFileName + extension + ".sql"));
@@ -366,7 +368,7 @@ public class Backup {
 				    out.write(id + ";" + ref + ";" + value + System.getProperty("line.separator"));
 				    out2.write(id + ";" + ref + ";" + value + System.getProperty("line.separator"));
 
-				    Log.v("Clementime", "DevTools/savePlayerData(): id: " + id + "/ref: " + ref + "/value: " + value);
+				    Log.v("Clementime", className + "/savePlayerData(): id: " + id + "/ref: " + ref + "/value: " + value);
 				}
 		
 				c.close();
@@ -385,7 +387,7 @@ public class Backup {
 			}
 
 		} catch (IOException e) {
-	  		Log.i("Clementime", "DevTools/savePlayerData(): cannot write data");
+	  		Log.i("Clementime", className + "/savePlayerData(): cannot write data");
 		}
 	}
 	
@@ -399,7 +401,7 @@ public class Backup {
 			  	File dir = new File (sdCard.getAbsolutePath() + "/sam");
 			  	if (!dir.exists()) dir.mkdirs();
 									
-		  		Log.i("Clementime", "DevTools/loadPlayerData(): load data ");
+		  		Log.i("Clementime", className + "/loadPlayerData(): load data ");
 		  		
 				FileInputStream fstream = new FileInputStream("/data/data/" + context.getPackageName() + "/databases/" + outFileName + extension + ".sql");
 				DataInputStream in = new DataInputStream(fstream);
@@ -420,13 +422,13 @@ public class Backup {
 					args.put("value", line[2]);
 		
 				    dbh.db.update("player_saving", args, where, null);
-			  		Log.v("Clementime", "DevTools/loadPlayerData(): update player_saving set " + line[1] + " = " + line[2] + " where _id = " + line[0]);
+			  		Log.v("Clementime", className + "/loadPlayerData(): update player_saving set " + line[1] + " = " + line[2] + " where _id = " + line[0]);
 				}
 		
 				in.close();	
 			    
 		} catch (IOException e) {
-	  		Log.i("Clementime", "DevTools/loadPlayerData(): cannot load data");
+	  		Log.i("Clementime", className + "/loadPlayerData(): cannot load data");
 		}
 	}
 	
@@ -441,7 +443,7 @@ public class Backup {
 
 				for (int i = 0; i < outFileName.length; i++) {
 										
-			  		Log.i("Clementime", "DevTools/loadStateFiles(): load " + tableName[i]);
+			  		Log.i("Clementime", className + "/loadStateFiles(): load " + tableName[i]);
 			  		
 					FileInputStream fstream = new FileInputStream("/data/data/" + context.getPackageName() + "/databases/" + outFileName[i] + extension + ".sql");
 					DataInputStream in = new DataInputStream(fstream);
@@ -462,7 +464,7 @@ public class Backup {
 						args.put(fieldName[i], line[1]);
 			
 					    dbh.db.update(tableName[i], args, where, null);
-				  		Log.v("Clementime", "DevTools/loadStateFiles(): update " + tableName[i] + " set " + fieldName[i] + " = " + line[1] + " where " + idFieldName[i] + " = " + line[0]);
+				  		Log.v("Clementime", className + "/loadStateFiles(): update " + tableName[i] + " set " + fieldName[i] + " = " + line[1] + " where " + idFieldName[i] + " = " + line[0]);
 
 					}
 			
@@ -471,7 +473,7 @@ public class Backup {
 
 			    
 		} catch (IOException e) {
-	  		Log.i("Clementime", "DevTools/loadStateFiles(): cannot load states");
+	  		Log.i("Clementime", className + "/loadStateFiles(): cannot load states");
 		}
 	}
 
@@ -503,7 +505,7 @@ public class Backup {
 			}
 
 		} catch (IOException e) {
-	  		Log.i("Clementime", "DevTools/setLoad(): cannot write load");
+	  		Log.i("Clementime", className + "/setLoad(): cannot write load");
 		}
 	}
 	
@@ -517,7 +519,7 @@ public class Backup {
 		try {	  				
 
 								
-	  		Log.i("Clementime", "DevTools/getLoad()");
+	  		Log.i("Clementime", className + "/getLoad()");
 	  		
 		  	//File fileName = new File (sdCard.getAbsolutePath() + "/sam" + "/load.sql");
 
@@ -528,7 +530,7 @@ public class Backup {
 			String strLine;
 			
 			while ((strLine = br.readLine()) != null)   {
-		  		Log.d("Clementime", "DevTools/getLoad(): load " + strLine);
+		  		Log.d("Clementime", className + "/getLoad(): load " + strLine);
 		  		load = Integer.parseInt(strLine);
 			}
 	
@@ -536,7 +538,7 @@ public class Backup {
 
 			    
 		} catch (IOException e) {
-	  		Log.i("Clementime", "DevTools/loadStateFiles(): cannot find load ");
+	  		Log.i("Clementime", className + "/loadStateFiles(): cannot find load ");
 		}
 		
 		setLoad(0);
