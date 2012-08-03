@@ -10,6 +10,8 @@
 - Android 2.2 (API 8) SDK Platform
 - Java 6
 - AndEngine GLES1 (master branch) commit 4bc42a5ad1 (Apr 09, 2012) or higher (search nicolasgramlich/AndEngine on Github)
+>> on Github, go on branch master then ZIP->download this repository as a zip file
+>> be careful that following the Downloads link you will get GLES2 and not master branch, and that will not work
 
 ********************
 *** installation ***
@@ -37,11 +39,38 @@ Eclipse/SDK link
 Then import AndEngine and Ragdoll projects into your workspace.
 
 - download AndEngine GLES1 (master branch)
-- in Eclipse, File/Import/General/Existing projects into workspace, add AndEngine directory
+- in Eclipse, File/Import/General/Existing projects into workspace, add AndEngine directory (copy project into workspace)
 - you may need to fix few errors, see AndEngine README
+>> usually go to Window/Preferences/Java/Compiler/Configure Project Specific Settings to change compliance level to 1.6
+>> add res directory if needed (right click on projet then New/Folder)
 
 - download ragdoll sources
-- create a new Android Project (File menu)
+
+First solution:
+***************
+- import project as you did for AndEngine
+- copy data in appropriate directories on your disk:
+> res/raw for database
+> res/drawable-xxx for images
+> right click on project, then Refresh to have them appearing in Eclipse
+> now clean everything and build everything:
+> clean project: Project/Clean
+> uncheck Project/Build automatically
+> build project to generate R file: Project/Build Project
+> check again Build automatically 
+
+If needed:
+- if the link to AndEngine is broken:
+> right click on andengine_src repertory, then delete
+> right click on the project, then Build Path/Link Source and browse for AndEngine/src repertory, then choose a convenient name for your link
+
+!!! Every times you change a file on your disk, don't forget to Refresh project before launching
+
+Second solution:
+****************
+If you are not able to get rid of all errors, try this way:
+- create a new Android Project (File/New/Project/Android)
+> fill the name, then Next
 > target Android 2.2
 > package name eu.clementime.rds
 > don't create activity
@@ -60,7 +89,6 @@ Then import AndEngine and Ragdoll projects into your workspace.
 
 - right click on your imported project, then Build Path/Configure Build Path
 - Link source (browse AndEngine/src directory and choose a convenient name)
-
 
 **********************************
 *** run in smartphone/emulator ***
