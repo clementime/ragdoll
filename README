@@ -1,5 +1,5 @@
 !!! don't try to run this project without images and database
-(not available at the moment)
+(not available at the moment on Github)
 
 ****************************
 *** minimal requirements ***
@@ -9,7 +9,7 @@
 - ADT plugin for Eclipse (Android Development Tools)
 - Android 2.2 (API 8) SDK Platform
 - Java 6
-- AndEngine GLES1 (master branch) commit 4bc42a5ad1 (Apr 09, 2012) or higher
+- AndEngine GLES1 (master branch) commit 4bc42a5ad1 (Apr 09, 2012) or higher (search nicolasgramlich/AndEngine on Github)
 
 ********************
 *** installation ***
