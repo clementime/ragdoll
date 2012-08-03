@@ -1,5 +1,7 @@
 package eu.clementime.rds;
 
+import static eu.clementime.rds.Constants.SCALE_POSITION;
+
 public class Area {
 
 	public int id;
@@ -14,8 +16,8 @@ public class Area {
 	public Area(int id, float x, float y, float width, float height) {
 		
 		this.id = id;
-		this.x = x;
-		this.y = y;
+		this.x = x * SCALE_POSITION;
+		this.y = y * SCALE_POSITION;
 		this.width = width;
 		this.height = height;
 	}

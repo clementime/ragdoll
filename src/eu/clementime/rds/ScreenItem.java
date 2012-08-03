@@ -1,8 +1,11 @@
 package eu.clementime.rds;
 
+import static eu.clementime.rds.Constants.MARGIN_Y;
+import static eu.clementime.rds.Constants.SET_BACKGROUND_POSITION_Y;
+import static eu.clementime.rds.Constants.SCALE_POSITION;
+
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
-import static eu.clementime.rds.Constants.SCALE;
 
 public class ScreenItem extends Sprite {
 
@@ -25,9 +28,7 @@ public class ScreenItem extends Sprite {
 		this.actionLook = look;
 		this.takeable = takeable;
 		this.foreground = foreground;
-		
-		this.setScaleCenter(0,0);
-		this.setScale(SCALE);
-		this.setPosition(x * SCALE, y * SCALE);
+
+		this.setPosition(x * SCALE_POSITION, (y - SET_BACKGROUND_POSITION_Y + MARGIN_Y) * SCALE_POSITION);
 	}
 }

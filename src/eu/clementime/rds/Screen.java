@@ -4,6 +4,10 @@ import static eu.clementime.rds.Constants.ACTION_EXIT;
 import static eu.clementime.rds.Constants.ACTION_LOOK;
 import static eu.clementime.rds.Constants.ACTION_TAKE;
 import static eu.clementime.rds.Constants.ACTION_TALK;
+import static eu.clementime.rds.Constants.BACKGROUND_MAX_HEIGHT;
+import static eu.clementime.rds.Constants.BACKGROUND_MAX_HEIGHT_MDPI;
+import static eu.clementime.rds.Constants.BACKGROUND_MAX_HEIGHT_HDPI;
+import static eu.clementime.rds.Constants.BACKGROUND_MAX_HEIGHT_XHDPI;
 import static eu.clementime.rds.Constants.BIG_ITEM_POSITION;
 import static eu.clementime.rds.Constants.CAMERA_HEIGHT;
 import static eu.clementime.rds.Constants.CAMERA_WIDTH;
@@ -26,6 +30,7 @@ import static eu.clementime.rds.Constants.INVENTORY_POSX_ZOOM_ITEM;
 import static eu.clementime.rds.Constants.INVENTORY_POSY_NORMALVIEW;
 import static eu.clementime.rds.Constants.INVENTORY_POSY_ZOOM_ITEM;
 import static eu.clementime.rds.Constants.INV_ALPHA_LAYER;
+import static eu.clementime.rds.Constants.LOG_ON;
 import static eu.clementime.rds.Constants.LOOP_LOG_INTERVAL;
 import static eu.clementime.rds.Constants.MARGIN_Y;
 import static eu.clementime.rds.Constants.MODE_ACTION_WAIT;
@@ -38,6 +43,9 @@ import static eu.clementime.rds.Constants.MODE_INVENTORY_OPEN;
 import static eu.clementime.rds.Constants.MODE_INVENTORY_ZOOM;
 import static eu.clementime.rds.Constants.NO_END_LOOP;
 import static eu.clementime.rds.Constants.PLAYING_HAND;
+import static eu.clementime.rds.Constants.POINTER_CIRCLE;
+import static eu.clementime.rds.Constants.POINTER_WALK;
+import static eu.clementime.rds.Constants.SET_BACKGROUND_POSITION_Y;
 import static eu.clementime.rds.Constants.STATUS_ACTION;
 import static eu.clementime.rds.Constants.STATUS_ANIM;
 import static eu.clementime.rds.Constants.STATUS_INVENTORY;
@@ -46,10 +54,6 @@ import static eu.clementime.rds.Constants.TALK_DISTANCE;
 import static eu.clementime.rds.Constants.TALK_POSX;
 import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM;
 import static eu.clementime.rds.Constants.ZINDEX_INV_ITEM_IN_USE;
-import static eu.clementime.rds.Constants.POINTER_CIRCLE;
-import static eu.clementime.rds.Constants.POINTER_WALK;
-import static eu.clementime.rds.Constants.SCALE;
-import static eu.clementime.rds.Constants.LOG_ON;
 
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -148,7 +152,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 	// doll moving
 	private float touchedX = 0;
-	private int scaledBgWidth;
+	//private int scaledBgWidth;
 
 	// status
 	private int status = STATUS_ACTION;
@@ -198,9 +202,16 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	    	
 	       	CAMERA_WIDTH = dm.widthPixels;
 	    	CAMERA_HEIGHT = dm.heightPixels;
+	    	
+	    	if (dm.densityDpi == DisplayMetrics.DENSITY_MEDIUM)		BACKGROUND_MAX_HEIGHT = BACKGROUND_MAX_HEIGHT_MDPI;
+	    	else if (dm.densityDpi == DisplayMetrics.DENSITY_HIGH)	BACKGROUND_MAX_HEIGHT = BACKGROUND_MAX_HEIGHT_HDPI;
+	    	else if (dm.densityDpi >= 320)							BACKGROUND_MAX_HEIGHT = BACKGROUND_MAX_HEIGHT_XHDPI;
+	    	
 	    	Constants.setDependingScreenConstants();	
 
 	    	camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+	    	
+			if (LOG_ON) Log.i("Clementime", className + "/onLoadEngine(): screen width " + CAMERA_WIDTH + " - screen height " + CAMERA_HEIGHT);
 	
 		} catch (Exception e){
 			Log.e("Clementime", className + "/onLoadEngine(): cannot set camera - " + e.getMessage());			
@@ -377,7 +388,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 						if (runningAnim.isAnimationRunning()) {
 							if (runningAnim.toChase) {
 								chaseAnim = true;
-								pointToChase = runningAnim.getX() + runningAnim.scaledStaticCenterX;
+								pointToChase = runningAnim.getX() + runningAnim.staticCenterX;
 								
 								if (displayLog) Log.d("Clementime", className + "/setLoop(): running animation is chased");
 							} else if (displayLog) Log.d("Clementime", className + "/setLoop(): running animation isn't chased");
@@ -409,7 +420,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				//***************************************************************
 				if ((!checkStopDoll(pSecondsElapsed) && doll.ph.getVelocityX() != 0) || chaseAnim) {	
 
-					if (doll.isChased) pointToChase = doll.image.getX() + doll.scaledCenterX; // chase doll
+					if (doll.isChased) pointToChase = doll.image.getX() + doll.staticCenterX; // chase doll
 					
 		    		//************************************
 		    		//    CHASE DOLL or ANIM
@@ -452,7 +463,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
     	if ((doll.image.getX() < currentBg.xMin || doll.image.getX() > currentBg.xMax) && mode != MODE_ANIM_RUNNING) {	
 			
 			doll.ph.setVelocity(0,0);
-	    	doll.image.stopAnimation(16);
+	    	doll.stop();
 	    	gameTools.leftArrow.stopAnimation(4);
 	    	gameTools.rightArrow.stopAnimation(4);
 	    	
@@ -463,7 +474,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	    // stop doll at touchedX if the moving arrows aren't playing
 		} else if (!gameTools.leftArrow.isAnimationRunning() && !gameTools.rightArrow.isAnimationRunning()) {
 						
-			stopX = touchedX - doll.scaledCenterX;		
+			stopX = touchedX - doll.staticCenterX;		
 
 			// if looking or talking to an item until which the doll can't move 
 			if (mode == MODE_ANIM_ACTION && actionsManagerOutsideBorders) {
@@ -484,7 +495,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			if (doll.walkDirection == DIRECTION_RIGHT && doll.image.getX() >= stopX || doll.walkDirection == DIRECTION_LEFT && doll.image.getX() <= stopX) {   	
 
 				doll.ph.setVelocity(0,0);
-		    	doll.image.stopAnimation(16);
+		    	doll.stop();
 		    	gameTools.leftArrow.stopAnimation(4);
 		    	gameTools.rightArrow.stopAnimation(4);
 
@@ -547,7 +558,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		//screenFeatures = world.getScreenFeatures(lastExitId);
 		
 		// get position of doll from player table - on x beginning position is set to -1
-		startingPosition = doll.getScaledStartedPosition();
+		startingPosition = doll.getStartingPosition();
 		
 		// get new position from database if:
 		// 1. doll comes from another exit (exit >= 1)
@@ -605,20 +616,19 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			scene.setOnAreaTouchListener(this);
 			
 			// variables to chase doll or animation with the camera
-			scaledBgWidth = (int)(currentBg.bgImage.getWidth() * SCALE);
 			minChasingX = CAMERA_WIDTH / 2;
-			maxChasingX = scaledBgWidth - CAMERA_WIDTH / 2;
+			maxChasingX = currentBg.bgImage.getWidth() - CAMERA_WIDTH / 2;
 			
 			/*
 			/* set persistent objects in position
 			/********************************************/	
-			doll.image.setPosition(startingPosition[0], startingPosition[1] + MARGIN_Y);
-			world.calculateWalkArea(startingPosition[1] + doll.scaledHeight + MARGIN_Y);
+			doll.image.setPosition(startingPosition[0], startingPosition[1] - SET_BACKGROUND_POSITION_Y + MARGIN_Y);
+			world.calculateWalkArea(startingPosition[1] + doll.image.getHeight() + MARGIN_Y);
 			
 			// set camera focus on doll at start
-			if (startingPosition[0] >= scaledBgWidth - CAMERA_WIDTH/2)		camera.setCenter(scaledBgWidth - CAMERA_WIDTH/2, CAMERA_HEIGHT/2);
-			else if (startingPosition[0] <= CAMERA_WIDTH/2)					camera.setCenter(CAMERA_WIDTH/2, CAMERA_HEIGHT/2);			
-			else 															camera.setCenter(startingPosition[0] + doll.scaledCenterX, CAMERA_HEIGHT/2);
+			if (startingPosition[0] >= currentBg.bgImage.getWidth() - CAMERA_WIDTH/2)	camera.setCenter(currentBg.bgImage.getWidth() - CAMERA_WIDTH/2, CAMERA_HEIGHT/2);
+			else if (startingPosition[0] <= CAMERA_WIDTH/2)								camera.setCenter(CAMERA_WIDTH/2, CAMERA_HEIGHT/2);			
+			else			 															camera.setCenter(startingPosition[0] + doll.staticCenterX, CAMERA_HEIGHT/2);
 
 			setToolsInPosition();
 
@@ -859,7 +869,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 							}					
 						} else { // stop doll
 							doll.ph.setVelocityX(0);
-					    	doll.image.stopAnimation(16);				
+					    	doll.stop();				
 						}
 		
 					}
@@ -1187,7 +1197,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			
 			if (doll.ph.getVelocityX() != 0 && doll.walkDirection == DIRECTION_RIGHT) {
 				doll.ph.setVelocityX(0);
-		    	doll.image.stopAnimation(16);
+		    	doll.stop();
 				gameTools.rightArrow.stopAnimation(4);
 			}
 			touchedX = currentBg.xMin;
@@ -1197,7 +1207,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			
 			if (doll.ph.getVelocityX() != 0 && doll.walkDirection == DIRECTION_LEFT) {
 				doll.ph.setVelocityX(0);
-		    	doll.image.stopAnimation(16);
+		    	doll.stop();
 				gameTools.leftArrow.stopAnimation(4);
 			}
 			touchedX = currentBg.xMax;
@@ -1240,7 +1250,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	private void openInventory() {
 		
 		doll.ph.setVelocity(0,0);
-    	doll.image.stopAnimation(16);
+    	doll.stop();
     	gameTools.leftArrow.stopAnimation(4);
     	gameTools.rightArrow.stopAnimation(4);
     	gameTools.am.deactivate();
@@ -1273,7 +1283,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		touchedItem = null;
 		touchedArea = null;
 		touchedAnimation = anim;
-		touchedX = touchedAnimation.getX() + touchedAnimation.scaledStaticCenterX;
+		touchedX = touchedAnimation.getX() + touchedAnimation.staticCenterX;
 		
 		int actions = gameTools.am.activate(touchedAnimation.getX(), touchedAnimation.getY(), touchedAnimation.getWidth(), touchedAnimation.getHeight(),
 				               currentBg.getAnimStates(touchedAnimation.id), false);
@@ -1402,7 +1412,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 //		else if (touchedAnimation != null)
 //			text = world.getDesc(touchedAnimation.id, OBJECT_TYPE_CHAR, DB_DESCRIPTION_ACTION_CHAR_LOOK);
 		doll.ph.setVelocity(0,0);
-    	doll.image.stopAnimation(16);
+    	doll.stop();
 		displayTalk(0);
 	}
 
@@ -1514,7 +1524,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		if (triggerResult[2] != 0) {
 			if (LOG_ON) Log.d("Clementime", className + "/launchTrigger(): move Doll ");
 			
-			touchedX = triggerResult[2] * SCALE + doll.scaledCenterX; // doll.getWidth()/2 is removed when check stop doll 
+			touchedX = triggerResult[2] + doll.staticCenterX; // doll.getWidth()/2 is removed when check stop doll 
 
 			status = STATUS_ANIM;
 			mode = MODE_ANIM_RUNNING;
@@ -1591,8 +1601,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				
 				// if static (no x velocity and no y velocity), check if x/y position has to change, stored in move_to fields
 				if (animFeatures.get("x_velocity") == 0 &&  animFeatures.get("y_velocity") == 0) {
-					if (animation.scaledMoveToX != 0 || animation.scaledMoveToY != 0) {
-						animation.setPosition(animation.scaledMoveToX, animation.scaledMoveToY);					
+					if (animation.moveToX != 0 || animation.moveToY != 0) {
+						animation.setPosition(animation.moveToX, animation.moveToY);					
 					}
 				// move animation on screen
 				} else {
@@ -1614,8 +1624,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		
 		if (displayLog) Log.i("Clementime", className + "/checkStopMovingAnimation()");
 
-		if ((animation.scaledMoveToX - animation.scaledStaticCenterX > 0 && animation.scaledX >= animation.scaledMoveToX)
-		 || (animation.scaledMoveToX - animation.scaledStaticCenterX <= 0 && animation.scaledX <= animation.scaledMoveToX)) {
+		if ((animation.moveToX - animation.staticCenterX > 0 && animation.getX() >= animation.moveToX)
+		 || (animation.moveToX - animation.staticCenterX <= 0 && animation.getX() <= animation.moveToX)) {
 			
 			phAnimRunning.setVelocity(0,0);
 			animation.stopAnimation(animation.stopFrame);

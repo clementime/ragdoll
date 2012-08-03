@@ -48,8 +48,9 @@ import static eu.clementime.rds.Constants.DB_TRIGGER_TYPE_SV_ANIM;
 import static eu.clementime.rds.Constants.DB_TRIGGER_TYPE_SV_ITEM;
 import static eu.clementime.rds.Constants.DB_TRIGGER_TYPE_TEXT;
 import static eu.clementime.rds.Constants.DEVELOPMENT;
-import static eu.clementime.rds.Constants.SCALE;
 import static eu.clementime.rds.Constants.LOG_ON;
+import static eu.clementime.rds.Constants.SCALE_POSITION;
+
 //import static eu.clementime.rds.Constants.OBJECT_TYPE_ANIM;
 //import static eu.clementime.rds.Constants.OBJECT_TYPE_AREA;
 //import static eu.clementime.rds.Constants.OBJECT_TYPE_CHAR;
@@ -293,8 +294,7 @@ public class World {
 	}
 	
 	public void save(int screenId, float x, float y) {
-		// don't forget to scale position to standard size before saving
-		db.updateWhenSaving(screenId, x/SCALE, y/SCALE);
+		db.updateWhenSaving(screenId, x / SCALE_POSITION, y / SCALE_POSITION);
 	}	
 	
 	public int isItemDisplayed(int itemId) {
@@ -307,10 +307,7 @@ public class World {
 
 	// features[0] = id exit, features[1] = to trigger before leaving	
 	public int[] getFirstScreenFeatures() {
-		int[] dollPosition = db.selectFirstScreenFeatures();
-		dollPosition[1] = (int)((float)dollPosition[1] * SCALE);
-		dollPosition[2] = (int)((float)dollPosition[2] * SCALE); 
-		return dollPosition;
+		return db.selectFirstScreenFeatures();
 	}
 //	
 //	public int[] getScreenFeatures(int screenId) {

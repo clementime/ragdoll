@@ -5,8 +5,9 @@ import static eu.clementime.rds.Constants.DIRECTION_LEFT;
 import static eu.clementime.rds.Constants.DIRECTION_RIGHT;
 import static eu.clementime.rds.Constants.STATUS_ACTION;
 import static eu.clementime.rds.Constants.ZINDEX_DOLL;
-import static eu.clementime.rds.Constants.SCALE;
 import static eu.clementime.rds.Constants.LOG_ON;
+import static eu.clementime.rds.Constants.SCALE_POSITION;
+
 
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.handler.physics.PhysicsHandler;
@@ -24,8 +25,11 @@ import android.util.Log;
 public class Doll {
 	
 	public AnimatedSprite image;
+	public AnimatedSprite idle;
 	private BitmapTextureAtlas dollBTA;
+	private BitmapTextureAtlas dollIdleBTA;
 	private TiledTextureRegion dollTR;
+	private TiledTextureRegion dollIdleTR;
 	
 	public PhysicsHandler ph;
 	
@@ -33,9 +37,7 @@ public class Doll {
 	public float standardYVelocityLeft;
 	public float YVelocity = 0;
 	
-	public float scaledCenterX;
-	public float scaledWidth;
-	public float scaledHeight;
+	public float staticCenterX;
 	
 	public int walkDirection;
 	public boolean isChased = true;
@@ -50,35 +52,40 @@ public class Doll {
 		this.context = context;
 		
 		//dollBTA = new BitmapTextureAtlas(512, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		dollBTA = new BitmapTextureAtlas(1024, 1024, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		dollTR = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, context, R.drawable.doll_skin_1, 0, 0, 6, 4);
+		dollBTA = new BitmapTextureAtlas(2048, 2048, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		dollIdleBTA = new BitmapTextureAtlas(2048, 2048, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		dollTR = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, context, R.drawable.doll_skin_1, 0, 0, 4, 4);
+		dollIdleTR = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, context, R.drawable.doll_idle_1, 0, 0, 4, 4);
 		
-		engine.getTextureManager().loadTextures(dollBTA);
+		engine.getTextureManager().loadTextures(dollBTA, dollIdleBTA);
 		
 		image = new AnimatedSprite(200, 110, dollTR);
+		idle = new AnimatedSprite(200, 110, dollIdleTR);
 		
-		// TODO: scale depending screen
-		image.setScaleCenter(0,0);
-		image.setScale(SCALE);
-		image.stopAnimation(16);
+		image.setVisible(false);
+		idle.stopAnimation(0);
 			
 		ph = new PhysicsHandler(image);
 		image.registerUpdateHandler(ph);
 		
 		scene.attachChild(image);
+		scene.attachChild(idle);
 		image.setZIndex(ZINDEX_DOLL);
+		idle.setZIndex(ZINDEX_DOLL);
 		
 		scene.registerTouchArea(image);
+		scene.registerTouchArea(idle);
 		
-		this.scaledCenterX = image.getWidth()/2 * SCALE;
-		this.scaledWidth = this.image.getWidth() * SCALE;
-		this.scaledHeight = this.image.getHeight() * SCALE;
+		this.staticCenterX = image.getWidth()/2;
 	}
 
 	public void move(int status, float touchedX) {
 		
-		if (LOG_ON) Log.i("Clementime", className + "/moveDoll()");
+		if (LOG_ON) Log.i("Clementime", className + "/move()");
 
+		idle.setVisible(false);
+		image.setVisible(true);
+		
 		// if doll wasn't previously walking, launch walking animation	
 		if (ph.getVelocityX() == 0) {
 			
@@ -97,8 +104,17 @@ public class Doll {
 		}
 	}
 	
+	public void stop() {
+		
+		if (LOG_ON) Log.i("Clementime", className + "/stop()");
+		
+		image.setVisible(false);
+		idle.setPosition(image);
+		idle.setVisible(true);
+	}
+	
 	public void sayNo() {
-		image.animate(new long[]{120, 120, 120, 120}, 16, 19, 4);		
+		idle.animate(new long[]{120, 120, 120, 120}, 0, 15, 4);		
 	}
 	
 	public void getYVelocity(int screenId) {
@@ -114,10 +130,10 @@ public class Doll {
 		return db.selectDollScreen();
 	}
 	
-	public int[] getScaledStartedPosition() {
+	public int[] getStartingPosition() {
 		int[] position = db.selectDollPosition();
-		position[0] = (int)((float)position[0] * SCALE); 
-		position[1] = (int)((float)position[1] * SCALE); 
+		position[0] *= SCALE_POSITION;
+		position[1] *= SCALE_POSITION;
 		return position;
 	}
 	
@@ -129,7 +145,6 @@ public class Doll {
 			if (LOG_ON) Log.w("Clementime", className + "/changeSkin(): cannot find skin " + skinId);
 		} else if (LOG_ON) Log.d("Clementime", className + "/changeSkin(): load skin " +  + skinId);
 		
-		BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, context, bgFile, 0, 0, 6, 4);
-		image.setScale(SCALE);
+		BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, context, bgFile, 0, 0, 4, 4);
 	}
 }

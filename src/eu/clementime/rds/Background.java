@@ -1,10 +1,12 @@
 package eu.clementime.rds;
 
 import static eu.clementime.rds.Constants.ANIMATION_IMAGE_PREFIX;
+import static eu.clementime.rds.Constants.CAMERA_HEIGHT;
+import static eu.clementime.rds.Constants.CAMERA_WIDTH;
 import static eu.clementime.rds.Constants.DB_INVENTORY_VALUE_ON_SCREEN;
 import static eu.clementime.rds.Constants.DEFAULT_IMAGE;
 import static eu.clementime.rds.Constants.MARGIN_Y;
-import static eu.clementime.rds.Constants.SCALE;
+import static eu.clementime.rds.Constants.SET_BACKGROUND_POSITION_Y;
 import static eu.clementime.rds.Constants.ZINDEX_ACTION;
 import static eu.clementime.rds.Constants.ZINDEX_ANIM;
 import static eu.clementime.rds.Constants.ZINDEX_FOREGROUND;
@@ -99,9 +101,7 @@ public class Background {
 				} else if (LOG_ON) Log.d("Clementime", className + "/loadBackground(): load foreground " + hm.get("foreground"));
 
 				TextureRegion TRFore = BitmapTextureAtlasTextureRegionFactory.createFromResource(bgBTA, context, fgFile, 0, 480);
-				fgImage = new Sprite(0, 0 + MARGIN_Y, TRFore);
-				fgImage.setScaleCenter(0,0);
-				fgImage.setScale(SCALE);
+				fgImage = new Sprite(0, 0 - SET_BACKGROUND_POSITION_Y + MARGIN_Y, TRFore);
 				
 				scene.attachChild(fgImage);
 				fgImage.setZIndex(ZINDEX_GROUND_1);
@@ -109,13 +109,13 @@ public class Background {
 			
 			TextureRegion TRBack = BitmapTextureAtlasTextureRegionFactory.createFromResource(bgBTA, context, bgFile, 0, 0);
 			
-			bgImage = new Sprite(0, 0 + MARGIN_Y, TRBack);
-			bgImage.setScaleCenter(0,0);
-			bgImage.setScale(SCALE);
+			bgImage = new Sprite(0, 0 - SET_BACKGROUND_POSITION_Y + MARGIN_Y, TRBack);
+			
+			if (LOG_ON) Log.i("Clementime", className + "/load(): bg width " + bgImage.getWidth() + " - height " + bgImage.getHeight());
 			//bgImage.setPosition(0,0);
 		
-			xMin = (int)(Float.parseFloat(hm.get("x_min")) * SCALE);
-			xMax = (int)(Float.parseFloat(hm.get("x_max")) * SCALE);
+			xMin = Integer.parseInt(hm.get("x_min"));
+			xMax = Integer.parseInt(hm.get("x_max"));
 			
 			engine.getTextureManager().loadTexture(bgBTA);
 			
@@ -400,7 +400,7 @@ public class Background {
 				
 				animation.animate(frameDuration, animFeatures[0], animFeatures[1], true);
 
-				if (animation.scaledMoveToX != 0 || animation.scaledMoveToY != 0) animation.setPosition(animation.scaledMoveToX, animation.scaledMoveToY);					
+				if (animation.moveToX != 0 || animation.moveToY != 0) animation.setPosition(animation.moveToX, animation.moveToY);					
 
 				animation.setVisible(true);
 				scene.registerTouchArea(animation);

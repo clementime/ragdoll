@@ -16,7 +16,10 @@ public final class Constants  {
 	
 	// size are based on the background height, but this height cannot exceed image size
 	// so be sure the following match real image size in pixels
-	public static final int BACKGROUND_MAX_HEIGHT = 480;	//TODO: CHANGE DEPENDING BACKGROUND PICTURE SIZE
+	public static final int BACKGROUND_MAX_HEIGHT_MDPI = 480;	
+	public static final int BACKGROUND_MAX_HEIGHT_HDPI = 720;
+	public static final int BACKGROUND_MAX_HEIGHT_XHDPI = 960;
+	public static int BACKGROUND_MAX_HEIGHT = 0;
 	
 	public static final float MASK_ALPHA_LAYER = 0.4f;
 	public static final float INV_ALPHA_LAYER = 0.8f;
@@ -39,8 +42,10 @@ public final class Constants  {
 	/*                   */
 	public static int CAMERA_WIDTH;
 	public static int CAMERA_HEIGHT;
+	
 	public static int MARGIN_Y = 0;
-	public static float SCALE = 1;
+	public static float SET_BACKGROUND_POSITION_Y = 0;
+	public static float SCALE_POSITION = 1; // scale database positions which are set for a 960px background
 	
 	public static int INVENTORY_POSY_NORMALVIEW;
 	public static int TALK_POSX;
@@ -51,10 +56,13 @@ public final class Constants  {
 	public static void setDependingScreenConstants() {
 		
 		// if screen exceed background max size, set a black margin
-		int scaleCalculation = CAMERA_HEIGHT - BACKGROUND_MAX_HEIGHT;
-    	if (scaleCalculation > 0) MARGIN_Y = scaleCalculation/2;
-    	else if (scaleCalculation < 0) SCALE = (float)CAMERA_HEIGHT / (float)BACKGROUND_MAX_HEIGHT;
-		
+		int bgPositionCalculation = CAMERA_HEIGHT - BACKGROUND_MAX_HEIGHT;
+    	if (bgPositionCalculation > 0) MARGIN_Y = bgPositionCalculation/2;
+    	else if (bgPositionCalculation < 0) SET_BACKGROUND_POSITION_Y = -bgPositionCalculation;
+    	
+    	// scale position of screen items, areas, doll, animations depending size of background 
+    	SCALE_POSITION = BACKGROUND_MAX_HEIGHT/BACKGROUND_MAX_HEIGHT_XHDPI;
+    	
 		INVENTORY_POSY_NORMALVIEW = CAMERA_HEIGHT-85;
 		
 		TALK_POSX = 10;
