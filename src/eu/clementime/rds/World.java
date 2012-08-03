@@ -49,7 +49,9 @@ import static eu.clementime.rds.Constants.DB_TRIGGER_TYPE_SV_ITEM;
 import static eu.clementime.rds.Constants.DB_TRIGGER_TYPE_TEXT;
 import static eu.clementime.rds.Constants.DEVELOPMENT;
 import static eu.clementime.rds.Constants.LOG_ON;
+import static eu.clementime.rds.Constants.MARGIN_Y;
 import static eu.clementime.rds.Constants.SCALE_POSITION;
+import static eu.clementime.rds.Constants.SET_BACKGROUND_POSITION_Y;
 
 //import static eu.clementime.rds.Constants.OBJECT_TYPE_ANIM;
 //import static eu.clementime.rds.Constants.OBJECT_TYPE_AREA;
@@ -294,7 +296,9 @@ public class World {
 	}
 	
 	public void save(int screenId, float x, float y) {
-		db.updateWhenSaving(screenId, x / SCALE_POSITION, y / SCALE_POSITION);
+		x = x / SCALE_POSITION;
+		y = (y + SET_BACKGROUND_POSITION_Y - MARGIN_Y) / SCALE_POSITION;
+		db.updateWhenSaving(screenId, x, y);
 	}	
 	
 	public int isItemDisplayed(int itemId) {

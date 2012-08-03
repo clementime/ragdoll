@@ -6,6 +6,7 @@ import static eu.clementime.rds.Constants.CAMERA_WIDTH;
 import static eu.clementime.rds.Constants.DB_INVENTORY_VALUE_ON_SCREEN;
 import static eu.clementime.rds.Constants.DEFAULT_IMAGE;
 import static eu.clementime.rds.Constants.MARGIN_Y;
+import static eu.clementime.rds.Constants.SCALE_POSITION;
 import static eu.clementime.rds.Constants.SET_BACKGROUND_POSITION_Y;
 import static eu.clementime.rds.Constants.ZINDEX_ACTION;
 import static eu.clementime.rds.Constants.ZINDEX_ANIM;
@@ -182,6 +183,7 @@ public class Background {
 			while(itItems.hasNext()){
 				spriteToAttach = itItems.next();
 				scene.attachChild(spriteToAttach);
+				spriteToAttach.setPosition(spriteToAttach.x * SCALE_POSITION, (spriteToAttach.y - SET_BACKGROUND_POSITION_Y + MARGIN_Y) * SCALE_POSITION);
 				
 				if (LOG_ON) Log.d("Clementime", className + "/loadItems(): *** display item " + spriteToAttach.id + " ***");
 				
@@ -283,7 +285,7 @@ public class Background {
 					spriteToAttach = itAnims.next();
 					scene.attachChild(spriteToAttach);
 					
-					if (LOG_ON) Log.d("Clementime", className + "/loadItems(): *** display anim " + spriteToAttach.id + " ***");
+					if (LOG_ON) Log.d("Clementime", className + "/loadAnimations(): *** display anim " + spriteToAttach.id + " ***");
 					
 					spriteToAttach.setZIndex(ZINDEX_ANIM);
 					scene.registerTouchArea(spriteToAttach);

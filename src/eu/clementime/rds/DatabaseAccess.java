@@ -66,12 +66,12 @@ public class DatabaseAccess {
 		
 		LinkedList<Map<String, String>> ll = new LinkedList<Map<String, String>>();
 		
-		String query = " select _id as id, image, height, width, " + DB_FIELD_DISPLAY + ", ";
-		query += " x, y, take_state, look_state, takeable, foreground ";	// select field
-		query += " from item left join screen_item on _id = item_id ";
-		query += " where screen_id = " + screenId;	// conditions
-		query += " and " + DB_FIELD_DISPLAY + " = 1 ";
-		query += " order by height desc ";
+		String query = " select i._id as id, i.image, i.height, i.width, i." + DB_FIELD_DISPLAY + ", ";
+		query += " s.x, s.y, s.take_state, s.look_state, s.takeable, s.foreground ";	// select field
+		query += " from item i left join screen_item s on i._id = s.item_id ";
+		query += " where s.screen_id = " + screenId;	// conditions
+		query += " and i." + DB_FIELD_DISPLAY + " = 1 ";
+		query += " order by i.height desc ";
 
 		if (LOG_ON) Log.d("Clementime", className + "/selectScreenItems(): query: " + query);
 		
@@ -389,10 +389,10 @@ public class DatabaseAccess {
 
 		Map<String, String> hm = new HashMap<String, String>();
 
-		String query = " select _id as id, image, height, width, " + DB_FIELD_DISPLAY + ", ";
-		query += " x, y, take_state, look_state, talk_state, exit, takeable ";	// select field
-		query += " from item left join screen_item on _id = item_id ";
-		query += " where _id = " + itemId;	// conditions
+		String query = " select i._id as id, i.image, i.height, i.width, i." + DB_FIELD_DISPLAY + ", ";
+		query += " s.x, s.y, s.take_state, s.look_state, s.talk_state, s.takeable ";	// select field
+		query += " from item i left join screen_item s on i._id = s.item_id ";
+		query += " where i._id = " + itemId;	// conditions
 		
 		try {
 			Cursor c = dbh.db.rawQuery(query, new String [] {});

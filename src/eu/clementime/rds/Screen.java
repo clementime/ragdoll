@@ -45,6 +45,7 @@ import static eu.clementime.rds.Constants.NO_END_LOOP;
 import static eu.clementime.rds.Constants.PLAYING_HAND;
 import static eu.clementime.rds.Constants.POINTER_CIRCLE;
 import static eu.clementime.rds.Constants.POINTER_WALK;
+import static eu.clementime.rds.Constants.SCALE_POSITION;
 import static eu.clementime.rds.Constants.SET_BACKGROUND_POSITION_Y;
 import static eu.clementime.rds.Constants.STATUS_ACTION;
 import static eu.clementime.rds.Constants.STATUS_ANIM;
@@ -418,7 +419,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				//***************************************************************
 				//     CHASE ANIM or DOLL with camera, move everything needed
 				//***************************************************************
-				if ((!checkStopDoll(pSecondsElapsed) && doll.ph.getVelocityX() != 0) || chaseAnim) {	
+				if ((doll.ph.getVelocityX() != 0 && !checkStopDoll(pSecondsElapsed)) || chaseAnim) {	
 
 					if (doll.isChased) pointToChase = doll.image.getX() + doll.staticCenterX; // chase doll
 					
@@ -559,6 +560,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		
 		// get position of doll from player table - on x beginning position is set to -1
 		startingPosition = doll.getStartingPosition();
+
+		if (LOG_ON) Log.i("Clementime", className + "************ START: " + startingPosition[0]);
 		
 		// get new position from database if:
 		// 1. doll comes from another exit (exit >= 1)
@@ -591,6 +594,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			
 			if (LOG_ON) Log.i("Clementime", className + "/loadNewScreen(): player in screen: " + nextBg.screenId);
 		}
+
+		// do not remove float conversion. if you do you'll obtain a zero result
+		startingPosition[0] = (int)((float)startingPosition[0] * SCALE_POSITION); 
+		startingPosition[1] = (int)((float)startingPosition[1] * SCALE_POSITION);
 	}
 	
 	private void createNewBackground(int screenId) {
@@ -623,7 +630,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			/* set persistent objects in position
 			/********************************************/	
 			doll.image.setPosition(startingPosition[0], startingPosition[1] - SET_BACKGROUND_POSITION_Y + MARGIN_Y);
-			world.calculateWalkArea(startingPosition[1] + doll.image.getHeight() + MARGIN_Y);
+			doll.idle.setPosition(startingPosition[0], startingPosition[1] - SET_BACKGROUND_POSITION_Y + MARGIN_Y);
+			world.calculateWalkArea(startingPosition[1] - SET_BACKGROUND_POSITION_Y + doll.image.getHeight() + MARGIN_Y);
 			
 			// set camera focus on doll at start
 			if (startingPosition[0] >= currentBg.bgImage.getWidth() - CAMERA_WIDTH/2)	camera.setCenter(currentBg.bgImage.getWidth() - CAMERA_WIDTH/2, CAMERA_HEIGHT/2);
@@ -1295,7 +1303,6 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
 		else if (actions > 0) mode = MODE_ACTION_WAIT;
 	}
-	
 	
 	private void activateActionOnItem(ScreenItem screenItem) {
 		

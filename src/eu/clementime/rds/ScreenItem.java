@@ -18,6 +18,9 @@ public class ScreenItem extends Sprite {
 	public boolean takeable;
 	public boolean foreground;
 	
+	public float x;
+	public float y;
+	
 	//public ScreenItem(int id, int x, int y, boolean take, boolean look, boolean talk, boolean exit, boolean takeable, boolean inventory, TextureRegion tr) {
 	public ScreenItem(int id, float x, float y, int take, int look, boolean takeable, boolean foreground, TextureRegion tr) {
 		super(x, y, tr.getWidth(), tr.getHeight(), tr);
@@ -28,7 +31,8 @@ public class ScreenItem extends Sprite {
 		this.actionLook = look;
 		this.takeable = takeable;
 		this.foreground = foreground;
-
-		this.setPosition(x * SCALE_POSITION, (y - SET_BACKGROUND_POSITION_Y + MARGIN_Y) * SCALE_POSITION);
+		
+		this.x = x;
+		this.y = y;
 	}
 }

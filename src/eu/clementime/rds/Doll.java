@@ -55,13 +55,13 @@ public class Doll {
 		dollBTA = new BitmapTextureAtlas(2048, 2048, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		dollIdleBTA = new BitmapTextureAtlas(2048, 2048, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		dollTR = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, context, R.drawable.doll_skin_1, 0, 0, 4, 4);
-		dollIdleTR = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, context, R.drawable.doll_idle_1, 0, 0, 4, 4);
+		dollIdleTR = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollIdleBTA, context, R.drawable.doll_idle_1, 0, 0, 4, 4);
 		
 		engine.getTextureManager().loadTextures(dollBTA, dollIdleBTA);
 		
-		image = new AnimatedSprite(200, 110, dollTR);
-		idle = new AnimatedSprite(200, 110, dollIdleTR);
-		
+		image = new AnimatedSprite(0, 0, dollTR);
+		idle = new AnimatedSprite(0, 0, dollIdleTR);
+
 		image.setVisible(false);
 		idle.stopAnimation(0);
 			
@@ -111,10 +111,11 @@ public class Doll {
 		image.setVisible(false);
 		idle.setPosition(image);
 		idle.setVisible(true);
+		idle.stopAnimation(0);
 	}
 	
 	public void sayNo() {
-		idle.animate(new long[]{120, 120, 120, 120}, 0, 15, 4);		
+		idle.animate(80, 4);
 	}
 	
 	public void getYVelocity(int screenId) {
@@ -123,7 +124,8 @@ public class Doll {
 	}
 	
 	public void setVisible(boolean choice) {
-		this.image.setVisible(choice);
+		if (ph.getVelocityX() > 0) this.image.setVisible(choice);
+		else this.idle.setVisible(choice);
 	}
 	
 	public int getScreen() {
@@ -131,10 +133,7 @@ public class Doll {
 	}
 	
 	public int[] getStartingPosition() {
-		int[] position = db.selectDollPosition();
-		position[0] *= SCALE_POSITION;
-		position[1] *= SCALE_POSITION;
-		return position;
+		return db.selectDollPosition();
 	}
 	
 	public void changeSkin(int skinId) {

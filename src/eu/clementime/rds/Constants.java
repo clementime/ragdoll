@@ -1,6 +1,10 @@
 package eu.clementime.rds;
 
+import android.util.Log;
+
 public final class Constants  {
+	
+	private static String className = "Constants";
 	
 	/*     */
 	/* DEV */
@@ -61,7 +65,7 @@ public final class Constants  {
     	else if (bgPositionCalculation < 0) SET_BACKGROUND_POSITION_Y = -bgPositionCalculation;
     	
     	// scale position of screen items, areas, doll, animations depending size of background 
-    	SCALE_POSITION = BACKGROUND_MAX_HEIGHT/BACKGROUND_MAX_HEIGHT_XHDPI;
+    	SCALE_POSITION = (float)BACKGROUND_MAX_HEIGHT/(float)BACKGROUND_MAX_HEIGHT_XHDPI;
     	
 		INVENTORY_POSY_NORMALVIEW = CAMERA_HEIGHT-85;
 		
