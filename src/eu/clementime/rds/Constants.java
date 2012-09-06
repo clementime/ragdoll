@@ -1,5 +1,6 @@
 package eu.clementime.rds;
 
+import static eu.clementime.rds.Constants.LOG_ON;
 import android.util.Log;
 
 public final class Constants  {
@@ -20,10 +21,10 @@ public final class Constants  {
 	
 	// size are based on the background height, but this height cannot exceed image size
 	// so be sure the following match real image size in pixels
-	public static final int BACKGROUND_MAX_HEIGHT_MDPI = 480;	
-	public static final int BACKGROUND_MAX_HEIGHT_HDPI = 720;
-	public static final int BACKGROUND_MAX_HEIGHT_XHDPI = 960;
-	public static int BACKGROUND_MAX_HEIGHT = 0;
+	public static final int BACKGROUND_MAX_HEIGHT_MDPI = 480;	 // image size for medium dpi devices (will be 400 in the future)
+	public static final int BACKGROUND_MAX_HEIGHT_HDPI = 720; // image size for high dpi devices (will be 600 in the future)
+	public static final int BACKGROUND_MAX_HEIGHT_XHDPI = 960; // image size for xhigh dpi devices (may be)
+	public static int BACKGROUND_MAX_HEIGHT = 0; // is set from one of the height before, depending on the device used
 	
 	public static final float MASK_ALPHA_LAYER = 0.4f;
 	public static final float INV_ALPHA_LAYER = 0.8f;
@@ -39,7 +40,8 @@ public final class Constants  {
 	public static int BIG_ITEM_POSITION = 50;
 	
 	public static int POINTER_WALK = 1;	
-	public static int POINTER_CIRCLE = 2;	
+	public static int POINTER_DOLL = 2;	
+	public static int POINTER_CIRCLE = 3;	
 	
 	/*                   */
 	/* RUNTIME CONSTANTS */
@@ -71,7 +73,9 @@ public final class Constants  {
 		
 		TALK_POSX = 10;
 		TALK_POSY = 30 + MARGIN_Y;
-
+		
+		if (LOG_ON) Log.i("Clementime", className + "/setDependingScreenConstants(): margin Y: " + MARGIN_Y 
+							+ " - bg position Y: " + SET_BACKGROUND_POSITION_Y + " - scale: " + SCALE_POSITION);
 	}
 	
 	/*        */
@@ -108,8 +112,8 @@ public final class Constants  {
 	public static final int MODE_INVENTORY_DROP = 5;	// player is dragging an object from inventory
 
 	// status anim modes
-	public static final int MODE_ANIM_ACTION = 6;		// an action (look, moving doll to talk, take or exit) is running 
-	public static final int MODE_ANIM_TALK = 7;		// an action (look, moving doll to talk, take or exit) is running 
+	public static final int MODE_ANIM_ACTION = 6;		// an action (look, moving doll, take or exit) is running 
+	public static final int MODE_ANIM_TALK = 7;		// an action (talk) is running 
 	public static final int MODE_ANIM_RUNNING = 8;	// an animation is running
 	
 	//*********

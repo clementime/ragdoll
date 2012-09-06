@@ -46,6 +46,13 @@ public class Doll {
 	private Context context;
 	private String className = "Doll";
 	
+	/**
+	 * Loads images and creates every sprites, attach them to the AndEngine scene, register touch areas and set ZIndexes.
+	 * @param	dbh		database handler is stored for upcoming database calls
+ 	 * @param	context	Android context, to retrieve files
+	 * @param	engine	AndEngine engine, to load textures
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public Doll(DatabaseHandler dbh, Context context, Engine engine, Scene scene) {
 		
 		this.db = new DatabaseAccess(dbh);
@@ -115,7 +122,7 @@ public class Doll {
 	}
 	
 	public void sayNo() {
-		idle.animate(80, 4);
+		idle.animate(80, 1);
 	}
 	
 	public void getYVelocity(int screenId) {

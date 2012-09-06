@@ -21,8 +21,8 @@ public class Talk {
 	
 	private DatabaseAccess db;
 	private String className = "Talk";
-	private Context context;
-	public int screenId;
+	//private Context context;
+	//public int screenId;
 	
 	private TextureRegion TR1;
 	private TextureRegion TR2;
@@ -32,11 +32,19 @@ public class Talk {
 	
 	private Sprite picture;
 	
-	public Talk(DatabaseHandler dbh, Context context, int screenId, Engine engine, Scene scene) {
+	/**
+	 * Loads images and creates every sprites, attach them to the AndEngine scene, register touch areas and set ZIndexes.
+	 * @param	dbh		database handler is stored for upcoming database calls
+ 	 * @param	context	Android context, to retrieve files
+	 * @param	engine	AndEngine engine, to load textures
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
+	public Talk(DatabaseHandler dbh, Context context, Engine engine, Scene scene) {
+	//public Talk(DatabaseHandler dbh, Context context, int screenId, Engine engine, Scene scene) {
 		
 		this.db = new DatabaseAccess(dbh);
-		this.context = context;
-		this.screenId = screenId;
+		//this.context = context;
+		//this.screenId = screenId;
 		
 		BitmapTextureAtlas BTA = new BitmapTextureAtlas(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		BitmapTextureAtlas BTA2 = new BitmapTextureAtlas(512, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);

@@ -67,7 +67,7 @@ public class DatabaseAccess {
 		LinkedList<Map<String, String>> ll = new LinkedList<Map<String, String>>();
 		
 		String query = " select i._id as id, i.image, i.height, i.width, i." + DB_FIELD_DISPLAY + ", ";
-		query += " s.x, s.y, s.take_state, s.look_state, s.takeable, s.foreground ";	// select field
+		query += " s.x, s.y, s.take_state, s.look_state, s.talk_state, s.takeable, s.foreground ";	// select field
 		query += " from item i left join screen_item s on i._id = s.item_id ";
 		query += " where s.screen_id = " + screenId;	// conditions
 		query += " and i." + DB_FIELD_DISPLAY + " = 1 ";
@@ -91,7 +91,7 @@ public class DatabaseAccess {
 				hm.put("y", c.getString(c.getColumnIndex("y")));
 				hm.put("take_state", c.getString(c.getColumnIndex("take_state")));
 				hm.put("look_state", c.getString(c.getColumnIndex("look_state")));
-				hm.put("take_state", c.getString(c.getColumnIndex("take_state")));
+				hm.put("talk_state", c.getString(c.getColumnIndex("talk_state")));
 				hm.put("takeable", c.getString(c.getColumnIndex("takeable")));
 				hm.put("foreground", c.getString(c.getColumnIndex("foreground")));
 
@@ -334,7 +334,7 @@ public class DatabaseAccess {
 		
 		int[] stateResults = {0,0,0,0};
 
-		String query  = " select item_id as id, take_state, look_state ";
+		String query  = " select item_id as id, take_state, look_state, talk_state ";
 		query += " from screen_item ";
 		query += " where id = " + itemId;
 		
@@ -348,6 +348,7 @@ public class DatabaseAccess {
 				
 				stateResults[0] = c.getInt(c.getColumnIndex("take_state"));
 				stateResults[1] = c.getInt(c.getColumnIndex("look_state"));
+				stateResults[2] = c.getInt(c.getColumnIndex("talk_state"));
 				
 				c.close();
 			}

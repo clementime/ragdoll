@@ -7,6 +7,7 @@ import static eu.clementime.rds.Constants.MOVE_RIGHT_ARROW_POSX;
 import static eu.clementime.rds.Constants.ZINDEX_ARROW;
 import static eu.clementime.rds.Constants.ZINDEX_CIRCLE;
 import static eu.clementime.rds.Constants.POINTER_CIRCLE;
+import static eu.clementime.rds.Constants.POINTER_DOLL;
 import static eu.clementime.rds.Constants.POINTER_WALK;
 import static eu.clementime.rds.Constants.CAMERA_WIDTH;
 import static eu.clementime.rds.Constants.CAMERA_HEIGHT;
@@ -33,6 +34,10 @@ public class GameTools extends Entity {
 		
 	private Context context;
 	private DatabaseAccess db;
+	
+	/**
+	 * For logs only.
+	 */	
 	private String className = "GameTools";
 	public int screenId;
 	
@@ -40,11 +45,13 @@ public class GameTools extends Entity {
 	private TiledTextureRegion TR2;
 	private TiledTextureRegion TR3;
 	private TiledTextureRegion TR4;
+	private TiledTextureRegion TR5;
 	
 	public AnimatedSprite leftArrow;
 	public AnimatedSprite rightArrow;
-	public AnimatedSprite animatedCircle;
+	public AnimatedSprite defaultPointer;
 	public AnimatedSprite walkingPointer;
+	public AnimatedSprite dollPointer;
 	
 	public ActionsManager am;
 
@@ -58,7 +65,15 @@ public class GameTools extends Entity {
 	public String language;
 	
 	public boolean rightHanded;
+	public int pointer = POINTER_CIRCLE;
 	
+	/**
+	 * Game items, including action manager, and fonts are loaded and created directly in the constructor.
+	 * @param	dbh			database handler is stored for upcoming database calls
+ 	 * @param	context		Android context, to retrieve files
+	 * @param	engine		AndEngine engine, to load textures
+	 * @param	scene		AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public GameTools(DatabaseHandler dbh, Context context, Engine engine, Scene scene) {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/constructor()");
@@ -75,23 +90,31 @@ public class GameTools extends Entity {
 	}
 	
 	// TODO: check size of all BTA to reduce them as much as possible
+	/**
+	 * Loads images and creates every sprites, attach them to the AndEngine scene,
+	 * hides them which aren't used at start, register touch areas and set ZIndexes.
+	 * @param	engine	AndEngine engine, to load textures
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public void loadGameItems(Engine engine, Scene scene) {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/loadGameItems()");
 		
-		BitmapTextureAtlas BTA = new BitmapTextureAtlas(256, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		BitmapTextureAtlas BTA = new BitmapTextureAtlas(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
 		this.TR1 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.move_left, 0, 0, 5, 1);
 		this.TR2 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.move_right, 0, 30, 5, 1);
 		this.TR3 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.animated_circle, 0, 60, 4, 3);
 		this.TR4 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.walking_pointer, 0, 210, 4, 3);
+		this.TR5 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.doll_pointer, 150, 210, 4, 3);
 		
 		engine.getTextureManager().loadTexture(BTA);
 		
 		leftArrow = new AnimatedSprite(MOVE_LEFT_ARROW_POSX, CAMERA_HEIGHT + MOVE_ARROWS_POSY - MARGIN_Y, TR1);
 		rightArrow = new AnimatedSprite(CAMERA_WIDTH + MOVE_RIGHT_ARROW_POSX, CAMERA_HEIGHT + MOVE_ARROWS_POSY - MARGIN_Y, TR2);
-		animatedCircle = new AnimatedSprite(0, 0, TR3);
+		defaultPointer = new AnimatedSprite(0, 0, TR3);
 		walkingPointer = new AnimatedSprite(0, 0, TR4);
+		dollPointer = new AnimatedSprite(0, 0, TR5);
 		
 		leftArrow.setVisible(false);
 		rightArrow.setVisible(false);
@@ -99,27 +122,34 @@ public class GameTools extends Entity {
 		leftArrow.setAlpha(0.7f);
 		rightArrow.setAlpha(0.7f);
 
-		animatedCircle.stopAnimation(11);
+		defaultPointer.stopAnimation(11);
 		walkingPointer.stopAnimation(11);
+		dollPointer.stopAnimation(11);
 		leftArrow.stopAnimation(4);
 		rightArrow.stopAnimation(4);
 		
 		scene.attachChild(leftArrow);
 		scene.attachChild(rightArrow);
-		scene.attachChild(animatedCircle);
+		scene.attachChild(defaultPointer);
 		scene.attachChild(walkingPointer);
+		scene.attachChild(dollPointer);
 		
 		scene.registerTouchArea(leftArrow);
 		scene.registerTouchArea(rightArrow);
 		
-		animatedCircle.setZIndex(ZINDEX_CIRCLE);
+		defaultPointer.setZIndex(ZINDEX_CIRCLE);
 		walkingPointer.setZIndex(ZINDEX_CIRCLE);
+		dollPointer.setZIndex(ZINDEX_CIRCLE);
 		leftArrow.setZIndex(ZINDEX_ARROW);
 		rightArrow.setZIndex(ZINDEX_ARROW);
 		
 		this.am.load(this.context, engine, scene);
 	}
-	
+	/**
+	 * Loads fonts for introduction screen or error messages. 
+	 * @param	engine	AndEngine engine, to load textures
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public void loadFonts(Engine engine, Scene scene) {
 		
         FontFactory.setAssetBasePath("font/");
@@ -136,30 +166,52 @@ public class GameTools extends Entity {
 		defaultFont2 = new Font(defaultFont2BTA, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 24, true, Color.RED);
 		engine.getTextureManager().loadTexture(defaultFont2BTA);
 	}
-
-	public void showAnimatedCircle(float x, float y, int type) {
+	/**
+	 * Indicates where the player touched the screen (animated pointer). 
+	 * @param	engine	AndEngine engine, to load textures
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
+	public void showPointer(float x, float y) {
 		
-		if (LOG_ON) Log.i("Clementime", className + "/showAnimatedCircle()");
+		if (LOG_ON) Log.i("Clementime", className + "/showdefaultPointer()");
 		
-		if (type == POINTER_WALK) {
+		if (pointer == POINTER_WALK) {
 			walkingPointer.setPosition(x, y);
 			walkingPointer.setVisible(true);
-			walkingPointer.animate(50, false);		
+			walkingPointer.animate(50, false);
+		} else if (pointer == POINTER_DOLL){
+			dollPointer.setPosition(x, y);
+			dollPointer.setVisible(true);
+			dollPointer.animate(50, false);
 		} else {
-			animatedCircle.setPosition(x, y);
-			animatedCircle.setVisible(true);
-			animatedCircle.animate(50, false);
+			defaultPointer.setPosition(x, y);
+			defaultPointer.setVisible(true);
+			defaultPointer.animate(50, false);
 		}
+		pointer = POINTER_CIRCLE; // set to default value after each use
 	}
-
-	public void hideAnimatedCircle() {
+	/**
+	 * When it isn't needed anymore, hides pointer and stops its animation. 
+	 */	
+	public void hidePointer() {
 		
-		if (LOG_ON) Log.i("Clementime", className + "/hideAnimatedCircle()");
+		if (LOG_ON) Log.i("Clementime", className + "/hidePointer()");
 		
 		walkingPointer.setVisible(false);
-		animatedCircle.setVisible(false);
+		dollPointer.setVisible(false);
+		defaultPointer.setVisible(false);
+		
+		walkingPointer.stopAnimation(11);
+		dollPointer.stopAnimation(11);
+		defaultPointer.stopAnimation(11);
 	}
-	
+	/**
+	 * When border of screen is reached, hides moving arrows; otherwise, displays them. 
+	 * @param	xMinCamera	indicates where the camera is (scene/background x, not local x)
+	 * @param	xMaxCamera	indicates where the camera is (scene/background x, not local x)
+	 * @param	xMinScreen	indicates minimum x where doll can go (scene/background x, not local x)
+	 * @param	xMaxScreen	indicates maximum x where doll can go (scene/background x, not local x)
+	 */	
 	public void checkBorders(float xMinCamera, float xMaxCamera, float xMinScreen, float xMaxScreen) {
 		
 		if (leftArrow.isVisible()) {
@@ -182,7 +234,11 @@ public class GameTools extends Entity {
 			rightArrow.setVisible(true);
 		}
 	}
-
+	/**
+	 * Settings information: the player can choose either he/her wants items displayed at the
+	 * left of his/her finger or at the right when dragging it in or outside inventory. 
+	 * @return	playingHand	player left or right handed, chosen by him/her in the settings	
+	 */	
 	public int getPlayingHand() {
 		return db.selectPlayingHand();
 	}

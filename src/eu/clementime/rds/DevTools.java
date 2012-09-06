@@ -30,6 +30,10 @@ import android.util.Log;
 public class DevTools extends HUD implements IOnAreaTouchListener {
 
 	DatabaseHandler dbh;
+	
+	/**
+	 * For logs only.
+	 */	
 	private String className = "DevTools";
 	Backup backup;
 	public Rectangle mask;

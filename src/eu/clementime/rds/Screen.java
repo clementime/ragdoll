@@ -45,6 +45,7 @@ import static eu.clementime.rds.Constants.NO_END_LOOP;
 import static eu.clementime.rds.Constants.PLAYING_HAND;
 import static eu.clementime.rds.Constants.POINTER_CIRCLE;
 import static eu.clementime.rds.Constants.POINTER_WALK;
+import static eu.clementime.rds.Constants.POINTER_DOLL;
 import static eu.clementime.rds.Constants.SCALE_POSITION;
 import static eu.clementime.rds.Constants.SET_BACKGROUND_POSITION_Y;
 import static eu.clementime.rds.Constants.STATUS_ACTION;
@@ -96,6 +97,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	//*
 	//* Android & General objects
 	//*******************************************************/
+	/**
+	 * Used to keep database handler over the whole game.
+	 */	
 	private RdsGame app;
 	private DatabaseHandler dbh;
 	private Context context;
@@ -118,6 +122,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	//* changeable objects & screen variables (loaded at each screen)
 	//*******************************************************/
 	private Background currentBg;
+	/**
+	 * Loaded background, waiting to replace current background when switching screen for another. 
+	 */	
 	private Background nextBg;
 	
 	private float minChasingX = 0;
@@ -128,6 +135,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	//*******************************************************/
 	private Inventory inventory;
 	private Talk talk;
+	
+	/**
+	 * Moving arrows, pointers, icons, action manager. 
+	 */	
 	private GameTools gameTools;
 //	private Map map;
 	
@@ -149,6 +160,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	private Anim touchedAnimation = null;
 
 	private boolean movingArrowPressed = false;
+	
+	/**
+	 * Avoid doll trying to go until action manager if it is out of reach for her. 
+	 */	
 	private boolean actionsManagerOutsideBorders = false;
 
 	// doll moving
@@ -156,17 +171,62 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	//private int scaledBgWidth;
 
 	// status
+	/**
+	 * The 3 status, associated with one mode, indicate what sort of things the doll is allowed to do.<p>
+	 * - Action (= can walk, take, talk, look, exit),</br>
+	 * - Inventory (= inventory is open),</br>
+	 * - Animation (doll is doing something, as talking, or an animation is running)
+	 * @see #mode 
+	 */	
 	private int status = STATUS_ACTION;
+	
+	/**
+	 * The mode specifies the status and depends on it; it indicates precisely what doll is doing.<p>
+	 * Action status allows 2 modes:</br>
+	 *   > Walk,</br>
+	 *   > Wait (for an action: action manager is visible),<p>
+	 * Inventory status allows 3 modes:</br>
+	 *   > Open (zoom is closed, click to open zoom or drag an item),</br>
+	 *   > Zoom (zoom is open, click to close or drag an item),</br>
+	 *   > Drop (player is dragging an item onto something else, zoomed item or screen item),<p>
+	 * Animation status allows 2 modes:</br>
+	 *   > Action (doll is looking, moving toward an item or an exit)</br>
+	 *   > Talk (doll is talking),</br>
+	 *   > Animation is running (player must wait until this animation is finished).
+	 * @see #status 
+	 */	
 	private int mode = MODE_ACTION_WALK;
+	
+	/**
+	 * Used to know when and where a click happened.<p>Completes status and mode.
+	 */	
 	private int clickCheck = CLICK_OFF;
 
 	// animation sequences
+	/**
+	 * Used to know if there is another animation to be triggered after the running animation. 
+	 */	
 	private int pendingTriggerId = 0;
+
+	/**
+	 * Used to know if there is another animation to be triggered during the running animation. 
+	 */	
 	private int simultaneousTriggerId = 0;
+	
+	/**
+	 * Used to know if there is an animation running. 
+	 */	
 	private Anim runningAnim = null;
 	
 	// switch screen
+	/**
+	 * Used to know if there is an animation to be triggered at the beginning of the first screen. 
+	 */	
 	private int firstScreenTriggerId = 0;
+	
+	/**
+	 * startingPosition[0] = x Doll / startingPosition[1] = y Doll. 
+	 */	
 	private int[] startingPosition;
 	private boolean deactivateTouchEvents = false;
 	
@@ -188,10 +248,13 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	private float nextLog = 0;
 	private String className = "Screen";
 
-	/**************************************/
-	/* FIRST LOAD                         */
-	/**************************************/
+	/* ************************************ */
+	/*  FIRST LOAD - ONE-RUN METHODS        */
+	/* ************************************ */
 	
+	/**
+	 * AndEngine one-run method, at start.
+	 */
     @Override
     public Engine onLoadEngine() {   	
 		
@@ -222,8 +285,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
     	engineOptions.getTouchOptions().setRunOnUpdateThread(true);		
 
 		return new Engine(engineOptions);
-    }
-    
+    } 
+	/**
+	 * AndEngine one-run method, at start.
+	 */
 	@Override
 	public void onLoadResources() {	
 		
@@ -239,8 +304,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		} catch (Exception e){
 			Log.e("Clementime", className + "/onLoadResources(): cannot load resources - " + e.getMessage());			
 		}
-	}	
-	
+	}
+	/**
+	 * Persistent objects (= not depending on screen: doll, game tools, inventory, fonts, talk bubbles, etc...) are created and corresponding sprites loaded.
+	 * This is a one-run method, at start.
+	 */
 	private void loadResources() {
 		
 		/*
@@ -259,7 +327,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
         //**********************	
 		world = new World(dbh, context, doll.getScreen());
 		gameTools = new GameTools(dbh, context, mEngine, scene);
-		inventory = new Inventory(camera, context, dbh, mEngine, scene);
+		inventory = new Inventory(dbh, context, mEngine, scene);
 		
 		PLAYING_HAND = gameTools.getPlayingHand();
 		
@@ -275,8 +343,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		getFontManager().loadFont(gameTools.defaultFont);
 		getFontManager().loadFont(gameTools.defaultFont2);
 		
-		talk = new Talk(dbh, context, doll.getScreen(), mEngine, scene);
-		//talk = new Talk(context, mEngine, scene);
+		talk = new Talk(dbh, context,  mEngine, scene);
+//		talk = new Talk(dbh, context, doll.getScreen(), mEngine, scene);
 //		map = new Map(dbh, CAMERA_WIDTH, CAMERA_HEIGHT);
 		
 		// map
@@ -292,8 +360,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			getFontManager().loadFont(devTools.devFont);
 			devTools.setup(scene);
 		}
-	}
-	
+	}	
+	/**
+	 * AndEngine one-run method, at start.
+	 */
 	@Override
 	public Scene onLoadScene() {
 			
@@ -320,7 +390,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			/* (changed when new screen is loaded)
 			/******************************************************************************/
 			currentBg = nextBg;
-			initNewScene();	
+			initNewScreen();	
 			
 			if (LOG_ON) Log.i("Clementime", className + "/onLoadScene()");
 	
@@ -334,7 +404,12 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		
 		return scene;
 	}
-	
+	/**
+	 * This is the loop of the game (into onUpdate() method).
+	 * Manages running animations and doll chasing (= moving camera & game tools as doll is walking).</br> 
+	 * Be careful not putting more that necessary inside the loop.</br>
+	 * This is a one-run method, at start.
+	 */
 	private void setLoop() {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/setLoop()");
@@ -438,8 +513,13 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				}				
 			}
 		});	
-	}	
-
+	}
+	/**
+	 * When the doll is moving, checkStopDoll() checks if the doll must stop or not, depending on the current action (simple walking, continuous walking, taking, etc...).
+	 * When the doll stops, actions are done, if needed, as taking, talking or going to next screen by an exit.
+	 * Be careful, this method is called inside the loop. That is why the displaying of the log is delayed in this method. 
+	 * @param	pSecondsElapsed	time since last update on screen 
+	 */
 	private boolean checkStopDoll(float pSecondsElapsed) {
 		
 		// if doll is moving, it can be stopped at runtime without player interaction if:
@@ -450,6 +530,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		
 		// DELAY log displayed in loop
 		//*****************************
+		// TODO: put it after if (LOG_ON)
 		if (lastLog >= nextLog) {
 			displayLog = true;
 			nextLog = nextLog + LOOP_LOG_INTERVAL;
@@ -458,7 +539,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			displayLog = false;					
 		}
 		
-		if (displayLog) Log.d("Clementime", className + "/checkStopDoll()");
+		if (LOG_ON) Log.d("Clementime", className + "/checkStopDoll(): status " + status + " - mode " + mode + " - click " + clickCheck);
 
 		// stop doll when reaching borders - if not during an animation
     	if ((doll.image.getX() < currentBg.xMin || doll.image.getX() > currentBg.xMax) && mode != MODE_ANIM_RUNNING) {	
@@ -479,7 +560,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 			// if looking or talking to an item until which the doll can't move 
 			if (mode == MODE_ANIM_ACTION && actionsManagerOutsideBorders) {
-				gameTools.animatedCircle.stopAnimation(11);
+				gameTools.hidePointer();
 				if (touchedAction == ACTION_TALK)	talk();
 				
 				gameTools.am.deactivate();
@@ -500,12 +581,14 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		    	gameTools.leftArrow.stopAnimation(4);
 		    	gameTools.rightArrow.stopAnimation(4);
 
+	    		if (displayLog) Log.d("Clementime", className + "/checkStopDoll(): doll reached action point");
+	    		
 		    	// reasons why doll is stopping (other than simple moving on screen)
 		    	if (mode == MODE_ANIM_ACTION) {
 		    		
 		    		if (displayLog) Log.d("Clementime", className + "/checkStopDoll(): doll reached action point");
 
-					gameTools.animatedCircle.stopAnimation(11);
+					gameTools.hidePointer();
 					
 			    	if (touchedExit != null) {
 						if (touchedExit.beforeTrigger == 0) goToNextScreen();
@@ -538,17 +621,35 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		if (doll.ph.getVelocityX() == 0 && doll.ph.getVelocityY() == 0) stop = true;
 		
 		return stop;
-	}	
-	
+	}		
+	/**
+	 * AndEngine one-run method, at start.
+	 */
 	@Override
 	public void onLoadComplete() {
 		
 	}
 	
-	/**************************************/
-	/* LOAD NEW SCREEN                    */
-	/**************************************/
+	/* ************************************ */
+	/*  LOAD NEW SCREEN                     */
+	/* ************************************ */	
 	
+	/**
+	 * Load a new screen when starting game or leaving screen for another by an exit.<p> 
+	 * 
+	 * This method retrieve doll starting position from database
+	 * and create a new background (screen, items, animations...)
+	 * without displaying it yet. <p>
+	 * 
+	 * First, whatever the case, it looks for:</br>
+	 * - player last position (player carry on playing a previous game),<p>
+	 * 
+	 * But if doll comes from another screen by an exit, this starting position is updated by:</br>
+	 * - new screen starting position,<p>
+	 * 
+	 * If not, and if there is no previous position (= x < -300), this is a new game, and method retrieve:</br>
+	 * - first screen starting position.
+	 */	
 	private void loadNewScreen() {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/loadNewScreen()");
@@ -599,17 +700,19 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		startingPosition[0] = (int)((float)startingPosition[0] * SCALE_POSITION); 
 		startingPosition[1] = (int)((float)startingPosition[1] * SCALE_POSITION);
 	}
-	
-	private void createNewBackground(int screenId) {
-		
-		nextBg = new Background(dbh, context, screenId, mEngine, scene, gameTools.am.exitLeftTR, gameTools.am.exitRightTR);
-
-		
+	/**
+	 * Creates a new background object.
+	 * @param	screenId	id of the newly created screen 
+	 */
+	private void createNewBackground(int screenId) {	
+		nextBg = new Background(dbh, context, screenId, mEngine, scene, gameTools.am.exitLeftTR, gameTools.am.exitRightTR);	
 	}
-	
-	public void initNewScene() {
+	/**
+	 * Display a new screen. Everything was loaded previously in loadNewScreen() method.
+	 */
+	public void initNewScreen() {
 		
-		if (LOG_ON) Log.i("Clementime", className + "/initNewScene()");
+		if (LOG_ON) Log.i("Clementime", className + "/initNewScreen()");
 		
 		deactivateTouchEvents = true; // do not do anything during scene initialisation
 		
@@ -644,6 +747,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			currentBg.showStaticAnims(scene);
 			currentBg.showExits(scene);
 			
+			// launch starting trigger if needed at the beginning of new screen
 			if (touchedExit != null) {
 				if (touchedExit.afterTrigger != 0) launchTrigger(touchedExit.afterTrigger, false);
 				touchedExit = null;				
@@ -655,16 +759,18 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				mode = MODE_ACTION_WALK;
 			}
 
-
+			// sort ZIndex in order to display sprites in back, middle, or foreground.
 			scene.sortChildren();	
 
 		} catch (Exception e) {
-			Log.e("Clementime", className + "/initNewScene(): raise error: " + e.getMessage());
+			Log.e("Clementime", className + "/initNewScreen(): raise error: " + e.getMessage());
 		}
 		
 		deactivateTouchEvents = false;
-	}
-	
+	}	
+	/**
+	 * Set game tools on screen depending on the position of the doll & camera.
+	 */
 	private void setToolsInPosition() {
 
 //		// move info frame with the doll
@@ -680,7 +786,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			devTools.openX.setPosition(camera.getMinX() + CAMERA_WIDTH/2-devTools.openX.getWidth()/2, devTools.openX.getY());
 		}
 	}
-	
+	/**
+	 * Hide or show doll & game tools.
+	 */
 	private void showPersistentObjects(boolean choice) {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/showPersistentObjects(): " + choice);
@@ -688,24 +796,25 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		doll.setVisible(choice);
 		gameTools.setVisible(choice);
 	}
-	
-	/**************************************/
-	/* TOUCH DETECTION && GESTURE METHODS */
-	/**************************************/
 
-	//**********************//
-	//*** EVENT REMINDER ***//
-	// EVENT ORDER :
+	/* ************************************ */
+	/*  TOUCH DETECTION && GESTURE METHODS  */
+	/* ************************************ */
+	
+	//*** EVENT ORDER REMINDER ***//
 	// AreaTouched DOWN
 	// SceneTouchEvent DOWN
 	// AreaTouched UP
 	// OnClick
 	// SceneTouchEvent UP
-	//**********************//
+	//
 	// if no area is touched, AreaTouched isn't called
 	// if no click happens, OnClick isn't called
-	//**********************//
-
+	//****************************//
+	
+	/**
+	 * onAreaTouched activates following sprites when touched: inventory items, talk bubbles, action manager, doll, moving arrows, some animations, exits, dev or setting tools, zoom.
+	 */
 	@Override
 	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final ITouchArea pTouchArea, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		
@@ -724,7 +833,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				} else if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
 		    		//************************************
 		    		//     CLOSE MAP
-		    		//************************************   
+		    		//************************************
+					//TODO: remove map
 					if (status == STATUS_MAP && pTouchArea instanceof Sprite) closeMap();
 
 		    		//************************************
@@ -751,7 +861,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 							//************************************
 				    		//     DOLL		>> OPEN INVENTORY
 				    		//************************************
-							else if (pTouchArea == doll.image) openInventory();
+							else if (pTouchArea == doll.image) {
+								gameTools.pointer = POINTER_DOLL;
+								openInventory();
+							}
 
 							//***********************************
 							//		MOVING ARROWS
@@ -812,7 +925,14 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		}
 		return false;
 	}
-
+	/**
+	 * Used for player actions that do not involved a sprite, for things happening after a TouchArea event, or for cleaning variables after an event.
+	 * <p>
+	 *  > Player actions that do not involved a sprite: dragging and dropping inventory items, looking an area on screen or walking,</br>
+	 *  > Things happening after a TouchArea event: doing actions with action manager or closing inventory,</br>
+	 *  > cleaning variables if needed: changing status and mode, deactivating game tools or stopping doll.<p>
+	 * onSceneTouchEvent() is activated after onAreaTouched().
+	 */
 	@Override
 	public boolean onSceneTouchEvent(final Scene pScene, final TouchEvent pSceneTouchEvent) {
 		
@@ -829,8 +949,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				//************************************ 
 				// show animated circle when status is ACTION and not in walk area
 //				if (status == STATUS_ACTION) {
-//					float xCircle = pSceneTouchEvent.getX() - gameTools.animatedCircle.getWidth() / 2;
-//			    	float yCircle = pSceneTouchEvent.getY() - gameTools.animatedCircle.getHeight() / 2;
+//					float xCircle = pSceneTouchEvent.getX() - gameTools.defaultPointer.getWidth() / 2;
+//			    	float yCircle = pSceneTouchEvent.getY() - gameTools.defaultPointer.getHeight() / 2;
 //					gameTools.showAnimatedCircle(xCircle, yCircle);	
 //				}	
 				
@@ -871,7 +991,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 					    	// --------------- IF an animation is not running ---------------
 					    	// talk has been recently closed, come back to mode screen here
 					    	// (not before to avoid touch reacting to areas when closing talk) 
-							if (mode != MODE_ANIM_RUNNING && !talk.background.isVisible() && !inventory.zoomView.isVisible()) {
+							if (mode != MODE_ANIM_RUNNING && mode != MODE_ANIM_ACTION && !talk.background.isVisible() && !inventory.zoomView.isVisible()) {
 								status = STATUS_ACTION;
 								mode = MODE_ACTION_WALK;						
 							}					
@@ -888,7 +1008,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		}
 		return true;
 	}
-	  
+	/**
+	 * Manages click i.e. zooming on item in inventory and close zoom.
+	 */
 	@Override
 	public void onClick(final ClickDetector pClickDetector, final TouchEvent pTouchEvent) {
 
@@ -907,15 +1029,24 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			}
 		}
 	}
-		
+	/**
+	 * Manages accelerometer i.e. looking for inventory items when there are too many to fit screen. 
+	 */
 	@Override
 	public void onAccelerometerChanged(final AccelerometerData pAccelerometerData) {
 		inventory.moveItemList(camera.getMinX(), pAccelerometerData.getX());
 	}
 	
+	
 	/**************************************/
 	/* ON AREA/ON SCENE TOUCH SUB METHODS */
-	/**************************************/
+	/* ************************************ */
+	/*  TOUCH SUBMETHODS                    */
+	/* ************************************ */
+	
+	/**
+	 * When there is only one action, don't show action manager (to remove, probably).
+	 */
 	private void doSingleAction(int action) {
 	
 		status = STATUS_ANIM;
@@ -935,12 +1066,19 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			if (touchedAction == ACTION_LOOK) talk();
 		}
 	}
-	
+	/**
+	 * SubMethod of onSceneTouchEvent() method. Do one of the following:</br>
+	 *  > freeze action manager and move doll towards item if doll is going to take an item, towards character if doll is going to talk to somebody, or towards exit,</br>
+	 *  > check if there is something to look in the background (screen area),</br>
+	 *  > let doll starting walking (to a point or continuously, it will be checked after by checkStopDoll() method),</br>
+	 *  > show animated circle or pointer.
+	 * @param	x	x touched by the player (on the whole AndEngine scene, which means on the whole background image, not local x on screen)
+	 * @param	y	y touched by the player (for this application = local y because there is no way to scroll vertically)
+	 * @see #onSceneTouchEvent
+	 */
 	private void manageAction(float x, float y) {
 
 		if (LOG_ON) Log.d("Clementime", className + "/manageAction(): status " + status + " - mode " + mode);
-
-		int pointer = POINTER_CIRCLE;
 		
 		//**************************
 		//     ACTION
@@ -1003,6 +1141,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			gameTools.am.deactivate();
 
 			// avoid doll moving when closing inventory or frame
+			//TODO: remove click_bag
 			if (clickCheck != CLICK_BAG) {
 				
 				// avoid doll stopping if moving arrow just pressed
@@ -1013,7 +1152,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 					
 					// move doll until touched point if walk area touched
 					if (world.checkWalkArea(currentBg.xMin, currentBg.xMax, x, y)) {
-						pointer = POINTER_WALK;
+						gameTools.pointer = POINTER_WALK;
 						doll.move(status, touchedX);						
 					}
 				} else movingArrowPressed = false;
@@ -1032,11 +1171,15 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		//************************************ 
 		// show animated circle when status is ACTION and not in walk area
 
-		float xCircle = x - gameTools.animatedCircle.getWidth() / 2;
-    	float yCircle = y - gameTools.animatedCircle.getHeight() / 2;
-		gameTools.showAnimatedCircle(xCircle, yCircle, pointer);	
+		float xPointer = x - gameTools.defaultPointer.getWidth() / 2;
+    	float yPointer = y - gameTools.defaultPointer.getHeight() / 2;
+		gameTools.showPointer(xPointer, yPointer);
 	}
-	
+	/**
+	 * SubMethod of onSceneTouchEvent() method, allows drag and drop of inventory items and combination with another inventory item or with a screen item. 
+	 * @param	pSceneTouchEvent	Android/AndEngine touchEvent (up, down, touched x & y, etc...) 
+	 * @see		#onSceneTouchEvent
+	 */
 	private void inventoryDragAndDrop(TouchEvent pSceneTouchEvent) {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/inventoryDragAndDrop()"); 
@@ -1133,8 +1276,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		    				// a combination on screen can change an item on screen or inventory (or just launch a trigger, if combinationResult[1] == 0)
 		    				if (combinationResult[2] == DB_COMBINATION_VALUE_ON_SCREEN) {
 		    					//TODO: doesn't work
-			    				ScreenItem newItem = currentBg.addItemOnScreen(combinationResult[1], mEngine, scene);			    					
-								scene.registerTouchArea(newItem);
+			    				currentBg.addItemOnScreen(combinationResult[1], mEngine, scene);			    					
 		    				} else {
 			    				touchedZoomItem  = inventory.addItem(combinationResult[1], mEngine, scene); // should be done after redrawing
 				    			inventory.displayZoomView(camera.getMinX(), touchedZoomItem, scene);
@@ -1179,11 +1321,12 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	    				inventory.redrawInventory(); // change position of boxes							
 
 	    				InventoryItem newItem = inventory.addItem(combinationResult[1], mEngine, scene); // should be done after redrawing
+	    				// TODO: probably better inside inventory ??
 						float xPos = camera.getMinX() + INVENTORY_POSX_ZOOM_ITEM - newItem.big.getWidth()/2;
 						float yPos = INVENTORY_POSY_ZOOM_ITEM - newItem.big.getHeight()/2;
 						newItem.big.setPosition(xPos, yPos);
 						newItem.big.setVisible(true);
-						scene.registerTouchArea(newItem);
+						
 						touchedZoomItem = newItem;
 	    			}
     			}
@@ -1198,7 +1341,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
         	break;
     	}
 	}
-	
+	/**
+	 * Activates moving arrows, i.e. launch left or right moving arrow animation and launch doll moving (will stop moving if reach a border or if player do another action only).
+	 * SubMethod of onAreaTouched() method.
+	 * @param	direction	left arrow or right arrow
+	 */
 	private void activateMovingArrow(int direction) {
 		
 		if (direction == DIRECTION_LEFT) {
@@ -1224,7 +1371,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		doll.move(status, touchedX);
 		movingArrowPressed = true;
 	}
-	
+	/**
+	 * To remove(?)
+	 */
 	private void closeMap() {
 
 //		touchedMapItem = (Sprite)pTouchArea;
@@ -1234,7 +1383,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 //		}
 
 	}
-	
+	/**
+	 * Hide talking bubble at the end of a dialog.
+	 * SubMethod of onAreaTouched() method.
+	 */
 	private void closeTalk(float x) {
 		
 		// avoid closing frame when touching the decorated part
@@ -1254,7 +1406,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 //			}
 //		}
 	}
-	
+	/**
+	 * Stop doll then either open inventory (set corresponding inventory status and mode) or launch "say no" animation if inventory is empty.
+	 * SubMethod of onAreaTouched() method.
+	 */
 	private void openInventory() {
 		
 		doll.ph.setVelocity(0,0);
@@ -1273,7 +1428,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 //			displayTalk(world.getGeneralText("empty_inventory"));
 		}	
 	}
-	
+	/**
+	 * Close inventory and come back to walk status and mode.
+	 * SubMethod of onAreaTouched() method.
+	 */
 	private void closeInventory() {
 		
 		// avoid closing inventory right after opening it
@@ -1283,7 +1441,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			hideInventory();								
 		} else clickCheck = CLICK_OFF;
 	}
-	
+	/**
+	 * When an animation is touched, open action manager with actions matching this animation (if there are).
+	 * SubMethod of onAreaTouched() method.
+	 */
 	private void activateActionOnAnim(Anim anim) {
 		
 		if (LOG_ON) Log.d("Clementime", className + "/activateActionOnAnim(): anim " + anim.toString()); 
@@ -1303,7 +1464,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
 		else if (actions > 0) mode = MODE_ACTION_WAIT;
 	}
-	
+	/**
+	 * When an item is touched, open action manager with actions matching this animation (if there are).
+	 * SubMethod of onAreaTouched() method.
+	 */
 	private void activateActionOnItem(ScreenItem screenItem) {
 		
 		touchedAnimation = null;
@@ -1321,7 +1485,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
 		else if (actions > 0) mode = MODE_ACTION_WAIT;
 	}
-	
+	/**
+	 * In inventory, mark item as selected for zooming or dragging and dropping.
+	 * SubMethod of onAreaTouched() method.
+	 */
 	private void selectInventoryItem(InventoryItem item) {
 		if (mode == MODE_INVENTORY_OPEN || mode == MODE_INVENTORY_ZOOM) {
 			touchedInventoryItem = item;
@@ -1331,7 +1498,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			else clickCheck = CLICK_AGAIN_INVENTORY;
 		}	
 	}
-
+	/**
+	 * Display development screen (loading and saving).
+	 * SubMethod of onAreaTouched() method.
+	 */
 	private void openCloseDevTools() {
 				
 		if (LOG_ON) Log.i("Clementime", className + "/openCloseDevTools()");
@@ -1351,10 +1521,33 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
     	}
 	}
 
-	/**************************************/
-	/* ON CLICK SUB METHODS               */
-	/**************************************/
+	/* ************************************ */
+	/*  ON CLICK SUB METHODS & INVENTORY    */
+	/* ************************************ */
 	
+	/**
+	 * Displays inventory and enables accelerometer.
+	 */
+	public void displayInventory() {
+
+		if (LOG_ON) Log.i("Clementime", className + "/displayInventory()");
+		
+		this.enableAccelerometerSensor(this);
+		inventory.display(camera.getMinX(), scene);
+	}
+	/**
+	 * Hides inventory and disables accelerometer.
+	 */
+	public void hideInventory() {
+		
+		if (LOG_ON) Log.i("Clementime", className + "/hideInventory()");
+		
+		this.disableAccelerometerSensor();
+		inventory.hide();	
+	}
+	/**
+	 * Displays zoom in inventory when player clicks on an item.
+	 */
 	private void zoomOnItem() {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/ZoomOnItem()");
@@ -1365,7 +1558,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		
 		clickCheck = CLICK_OFF;	
 	}
-	
+	/**
+	 * Displays another item in zoom when zoom is already open and player clicks on another item.
+	 */
 	private void switchZoomedItem() {
 		// accept consecutive clicks (= zoom again when already in zoom mode)
 		
@@ -1382,7 +1577,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		clickCheck = CLICK_OFF;
 		
 	}
-	
+	/**
+	 * Hides zoom in inventory when player clicks on zoom area.
+	 */
 	private void closeZoom() {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/closeZoom()");
@@ -1394,11 +1591,31 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		//clickCheck = CLICK_OFF;
 	
 	}
+	/**
+	 * Hides big item when player releases dragging.
+	 */
+	private void hideBigItem() {
+		
+		if (LOG_ON) Log.i("Clementime", className + "/hideBigItem()");
+		
+    	touchedInventoryItem.big.setVisible(false);
+       	touchedInventoryItem.big.setPosition(-200, 0); // out of screen
+       	if (touchedInventoryItem != touchedZoomItem) {
+       		touchedInventoryItem.setAlpha(1);
+       		touchedInventoryItem.small.setAlpha(1);
+       	}
+    	touchedInventoryItem.big.setZIndex(ZINDEX_INV_ITEM);
+		scene.sortChildren();
+       	touchedInventoryItem = null;
+	}
 	
-	/*************************************/
-	/* ACTION METHODS */
-	/*************************************/
-
+	/* ************************************ */
+	/*  ACTIONS (including exit)            */
+	/* ************************************ */
+	
+	/**
+	 * Launches take action (hide screen item, put it in inventory) if an item is marked as "takeable".
+	 */
 	private void take() {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/take()");
@@ -1407,7 +1624,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		
 		mode = MODE_ACTION_WALK;
 	}
-
+	/**
+	 * Stops doll and launch look action.
+	 */
 	private void look() {
 
 		if (LOG_ON) Log.i("Clementime", className + "/look()");
@@ -1422,7 +1641,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
     	doll.stop();
 		displayTalk(0);
 	}
-
+	/**
+	 * Launches talk action.
+	 */
 	private void talk() {
 
 		if (LOG_ON) Log.i("Clementime", className + "/talk()");
@@ -1431,7 +1652,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		mode = MODE_ANIM_TALK;
 		displayTalk(0);
 	}
-	
+	/**
+	 * Displays talk bubble with first text of a dialog.
+	 */
 	private void displayTalk(int pictureId) {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/displayTalk()");
@@ -1443,7 +1666,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		status = STATUS_ANIM;
 		//mode = MODE_ANIM_OFF;
 	}
-
+	/**
+	 * Remove old sprites and load new screen objects and sprites.
+	 */
 	private void goToNextScreen() {
 		
 		if (touchedExit != null && LOG_ON) Log.i("Clementime", className + "/goToNextScreen(): from exit " + touchedExit.id);
@@ -1457,52 +1682,38 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		currentBg = nextBg;
 		
 		gameTools.am.deactivate();
-		gameTools.animatedCircle.setVisible(false);
-		gameTools.walkingPointer.setVisible(false);
+		gameTools.hidePointer();
 		status = STATUS_ACTION;
 		mode = MODE_ACTION_WALK;
 		
-		initNewScene();
+		initNewScreen();
 
 	}
 	
-	/*************************************/
-	/* INVENTORY METHODS */
-	/*************************************/
+	/* ************************************ */
+	/*  ANIMS & GENERAL                     */
+	/* ************************************ */
 	
-	public void displayInventory() {
-
-		if (LOG_ON) Log.i("Clementime", className + "/displayInventory()");
-		
-		this.enableAccelerometerSensor(this);
-		inventory.display(camera.getMinX(), scene);
-	}
-	
-	public void hideInventory() {
-		
-		if (LOG_ON) Log.i("Clementime", className + "/hideInventory()");
-		
-		this.disableAccelerometerSensor();
-		inventory.hide();	
-	}
-	
-	/****************************/
-	/* GENERAL GAME METHODS */
-	/****************************/
-	
+	/**
+	 * Activates a trigger which can launch an animation, move the doll, hide the doll, launch a text, etc...<p>
+	 * All information about what to do is retrieved into the results tab described below:</br>
+	 * > results[0]: next trigger			- if there is another trigger launched following this one, id of the trigger, 0 if not</br> 		
+	 * > results[1]: animation on screen	- if the trigger is to animate a screenAnim, id of the screeAnim</br>
+	 * > results[2]: doll moving			- if the trigger is to animate the doll, x where the doll has to be moved</br>
+	 * > results[3]: doll is hidden			- if doll is moving, it can be off screen</br>
+	 * > results[4]: text activated			- if an animation text is activated, id of this text</br>
+	 * > results[5]: add item to inventory	- id of item to add in inventory</br>
+	 * > results[6]: doll moving y velocity</br>
+	 * > results[7]: hide/show screen item</br>
+	 * > results[8]: hide/show animation</br>
+	 * > results[9]: simultaneous trigger	- if there is another trigger to launch at the same time, id of the trigger
+	 * @param	triggerId		is the trigger to launch
+	 * @param	simultaneous	if this trigger has to be launch simultaneously another trigger, no pendingTriggerId is set
+	 */
 	private void launchTrigger(int triggerId, boolean simultaneous) {
 
 		//********************************************************************************************************
-		// results[0]: next trigger			- if there is another trigger launched following this one, id of the trigger, 0 if not 		
-		// results[1]: animation on screen	- if the trigger is to animate a screenAnim, id of the screeAnim
-		// results[2]: doll moving			- if the trigger is to animate the doll, x where the doll has to be moved
-		// results[3]: doll is hidden		- if doll is moving, it can be off screen
-		// results[4]: text activated		- if an animation text is activated, id of this text
-		// results[5]: add item to inventory- id of item to add in inventory
-		// results[6]: doll moving y velocity
-		// results[7]: hide/show screen item
-		// results[8]: hide/show animation
-		// results[9]: simultaneous trigger		- if there is another trigger to launch at the same time, id of the trigger
+
 		//********************************************************************************************************
 		if (LOG_ON) {
 			if (simultaneous) Log.i("Clementime", className + "/launchTrigger(): launch simultaneous trigger " + triggerId);
@@ -1576,18 +1787,19 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 		simultaneousTriggerId = triggerResult[9];
 	}
-	
+	/**
+	 * Retrieves all information about an animation (number of frames, duration of frames, moving animation or not, etc...) and launches it.<p>
+	 * All information about what to do is retrieved into the features tab described below:</br>
+	 * features[0] = first_frame</br>
+	 * features[1] = last_frame</br>
+	 * features[2] = frame_duration</br>
+	 * features[3] = loop</br>
+	 * features[4] = x_velocity (for a moving animation)</br>
+	 * features[5] = y_velocity (for a moving animation)</br>
+	 * features[6] = doll_is_hidden</br>
+	 * @param	animId	id of the animation to launch and display
+	 */
 	private void launchAnim(int animId) {
-		
-		//****************************************************************
-		// features[0] = first_frame
-		// features[1] = last_frame
-		// features[2] = frame_duration
-		// features[3] = loop
-		// features[4] = x_velocity
-		// features[5] = y_velocity
-		// features[6] = doll_is_hidden
-		//****************************************************************
 		Map<String, Integer> animFeatures = world.getAnimFeatures(animId);
 		
 		if (LOG_ON) Log.i("Clementime","Screen/launchanim(): launch animation " + animId);
@@ -1626,6 +1838,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			}
 		}
 	}
+	/**
+	 * Checks if a moving animation (>> an animation getting around the screen, not only playing/running) is finished and has to be stopped (!! >> into the loop).
+	 * @param	animation	animation (object, not only id) to be stopped
+	 */
 	
 	private void checkStopMovingAnimation(Anim animation) {
 		
@@ -1638,21 +1854,10 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			animation.stopAnimation(animation.stopFrame);
 		}
 	}
-	
-	private void hideBigItem() {
-		
-		if (LOG_ON) Log.i("Clementime", className + "/hideBigItem()");
-		
-    	touchedInventoryItem.big.setVisible(false);
-       	touchedInventoryItem.big.setPosition(-200, 0); // out of screen
-       	if (touchedInventoryItem != touchedZoomItem) {
-       		touchedInventoryItem.setAlpha(1);
-       		touchedInventoryItem.small.setAlpha(1);
-       	}
-    	touchedInventoryItem.big.setZIndex(ZINDEX_INV_ITEM);
-		scene.sortChildren();
-       	touchedInventoryItem = null;
-	}
+	/**
+	 * When changing screen, all sprites, touch areas and updatehandlers about this screen have to be removed properly.
+	 * AndEngine seems not to do the cleaning completely, so to avoid problems, this is better use a clear/systematic garbage collector.
+	 */
 	
 	private void garbageCollector() {
 		
@@ -1751,11 +1956,14 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
             Log.e("Clementime", className + "/garbageCollector(): problem during cleaning: " + e);
         }
 	}
-	
-	/****************************/
-	/* GENERAL SCREEN METHODS */
-	/****************************/
 
+	/* ************************************ */
+	/*  ANDROID GENERAL METHODS             */
+	/* ************************************ */
+
+	/**
+	 * Opens the database, reloads new game or old game if necessary (backup exists only in dev).
+	 */
 	@Override
 	public void onResume() {
 		
@@ -1782,6 +1990,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		
 		//TODO: load
 		if (DEVELOPMENT) {
+			// information about old game to load is stored into the database. This is the only way not to erase it when launching a new game.
 			if (backup.getLoad() == 2) {
 				Log.i("Clementime","Screen/onResume(): --- DEV ON --- load saved version");
 				backup.loadStateFiles("");
@@ -1797,6 +2006,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			else				Log.i("Clementime","Screen/onResume(): start a new game");
 		}
 	}
+	/**
+	 * Closes database, save player information or game (backup exists only in dev).
+	 */
 	
 	@Override
 	public void onPause() {

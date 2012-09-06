@@ -76,8 +76,19 @@ public class Inventory {
 	private DatabaseAccess db;
 	
 	Sprite touchedSprite; 	
-		
-	public Inventory(Camera camera, Context context, DatabaseHandler dbh, Engine engine, Scene scene) {
+	
+	/**
+	 * For logs only.
+	 */	
+	private String className = "Inventory";
+	/**
+	 * Inventory sprites are loaded and created directly in the constructor.
+	 * @param	dbh			database handler is stored for upcoming database calls
+ 	 * @param	context		Android context, to retrieve files
+	 * @param	engine		AndEngine engine, to load textures
+	 * @param	scene		AndEngine scene, to attach sprites to scene and register touch areas
+	 */		
+	public Inventory(DatabaseHandler dbh, Context context, Engine engine, Scene scene) {
 
 		this.context = context;
 		this.db = new DatabaseAccess(dbh);
@@ -88,10 +99,13 @@ public class Inventory {
 	//*********************************************
 	//        LOADING IMAGES FROM DATABASE
 	//*********************************************
-	
+	/**
+	 * Loads images and creates every sprites, attach them to the AndEngine scene,
+	 * hides them which aren't used at start, register touch areas and set ZIndexes.
+	 */	
 	public void load(Engine engine, Scene scene) {
 		
-		Log.d("Clementime", "Inventory/load()");
+		Log.d("Clementime", className + "/load()");
 
 		BitmapTextureAtlas BTA = new BitmapTextureAtlas(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
@@ -139,16 +153,21 @@ public class Inventory {
 		zoomView.setZIndex(ZINDEX_INVENTORY);
 		normalView.setZIndex(ZINDEX_INVENTORY);	
 	}
-	
+	/**
+	 * Loads images and creates every sprites, attach them to the AndEngine scene, register touch areas and set ZIndexes.
+	 * Dynamically set images on the BitmapTextureAtlas with posX & posY.
+	 * @param	engine	AndEngine engine, to load textures
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public void loadItems(Engine engine, Scene scene) {
 		
-		Log.i("Clementime", "Inventory/loadItems()");
+		Log.i("Clementime", className + "/loadItems()");
 
 		LinkedList<Map<String, String>> ll = db.selectInventoryItems();
 
 		if (!ll.isEmpty()) {
 			
-			Log.d("Clementime", "Inventory/loadItems(): there are " + ll.size() + " items in inventory");			
+			Log.d("Clementime", className + "/loadItems(): there are " + ll.size() + " items in inventory");			
 			/* be careful:
 			 *   inventory items image must not be bigger than INVENTORY_MAX_SIZE_ITEM  (square)  
 			 *   big items image       must not be bigger than INVENTORY_MAX_SIZE_BIG (square)  
@@ -184,15 +203,15 @@ public class Inventory {
 					int invRes = context.getResources().getIdentifier(invFile, "drawable", context.getPackageName());
 					
 					if (invRes == 0) {
-						Log.w("Clementime", "InventoryFrame/loadItems(): cannot find image " + invFile + " - try to find default image " + DEFAULT_IMAGE);
+						Log.w("Clementime", className + "/loadItems(): cannot find image " + invFile + " - try to find default image " + DEFAULT_IMAGE);
 						invRes = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
-						if (invRes == 0) Log.w("Clementime", "InventoryFrame/loadItems(): cannot find default image " + DEFAULT_IMAGE);
+						if (invRes == 0) Log.w("Clementime", className + "/loadItems(): cannot find default image " + DEFAULT_IMAGE);
 					}
 					int zoomRes = context.getResources().getIdentifier(zoomFile, "drawable", context.getPackageName());
 					if (zoomRes == 0) {
-						Log.w("Clementime", "InventoryFrame/loadItems(): cannot find image " + zoomFile + " - try to find default image " + DEFAULT_IMAGE);
+						Log.w("Clementime", className + "/loadItems(): cannot find image " + zoomFile + " - try to find default image " + DEFAULT_IMAGE);
 						zoomRes = context.getResources().getIdentifier(DEFAULT_IMAGE, "drawable", context.getPackageName());
-						if (zoomRes == 0) Log.w("Clementime", "InventoryFrame/loadItems(): cannot find default image " + DEFAULT_IMAGE);
+						if (zoomRes == 0) Log.w("Clementime", className + "/loadItems(): cannot find default image " + DEFAULT_IMAGE);
 					}
 
 					invTR = BitmapTextureAtlasTextureRegionFactory.createFromResource(invBTA, context, invRes, posXInv, posYInv);
@@ -203,7 +222,7 @@ public class Inventory {
 
 					items.add(new InventoryItem(id, new Sprite(0, 0, zoomTR), new Sprite(0, 0, invTR), TR3));
 
-					Log.d("Clementime", "InventoryFrame/loadItems(): load item " + invFile + " id: " + id);
+					Log.d("Clementime", className + "/loadItems(): load item " + invFile + " id: " + id);
 	
 					posXInv = posXInv + INVENTORY_MAX_SIZE_ITEM;
 					posXZoom = posXZoom + INVENTORY_MAX_SIZE_ZOOM;
@@ -242,7 +261,7 @@ public class Inventory {
 				}	
 				
 			} catch (Exception e) {
-				Log.w("Clementime", "InventoryFrame/loadItems(): failed to load inventory items - " + e.getMessage());
+				Log.w("Clementime", className + "/loadItems(): failed to load inventory items - " + e.getMessage());
 			}	
 		}
 	}
@@ -250,9 +269,15 @@ public class Inventory {
 	//*********************************************
 	//        USING INVENTORY during game 
 	//*********************************************
+	
+	/**
+	 * Inventory is displayed when player touches the doll.
+	 * @param	cameraMinX	first item is displayed at camera min x
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public void display(float cameraMinX, Scene scene) {
 		
-		Log.d("Clementime", "InventoryFrame/display()");
+		Log.d("Clementime", className + "/display()");
 
 		normalView.setPosition(cameraMinX + INVENTORY_POSX_NORMALVIEW, normalView.getY());
 		
@@ -267,19 +292,26 @@ public class Inventory {
 //		bag.setVisible(false);
 //		openBag.setVisible(true);
 	}
-	
+	/**
+	 * Hides normal view inventory (= list of inventory items at screen bottom).
+	 */		
 	public void hide() {
 		
-		Log.d("Clementime", "InventoryFrame/hide()");
+		Log.d("Clementime", className + "/hide()");
 
 		normalView.setVisible(false);
 //		bag.setVisible(true);
 //		openBag.setVisible(false);
 	}
-	
+	/**
+	 * Displays zoom when inventory is open and player clicks one item to see it better.
+	 * @param	xMin		zoom is displayed depending on camera min x
+	 * @param	touchedItem	item to zoom
+	 * @param	scene		AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public void displayZoomView(float xMin, InventoryItem touchedItem, Scene scene) {		
 			
-		Log.d("Clementime", "InventoryFrame/displayZoomView()");
+		Log.d("Clementime", className + "/displayZoomView()");
 
 		mask.setVisible(true);
 		mask.setPosition(xMin, mask.getY());
@@ -294,10 +326,15 @@ public class Inventory {
 		
 		displayZoomItem(xMin, touchedItem);
 	}
-	
+	/**
+	 * Displays item in zoom when zoom is open; set position of zoomed item,
+	 * set small item colour lighter in normal view at screen bottom.
+	 * @param	xMin		zoom is displayed depending on camera min x
+	 * @param	touchedItem	item to zoom
+	 */	
 	public void displayZoomItem (float xMin, InventoryItem touchedItem) {
 		
-		Log.d("Clementime", "InventoryFrame/displayZoomItem()");
+		Log.d("Clementime", className + "/displayZoomItem()");
 		
 		// xMin: x of the camera from the beginning of the screen
 		float x = zoomView.getX() + INVENTORY_POSX_ZOOM_ITEM - (touchedItem.big.getWidth()/2);
@@ -308,10 +345,15 @@ public class Inventory {
     	touchedItem.setAlpha(INVBOX_ALPHA_LAYER);
     	touchedItem.small.setAlpha(INV_ALPHA_LAYER); 
 	}
-	
+	/**
+	 * Hides zoom and zoom item when player clicks zoom frame; set item position out of screen 
+	 * for avoiding activation when player touches it (AndEngine allows touching invisible sprite).
+	 * @param	touchedItem	zoomed item to hide and set to normal colour in normal view
+	 * @param	scene		AndEngine scene, to unregister touch areas
+	 */	
 	public void hideZoomView(InventoryItem touchedItem, Scene scene) {
 		
-		Log.d("Clementime", "InventoryFrame/hideZoomView()");
+		Log.d("Clementime", className + "/hideZoomView()");
 
 		touchedItem.big.setVisible(false);
     	touchedItem.setAlpha(1);
@@ -322,10 +364,12 @@ public class Inventory {
 		
 		touchedItem.big.setPosition(-200, 0); // out of screen
 	}
-	
+	/**
+	 * Draws boxes and items in normal view inventory. 
+	 */	
 	public void drawInventory() {
 		
-		Log.d("Clementime", "InventoryFrame/drawInventory()");
+		Log.d("Clementime", className + "/drawInventory()");
 		
 		// xBox is used to give position of boxes/items inside inventory
 		float xBox = 0;
@@ -337,10 +381,12 @@ public class Inventory {
 			xBox = xBox + boxPlusInterval;
 		}	
 	}
-
+	/**
+	 * Redraw normal view inventory (=change position of all boxes & items) when an item is removed from the list. 
+	 */	
 	public void redrawInventory() {
 		
-		Log.d("Clementime", "InventoryFrame/redrawInventory()");
+		Log.d("Clementime", className + "/redrawInventory()");
 
 		// xBox is used to give position of boxes/items inside inventory
 		float xBox = 0;
@@ -356,7 +402,14 @@ public class Inventory {
 			xBox = xBox + boxPlusInterval;
 		}	
 	}
-	
+	/**
+	 * Loads image and create sprite of a new item after the doll took it, add it at then end
+	 * of the inventory, attach it to the AndEngine scene, register touch area and set ZIndex.
+	 * Dynamically set images on the BitmapTextureAtlas with posX & posY.
+	 * @param	itemId	database item id
+	 * @param	engine	AndEngine engine, to load texture
+	 * @param	scene	AndEngine scene, to attach sprite to scene and register touch area
+	 */	
 	public InventoryItem addItem(int itemId, Engine engine, Scene scene) {
 		
 		InventoryItem item;
@@ -395,7 +448,7 @@ public class Inventory {
 			// create item from database information	
 			id = Integer.parseInt(hm.get("id"));
 
-			Log.d("Clementime", "InventoryFrame/addItem(): add item " + invFile + " id: " + id);
+			Log.d("Clementime", className + "/addItem(): add item " + invFile + " id: " + id);
 			item = new InventoryItem(id, new Sprite(0, 0, zoomTR), new Sprite(0, 0, invTR), TR3);
 			items.add(item);
 			
@@ -413,19 +466,25 @@ public class Inventory {
 			return item;
 			
 		} catch (Exception e) {
-			Log.w("Clementime", "InventoryFrame/addItem(): failed to add inventory item " + id + " - " + e.getMessage());
+			Log.w("Clementime", className + "/addItem(): failed to add inventory item " + id + " - " + e.getMessage());
 			return null;
 		}	
 	}
-	
+	/**
+	 * Draws item at the end of normal view inventory.
+	 * @param	item	item object to draw 
+	 */	
 	public void addItemAtEnd(InventoryItem item) {
 		
-		Log.d("Clementime", "InventoryFrame/addItemAtEnd()");
+		Log.d("Clementime", className + "/addItemAtEnd()");
 
 		drawItem(item, (items.size() - 1) * boxPlusInterval, 0);
 	}
-
 	// TODO: check if hide & remove item are different and if garbage collector take all sprites (because of itItem.remove()...
+	/**
+	 * Hides big item after a combination of 2 other items.
+	 * @param	item	item object to hide
+	 */	
 	public void hideItem(InventoryItem item) {
 		
 		Log.i("Clementime", "Screen/hideInventoryItem()");
@@ -433,10 +492,13 @@ public class Inventory {
 		item.big.setVisible(false);
 		item.big.setPosition(-200, 0);
 	}
-	
+	/**
+	 * Removes item if this one disappears after a combination (not mandatory).
+	 * @param	itemId	inventory list item id
+	 */	
 	public void removeItem(int itemId) {
 		
-		Log.d("Clementime", "InventoryFrame/removeItem()");
+		Log.d("Clementime", className + "/removeItem()");
 
 		// remove item from list
 		ListIterator<InventoryItem> itItem = items.listIterator();
@@ -454,10 +516,15 @@ public class Inventory {
 			}
 		}	
 	}
-
+	/**
+	 * Draws item in normal view, set its position, attach it to normal view, register physics handler on its big image for dragging.
+	 * @param	item	item to draw
+	 * @param	xBox	x of inventory box which contains this item
+	 * @param	yBox	y of inventory box which contains this item
+	 */	
 	public void drawItem(InventoryItem item, float xBox, float yBox) {
 		
-		Log.d("Clementime", "InventoryFrame/drawItem()");
+		Log.d("Clementime", className + "/drawItem()");
 
 		normalView.attachChild(item);
 		normalView.attachChild(item.small);
@@ -474,12 +541,19 @@ public class Inventory {
 		item.big.registerUpdateHandler(physicsHandler);
 
 	}
-	
+	/**
+	 * Item list movement managed by accelerometer, when player wants to see inventory items that do not fit in screen, if there are.
+	 * @param	xMin	camera min x (scene/background x, not local x)
+	 * @param	x		x generated by accelerometer movement
+	 */	
 	public void moveItemList(float xMin, float x) {
 		float movement = (float)Math.exp(Math.abs(x));
 
+		// if tilting left and normal view hasn't reached end of list, move it to the left
 		if (x < -1 && normalView.getX() + items.size() * boxPlusInterval > xMin + CAMERA_WIDTH) {
 			normalView.setPosition(normalView.getX()-movement, normalView.getY());	
+			
+		//  otherwise if tilting right and normal view isn't at the beginning, move it to the right
 		} else if (x > 1 && normalView.getX() < xMin) {
 			normalView.setPosition(normalView.getX()+movement, normalView.getY());
 		}

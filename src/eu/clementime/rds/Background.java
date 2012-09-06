@@ -36,6 +36,9 @@ import android.util.Log;
 
 public class Background {
 	
+	/**
+	 * Even if attached to scene, items are part of the background, and stored inside it (idem for areas, anims and exists).
+	 */	
 	public ArrayList<ScreenItem> items = new ArrayList<ScreenItem>();
 	public ArrayList<Area> areas = new ArrayList<Area>();
 	public ArrayList<Anim> anims = new ArrayList<Anim>();
@@ -43,10 +46,18 @@ public class Background {
 
 	public Sprite bgImage;
 	public Sprite fgImage;
+	
+	/**
+	 * xMin and xMax are the boundaries outside the doll can't go (but if part of an animation).
+	 */	
 	public int xMin;
 	public int xMax;
 		
 	private DatabaseAccess db;
+	
+	/**
+	 * For logs only.
+	 */	
 	private String className = "Background";
 	
 	private Context context;
@@ -57,6 +68,16 @@ public class Background {
 	public BitmapTextureAtlas animsBTA;
 	public BitmapTextureAtlas charsBTA;
 	
+	/**
+	 * Everything is loaded and created directly in the constructor (background, items, animations, areas, exists).
+	 * @param	dbh			database handler is stored for upcoming database calls
+ 	 * @param	context		Android context, to retrieve files
+ 	 * @param	screenId	id of the current screen
+	 * @param	engine		AndEngine engine, to load textures
+	 * @param	scene		AndEngine scene, to attach sprites to scene and register touch areas
+	 * @param	elTR		texture region of the left exit, to create corresponding animated sprite
+	 * @param	erTR		texture region of the right exit, to create corresponding animated sprite
+	 */	
 	public Background(DatabaseHandler dbh, Context context, int screenId, Engine engine, Scene scene, TiledTextureRegion elTR, TiledTextureRegion erTR) {
 
 		this.db = new DatabaseAccess(dbh);
@@ -77,7 +98,12 @@ public class Background {
 	/**************************************/
 	/* LOAD NEW SCREEN                    */
 	/**************************************/
-	
+	/**
+	 * Loads background and foreground (if existing) images and creates every sprites, attach them to the AndEngine scene,
+	 * register touch areas and set ZIndexes, and set background boundaries.
+	 * @param	engine	AndEngine engine, to load textures
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public void load(Engine engine, Scene scene) {
 		
 		try {			
@@ -128,7 +154,12 @@ public class Background {
 			Log.e("Clementime", className + "/loadBackground():failed to load screen " + screenId);		
 		}
 	}
-	
+	/**
+	 * Loads images and creates every sprites, attach them to the AndEngine scene, register touch areas and set ZIndexes.
+	 * Dynamically set images on the BitmapTextureAtlas with posX & posY.
+	 * @param	engine	AndEngine engine, to load textures
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public void loadItems(Engine engine, Scene scene) {
 		
 		LinkedList<Map<String, String>> ll = db.selectScreenItems(this.screenId);
@@ -182,20 +213,31 @@ public class Background {
 						
 			while(itItems.hasNext()){
 				spriteToAttach = itItems.next();
+				
 				scene.attachChild(spriteToAttach);
-				spriteToAttach.setPosition(spriteToAttach.x * SCALE_POSITION, (spriteToAttach.y - SET_BACKGROUND_POSITION_Y + MARGIN_Y) * SCALE_POSITION);
+				spriteToAttach.setPosition(spriteToAttach.x * SCALE_POSITION, (spriteToAttach.y - SET_BACKGROUND_POSITION_Y + MARGIN_Y) * SCALE_POSITION);	
 				
-				if (LOG_ON) Log.d("Clementime", className + "/loadItems(): *** display item " + spriteToAttach.id + " ***");
-				
+				// some items have to be placed beyond the doll, on the foreground
 				if (spriteToAttach.foreground) spriteToAttach.setZIndex(ZINDEX_FOREGROUND);
 				else spriteToAttach.setZIndex(ZINDEX_ITEM);
+				
 				scene.registerTouchArea(spriteToAttach);
 				spriteToAttach.andEngineId = scene.getChildIndex(spriteToAttach);
+				
+				if (LOG_ON) Log.d("Clementime", className + "/loadItems(): *** display item " + spriteToAttach.id + " ***");
 			}
 			
 		} else if (LOG_ON) Log.d("Clementime", className + "/loadItems(): ***screen " + screenId + " has no item***");
 	}
-		
+	//TODO: (maybe, have to think of it) change actions information at running time instead of calling the database)
+	// currently information about actions in item objects aren't used
+	/**
+	 * Create an item object (sprite) with information about its position and allowed actions. 
+	 * @param	hm		tab with database information
+	 * @param	BTA		AndEngine BitmapTextureAtlas to store all item images
+	 * @param	xPos	calculated position on BTA
+	 * @param	yPos	calculated position on BTA
+	 */	
 	private void createItem(Map<String, String> hm, BitmapTextureAtlas BTA, int xPos, int yPos) {
 
 		int res = 0;
@@ -205,6 +247,7 @@ public class Background {
 		float y;
 		int take;
 		int look;
+		int talk;
 		boolean takeable;
 		boolean foreground;
 		
@@ -224,17 +267,23 @@ public class Background {
 
 		take = Integer.parseInt(hm.get("take_state"));
 		look = Integer.parseInt(hm.get("look_state"));
+		talk = Integer.parseInt(hm.get("talkk_state"));
 		//exit = Integer.parseInt(hm.get("exit"));
 		if (Integer.parseInt(hm.get("foreground")) == 1) takeable = true;
 		else takeable = false;
 		if (Integer.parseInt(hm.get("foreground")) == 1) foreground = true;
 		else foreground = false;
 
-		items.add(new ScreenItem(id, x, y + MARGIN_Y, take, look, takeable, foreground, TR));
+		items.add(new ScreenItem(id, x, y, take, look, talk, takeable, foreground, TR));
 		
 		if (LOG_ON) Log.d("Clementime", className + "/createItem(): create item " + file + " -id: " + id);
 	}
-	
+	/**
+	 * Loads images and creates every animated sprites, attach them to the AndEngine scene, register touch areas and set ZIndexes.
+	 * Dynamically set images on the BitmapTextureAtlas with posX & posY.
+	 * @param	engine	AndEngine engine, to load textures
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public void loadAnimations(Engine engine, Scene scene) {
 		
 		LinkedList<Map<String, String>> ll = db.selectAnimations(this.screenId);
@@ -297,7 +346,13 @@ public class Background {
 			}
 		}
 	}
-	
+	/**
+	 * Create an animation object (animated sprite) with position and running information. 
+	 * @param	hm		tab with database information
+	 * @param	BTA		AndEngine BitmapTextureAtlas to store all item images
+	 * @param	xPos	calculated position on BTA
+	 * @param	yPos	calculated position on BTA
+	 */
 	private void createAnimation(Map<String, String> hm, BitmapTextureAtlas BTA, int xPos, int yPos) {
 
 		int res = 0;
@@ -348,7 +403,11 @@ public class Background {
 		if (LOG_ON) Log.d("Clementime", className + "/createAnimation(): create animation " + id);
 
 	}
-	
+	/**
+	 * Loads and creates a single item, after a combination of two existing items resulting in another one. 
+	 * @param	itemId	database id of item to create
+	 * @param	engine	AndEngine engine, to load textures
+	 */	
 	public void loadItem(int itemId, Engine engine) {
 		
 		BitmapTextureAtlas BTA = new BitmapTextureAtlas(256, 256, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
@@ -359,15 +418,24 @@ public class Background {
 		
 		engine.getTextureManager().loadTexture(BTA);
 	}
-
+	/**
+	 * Stores screen areas the player can interact with. 
+	 */	
 	public void createAreas() {
 		areas = db.selectAreas(screenId, MARGIN_Y);
 	}
-	
+	/**
+	 * Stores all the screen exists (even these which aren't displayed at first).
+	 * @param	TRLeft		texture region of the left exit, to create corresponding animated sprite
+	 * @param	TRRight		texture region of the right exit, to create corresponding animated sprite
+	 */		
 	public void createExits(TiledTextureRegion TRLeft, TiledTextureRegion TRRight) {
 		exits = db.selectExits(screenId, TRLeft, TRRight, MARGIN_Y);
 	}
-	
+	/**
+	 * Launches character or landscape animations (looping and not moving animations). 
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public void showStaticAnims(Scene scene) {
 		
 		if (LOG_ON) Log.i("Clementime", "Screen/showStaticAnims()");
@@ -377,7 +445,11 @@ public class Background {
 		
 		while(itAnims.hasNext()) launchStaticAnim(itAnims.next(), scene);	
 	}
-	
+	/**
+	 * Launches character or landscape animations (looping and not moving animations). 
+	 * @param	animId	database id of animation to be launched
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	private void launchStaticAnim(int animId, Scene scene) {
 		
 		//****************************************************************
@@ -409,7 +481,10 @@ public class Background {
 			}
 		}
 	}
-	
+	/**
+	 * Displays exits the doll is allowed to use (others will be displayed at run time). 
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public void showExits(Scene scene) {
 		
 		if (LOG_ON) Log.i("Clementime", "Screen/showExits()");
@@ -438,6 +513,11 @@ public class Background {
 	/* DURING RUNTIME                     */
 	/**************************************/
 	
+	/**
+	 * When an item is taken by the doll, it disappears of the screen; when two items are combined, another can appear on the screen. 
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 * @param	item	item object to hide or display
+	 */	
 	public void hideShowItem(Scene scene, ScreenItem item) {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/hideShowItem()");	
@@ -450,7 +530,11 @@ public class Background {
 			scene.registerTouchArea(item);				
 		}
 	}
-	
+	/**
+	 * When an item is taken by the doll, it disappears of the screen; when two items are combined, another can appear on the screen.
+	 * @param	itemId	id of item to hide or display 
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */
 	public void hideShowItemById(int itemId, Scene scene) {
 		
 		if (LOG_ON) Log.i("Clementime", "Screen/hideShowScreenItem()");
@@ -471,7 +555,11 @@ public class Background {
 			}
 		}
 	}
-
+	//TODO: find if touch area must be deactivated in this case (as for item ??)
+	/**
+	 * Animation can appear or disappear, depending on the scenario.
+	 * @param	animId	id of animation to hide or display 
+	 */
 	public void hideShowAnimation(int animId) {
 		
 		if (LOG_ON) Log.i("Clementime", "Screen/hideShowAnimation()");
@@ -488,19 +576,36 @@ public class Background {
 			}
 		}
 	}
-
+	/**
+	 * For action manager.
+	 * @param	animId	id of concerned animation
+	 * @return	states	states[0]=take; states[1]=look; states[2]=talk;  
+	 */
 	public int[] getAnimStates(int animId) {	
 		return db.selectAnimStates(animId);
 	}
-	
+	/**
+	 * For action manager.
+	 * @param	itemId	id of concerned item
+	 * @return	states	states[0]=take; states[1]=look; states[2]=talk;  
+	 */
 	public int[] getItemStates(int itemId) {	
 		return db.selectItemStates(itemId);
 	}
-	
+	/**
+	 * For action manager.
+	 * @param	areaId	id of concerned area
+	 * @return	states	states[0]=take; states[1]=look; states[2]=talk;  
+	 */
 	public int[] getAreaStates(int areaId) {	
 		return db.selectAreaStates(areaId);
 	}
-
+	/**
+	 * Checks if there is an existing area at the touched point.
+	 * @param	x		touched x (on scene/background, not local screen x)
+	 * @param	y		touched y (on scene/background, not local screen y)
+	 * @return	area	touched area, if there is one, or null  
+	 */
 	public Area checkAreas(float x, float y) {
 		
 		if (LOG_ON) Log.i("Clementime", "Screen/checkAreas()");
@@ -519,8 +624,14 @@ public class Background {
 		
 		return touchedArea;
 	}
-	
-	public ScreenItem addItemOnScreen(int itemId, Engine engine, Scene scene) {
+	/**
+	 * Checks if there is an existing area at the touched point.
+	 * @param	itemId		database id of item to add
+	 * @param	engine		AndEngine engine, to load texture
+	 * @param	scene		AndEngine scene, to attach sprite to scene and register touch area 
+	 */
+	public void addItemOnScreen(int itemId, Engine engine, Scene scene) {
+//	public ScreenItem addItemOnScreen(int itemId, Engine engine, Scene scene) {
 		
 		if (LOG_ON) Log.i("Clementime", "Screen/addItemOnScreen()");
 
@@ -533,8 +644,9 @@ public class Background {
 		ScreenItem item = items.get(items.size() - 1);  
 
 		scene.attachChild(item);
+		scene.registerTouchArea(item);
 		
-		return item;
+		//return item;
 	}
 }
 

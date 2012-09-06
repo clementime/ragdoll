@@ -30,7 +30,7 @@ public class Anim extends AnimatedSprite {
 		
 		this.staticCenterX = x - width/2;
 		
-		this.moveToX = moveToX * SCALE_POSITION;
+		this.moveToX = moveToX;
 		this.moveToY = moveToY * SCALE_POSITION;
 
 		this.toChase = toChase;

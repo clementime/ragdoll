@@ -38,8 +38,17 @@ public class ActionsManager extends Entity {
 	public AnimatedSprite exitLeft;
 	public AnimatedSprite exitRight;
 	
+	/**
+	 * For logs only.
+	 */	
   	private String className ="ActionsManager";
 
+	/**
+	 * Loads images and creates every sprites, attach them to the AndEngine scene, register touch areas and set ZIndexes.
+	 * @param	context	Android context, to retrieve files
+	 * @param	engine	AndEngine engine, to load textures
+	 * @param	scene	AndEngine scene, to attach sprites to scene and register touch areas
+	 */	
 	public void load(Context context, Engine engine, Scene scene) {
 				
 		Log.d("Clementime", className + "/loadImages()");
@@ -74,12 +83,21 @@ public class ActionsManager extends Entity {
 		this.setZIndex(ZINDEX_ACTION);
 		scene.attachChild(this);
 	}	
+	/**
+	 * Looks for what actions are possible for item/anim/area touched.
+	 * @param	x		touched x, allows to position action manager icons
+	 * @param	y		touched y, allows to position action manager icons
+	 * @param	width	width of touched item/anim/area, allows to position action manager icons
+	 * @param	height	height of touched item/anim/area, allows to position action manager icons
+	 * @param	states	which action(s) is/are allowed for the touched item/anim/area 
+	 * @param	area	allows to position action manager icons, depending on the fact that the touched object is an area or not
+	 * @return	actions	0=no action possible; 1=take; 2=look; 3=take+look; 4=talk; 5=take+talk; 6=look+talk; 7=take+look+talk
+	 */	
+	public int activate(float x, float y, float width, float height, int[] states, boolean area) {
 		
-	public int activate(float x, float y, float width, float height, int[] itemStates, boolean area) {
-		
-		int take = itemStates[0];
-		int look = itemStates[1];
-		int talk = itemStates[2];
+		int take = states[0];
+		int look = states[1];
+		int talk = states[2];
 
 		if (LOG_ON) Log.d("Clementime", className + "/activate(): activate actions send >> take: " + take + "-look: " + look + "-talk: " +talk);
 		
@@ -103,7 +121,15 @@ public class ActionsManager extends Entity {
 		
 		return actions;
 	}
-
+	/**
+	 * Set and displays possible actions for item/anim/area touched.
+	 * @param	x		touched x, allows to position action manager icons
+	 * @param	y		touched y, allows to position action manager icons
+	 * @param	width	width of touched item/anim/area, allows to position action manager icons
+	 * @param	height	height of touched item/anim/area, allows to position action manager icons
+	 * @param	area	allows to position action manager icons, depending on the fact that the touched object is an area or not
+	 * @param	actions	0=no action possible; 1=take; 2=look; 3=take+look; 4=talk; 5=take+talk; 6=look+talk; 7=take+look+talk
+	 */	
 	public void showPossibleActions(float x, float y, float width, float height, boolean area, int actions) {
 
 		Log.d("Clementime", className + "/showPossibleActions(): actions >> " + actions);
@@ -160,7 +186,10 @@ public class ActionsManager extends Entity {
 			this.talk.animate(150, true);
 		}
 	}
-
+	/**
+	 * Hides every action and set action manager sprites outside screen to avoid activating by touched them
+	 * (AndEngine allows touching invisible sprites).
+	 */	
 	public void deactivate() {
 		
 		Log.d("Clementime", className + "/deactivate()");
@@ -183,7 +212,10 @@ public class ActionsManager extends Entity {
 		this.exitLeft.stopAnimation();
 		this.exitRight.stopAnimation();
 	}
-	
+	/**
+	 * When an action is chosen, this one only stays visible and its animation stop running.
+	 * @param	action		chosen action
+	 */	
 	public void freeze(int action) {
 		
 		Log.d("Clementime", className + "/freeze()");
