@@ -22,6 +22,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
+/**
+* Everything about our sweet tiny little doll.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class Doll {
 	
 	public AnimatedSprite image;
@@ -32,11 +37,23 @@ public class Doll {
 	private TiledTextureRegion dollIdleTR;
 	
 	public PhysicsHandler ph;
-	
+
+	/**
+	 * For each screen, the doll can move on a flat line, or a little bit inclined line; this is set in database.
+	 */	
 	public float standardYVelocityRight;
+	/**
+	 * Left velocity is negative of right velocity. Don't ask me why there are 2 variables. Found it clearer, I guess.
+	 */	
 	public float standardYVelocityLeft;
+	/**
+	 * Used if the velocity is changed in relation to standard doll velocity in the screen; for animation purpose.
+	 */	
 	public float YVelocity = 0;
 	
+	/**
+	 * x position of doll image centre from its own left side (not from left side of camera or background).
+	 */	
 	public float staticCenterX;
 	
 	public int walkDirection;
@@ -44,6 +61,10 @@ public class Doll {
 	
 	private DatabaseAccess db;
 	private Context context;
+	
+	/**
+	 * For logs only.
+	 */	
 	private String className = "Doll";
 	
 	/**
@@ -85,7 +106,11 @@ public class Doll {
 		
 		this.staticCenterX = image.getWidth()/2;
 	}
-
+	/**
+	 * Launches doll sprite animation and move of doll until a point or item/area, etc...
+	 * @param	status		is it normal playing or is an animation running ? (in this case, y velocity is changed) 
+ 	 * @param	touchedX	x position the doll must move until (if not stopped by boundaries)
+	 */	
 	public void move(int status, float touchedX) {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/move()");
@@ -110,39 +135,54 @@ public class Doll {
 			}	
 		}
 	}
-	
+	/**
+	 * Changes doll sprite from walking skin to idle and stop animation playing and moving.
+	 */		
 	public void stop() {
 		
 		if (LOG_ON) Log.i("Clementime", className + "/stop()");
 		
+		ph.setVelocity(0,0);
 		image.setVisible(false);
 		idle.setPosition(image);
 		idle.setVisible(true);
 		idle.stopAnimation(0);
 	}
-	
+	/**
+	 * Animates idle animation (= doll says no).
+	 */	
 	public void sayNo() {
 		idle.animate(80, 1);
 	}
-	
+	/**
+	 * Get y velocity from database: doll can move on a flat line or on an inclined line, depending on the screen.
+	 */
 	public void getYVelocity(int screenId) {
 		this.standardYVelocityRight = db.selectYVelocity(screenId);
 		this.standardYVelocityLeft = -this.standardYVelocityRight;
 	}
-	
+	/**
+	 * Hides or displays walking skin and idle skin of doll, when an animation is running and doll disappears somewhere.
+	 */
 	public void setVisible(boolean choice) {
 		if (ph.getVelocityX() > 0) this.image.setVisible(choice);
 		else this.idle.setVisible(choice);
 	}
-	
+	/**
+	 * Finds in which screen doll is in.
+	 */	
 	public int getScreen() {
 		return db.selectDollScreen();
 	}
-	
+	/**
+	 * Finds where the doll should start on an defined screen.
+	 */	
 	public int[] getStartingPosition() {
 		return db.selectDollPosition();
 	}
-	
+	/**
+	 * Changes the aspect of the doll (walking and idle).
+	 */
 	public void changeSkin(int skinId) {
 		dollBTA.clearTextureAtlasSources();
 		int bgFile = context.getResources().getIdentifier("doll_skin_" + skinId, "drawable", context.getPackageName());

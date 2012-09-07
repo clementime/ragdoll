@@ -3,6 +3,12 @@ package eu.clementime.rds;
 import static eu.clementime.rds.Constants.LOG_ON;
 import android.util.Log;
 
+//TODO: write javadoc if needed.
+/**
+* All constants used in the game. Some are set when starting game, because they are screen dependant. I know, it's bad... but handy.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public final class Constants  {
 	
 	private static String className = "Constants";

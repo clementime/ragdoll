@@ -3,6 +3,11 @@ package eu.clementime.rds;
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
+/**
+* Animated sprite showing possibility to go to another screen.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class Exit extends AnimatedSprite {
 
 	public int id;

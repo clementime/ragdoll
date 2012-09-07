@@ -21,9 +21,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
+/**
+* All queries are stored in DatabaseAccess class.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class DatabaseAccess {
 	
 	private DatabaseHandler dbh;
+	
+	/**
+	 * For logs only.
+	 */	
 	private String className = "DatabaseAccess";
 	
 	//TODO: put as much as possible in classes to reduce database access during game (ex.: take, look, talk states should be updated in classes at runtime) 
@@ -36,6 +45,15 @@ public class DatabaseAccess {
 	// BACKGROUND
 	//***********************************   
 	
+	/**
+	 * Finds background & foreground images, and boundaries (x min & max out of which doll can't go).
+	 * @param	screenId	id of concerned screen
+	 * @return	a hash map of strings with:</br>
+	 * > x min,</br>
+	 * > x max,</br>
+	 * > background image name,</br>
+	 * > foreground image name 
+	 */		
 	public Map<String, String> selectBackground(int screenId) {
 		
 		Map<String, String> hm = new HashMap<String, String>();
@@ -61,7 +79,21 @@ public class DatabaseAccess {
 		
 		return hm;	
 	}
-	
+	/**
+	 * Returns a list of items to be displayed on screen.
+	 * @param	screenId	id of concerned screen
+	 * @return	a linked list of hash map of strings with:</br>
+	 * > item id,</br>
+	 * > image,</br>
+	 * > height of image (to fill BitmapTextureAtlas),</br>
+	 * > width of image (to fill BitmapTextureAtlas),</br>
+	 * > x position of item on screen,</br>
+	 * > y position of item on screen,</br>
+	 * > can the doll try to take this item,</br>
+	 * > can the doll try to look at this item,</br>
+	 * > is this item takeable,</br>
+	 * > is this item on foreground or not 
+	 */		
 	public LinkedList<Map<String, String>> selectScreenItems(int screenId) {
 		
 		LinkedList<Map<String, String>> ll = new LinkedList<Map<String, String>>();
@@ -106,7 +138,23 @@ public class DatabaseAccess {
 
 		return ll;
 	}
-	
+	/**
+	 * Returns a list of animations to be displayed on screen.
+	 * @param	screenId	id of concerned screen
+	 * @return	a linked list of hash map of strings with:</br>
+	 * > animation id,</br>
+	 * > image,</br>
+	 * > number of rows in this image (to launch AndEngine animation),</br>
+	 * > number of columns in this image (to launch AndEngine animation),</br>
+	 * > height of image (to fill BitmapTextureAtlas),</br>
+	 * > width of image (to fill BitmapTextureAtlas),</br>
+	 * > x position of animation on screen,</br>
+	 * > y position of animation on screen,</br>
+	 * > the frame where animation should stop at end,</br>
+	 * > x position where animation should go if it is a moving animation OR if the animation is run at different places,</br>
+	 * > y position where animation should go if it is a moving animation OR if the animation is run at different places,</br>
+	 * > is animation chased by camera or not 
+	 */		
 	public LinkedList<Map<String, String>> selectAnimations(int screenId) {
 		
 		LinkedList<Map<String, String>> ll = new LinkedList<Map<String, String>>();
@@ -148,7 +196,25 @@ public class DatabaseAccess {
 
 		return ll;
 	}
-	
+	// TODO: scale position missing (should be retrieved to y) - idem for AREAS just after
+	/**
+	 * Returns a list of exits to be displayed on screen.
+	 * @param	screenId	id of concerned screen
+	 * @param	TRLeft	TiledTextureRegion, to create animated sprite of exit
+	 * @param	TRRight	TiledTextureRegion, to create animated sprite of exit
+	 * @param	MARGIN	y margin, to position animated sprite of exit
+	 * @return	a array list of exit objects containing following information:</br>
+	 * > exit id,</br>
+	 * > exit direction (left or right),</br>
+	 * > x position of exit on screen,</br>
+	 * > y position of exit on screen,</br>
+	 * > is exit displayed,</br>
+	 * > is there a trigger to launch before leaving the screen by this exit,</br>
+	 * > is there a trigger to launch after leaving the screen by this exit (in new screen),</br>
+	 * > x position where doll should start in the next screen after leaving by this exit,</br>
+	 * > y position where doll should start in the next screen after leaving by this exit,</br>
+	 * > screen id of next screen (after exit) 
+	 */		
 	public ArrayList<Exit> selectExits(int screenId, TiledTextureRegion TRLeft, TiledTextureRegion TRRight,int MARGIN) {
 
 		ArrayList<Exit> exits = new ArrayList<Exit>();
@@ -209,7 +275,17 @@ public class DatabaseAccess {
 		
 		return exits;
 	}
-
+	/**
+	 * Returns a list of areas to be stored in Background object.
+	 * @param	screenId	id of concerned screen
+	 * @param	MARGIN	y margin, to position area
+	 * @return	a array list of areas containing following information:</br>
+	 * > area id,</br>
+	 * > x position of area on screen,</br>
+	 * > y position of area on screen,</br>
+	 * > width of this area,</br>
+	 * > height of this area 
+	 */	
 	public ArrayList<Area> selectAreas(int screenId, int MARGIN) {
 
 		ArrayList<Area> areas = new ArrayList<Area>();
@@ -249,6 +325,11 @@ public class DatabaseAccess {
 		
 		return areas;
 	}
+	/**
+	 * Returns a list of animation id of animations displayed on screen.
+	 * @param	screenId	id of concerned screen
+	 * @return	a array list of animation id
+	 */	
 	
 	public ArrayList<Integer> selectDisplayedAnims(int screenId) {
 		
@@ -272,6 +353,14 @@ public class DatabaseAccess {
 		
 		return displayedAnims;
 	}
+	/**
+	 * Returns features of a static animation (= an animation that doesn't move and loop infinitely, as characters or landscape animation).
+	 * @param	animId	database id of animation
+	 * @return	an integer array with 3 entries:</br>
+	 * > first frame,</br>
+	 * > last frame,</br>
+	 * > frame duration (in ms)
+	 */	
 
 	public int[] selectStaticAnimFeatures(int animId) {
 	
@@ -301,7 +390,14 @@ public class DatabaseAccess {
 		
 		return features;		
 	}
-
+	/**
+	 * Returns states of a static animation (= an animation that doesn't move and loop infinitely, as characters or landscape animation).
+	 * @param	animId	database id of animation
+	 * @return	an integer array with 3 entries:</br>
+	 * > can the doll try to take this animation (=take state),</br>
+	 * > can the doll look at this animation (=look state),</br>
+	 * > can the doll talk to this animation (=talk state)
+	 */	
 	public int[] selectAnimStates(int animId) {	
 		
 		int[] stateResults = {0,0,0};
@@ -329,10 +425,18 @@ public class DatabaseAccess {
 		
 		return stateResults;
 	}
+	/**
+	 * Returns states of a screen item.
+	 * @param	itemId	database id of item
+	 * @return	an integer array with 3 entries:</br>
+	 * > can the doll try to take this item (=take state),</br>
+	 * > can the doll look at this item (=look state),</br>
+	 * > can the doll talk to this item (=talk state)
+	 */
 
 	public int[] selectItemStates(int itemId) {	
 		
-		int[] stateResults = {0,0,0,0};
+		int[] stateResults = {0,0,0};
 
 		String query  = " select item_id as id, take_state, look_state, talk_state ";
 		query += " from screen_item ";
@@ -358,6 +462,15 @@ public class DatabaseAccess {
 		
 		return stateResults;
 	}
+	//TODO: check this method: exit isn't part of area anymore, stateResults[3] doesn't exist (?) and is talking allowed (should think of, maybe, or add after) 
+	/**
+	 * Returns states of a screen area.
+	 * @param	areaId	database id of area
+	 * @return	an integer array with 3 entries:</br>
+	 * > can the doll try to take this area (=take state), always 0/impossible,</br>
+	 * > can the doll look at this area (=look state),</br>
+	 * > can the doll talk to this area (=talk state)
+	 */
 	
 	public int[] selectAreaStates(int areaId) {	
 		
@@ -385,7 +498,22 @@ public class DatabaseAccess {
 		
 		return stateResults;
 	}	
-
+	/**
+	 * Returns information about an item when one is added by combination of other items.
+	 * @param	itemId	id of concerned item
+	 * @return	a hash map of strings with:</br>
+	 * > item id,</br>
+	 * > image,</br>
+	 * > height of image (to fill BitmapTextureAtlas),</br>
+	 * > width of image (to fill BitmapTextureAtlas),</br>
+	 * > is this item displayed,</br>
+	 * > x position of item on screen,</br>
+	 * > y position of item on screen,</br>
+	 * > can the doll try to take this item,</br>
+	 * > can the doll try to look at this item,</br>
+	 * > is this item takeable,</br>
+	 * > is this item on foreground or not 
+	 */	
 	public Map<String, String> selectItem(int itemId) {
 
 		Map<String, String> hm = new HashMap<String, String>();
@@ -422,10 +550,17 @@ public class DatabaseAccess {
 		return hm;
 	}
 
+	
 	//***********************************
 	// INVENTORY
 	//***********************************
 	
+	/**
+	 * Returns list of items to be displayed in inventory.
+	 * @return	a linked list of hash map of strings with:</br>
+	 * > item id,</br>
+	 * > image
+	 */	
 	public LinkedList<Map<String, String>> selectInventoryItems() {
 		
 		LinkedList<Map<String, String>> ll = new LinkedList<Map<String, String>>();
@@ -457,7 +592,11 @@ public class DatabaseAccess {
 
 		return ll;
 	}
-
+	/**
+	 * Updates item table to set an item in inventory when taken by the doll or to remove it from inventory when used in a combination.
+	 * @param	where	where clause
+	 * @param	value	1=on screen; 2=in inventory; 0=not displayed anywhere
+	 */
 	public void updateInventoryField(String where, int value) {
 		
 		if (LOG_ON) Log.d("Clementime", "InventoryFrame/updateInventoryField()");
@@ -473,6 +612,15 @@ public class DatabaseAccess {
 			Log.e("Clementime", "InventoryFrame/updateInventoryField(): failed to update display field " + where + " - " + e.getMessage());
 		}
 	}
+	/**
+	 * Returns information about a new item added in inventory.
+	 * @param	itemId	database id item
+	 * @return	a hash map of strings with:</br>
+	 * > item id,</br>
+	 * > image,</br> 	
+	 * > height of image (to fill BitmapTextureAtlas),</br>
+	 * > width of image (to fill BitmapTextureAtlas)
+	 */	
 	
 	public Map<String, String> selectInventoryItem(int itemId) {
 		
@@ -500,6 +648,16 @@ public class DatabaseAccess {
 		
 		return hm;	
 	}
+	/**
+	 * Returns information about a combination.
+	 * @param	idItem1	database id of first item combined
+	 * @param	idItem2	database id of second item combined
+	 * @param	type	on screen or in inventory
+	 * @return	an integer tab with 3 entries:</br>
+	 * > id combination if combination ok, 0 if no combination allowed,</br>
+	 * > id of resulting item if combination allowed,</br> 	
+	 * > on screen creation: 0=combination create a new item in inventory, 1=new item has to be created on screen
+	 */	
 
 	public int[] selectCombination(int idItem1, int idItem2, int type) {
 
@@ -540,10 +698,17 @@ public class DatabaseAccess {
 		return results;
 	}
 	
+	
 	//***********************************
 	// WORLD
-	//***********************************  
+	//*********************************** 
 	
+	/**
+	 * Finds id of triggers to launch.
+	 * @param	id			id of the concerned object (depending on the table, can be a combination id, another trigger id...)
+	 * @param	tableName	name of the concerned table (combination, trigger...)
+	 * @return	one or more trigger id in an ArrayList<Integer>
+	 */	
 	public ArrayList<Integer> selectTriggers(int id, String tableName) {
 
 		ArrayList<Integer> triggers = new ArrayList<Integer>();
@@ -574,7 +739,16 @@ public class DatabaseAccess {
 
 		return triggers;
 	}
-
+	/**
+	 * Finds information about a trigger.
+	 * @param	triggerId	id of the trigger to launch
+	 * @return	a hash map of strings with:</br>
+	 * > trigger id,</br>
+	 * > object to trigger id,</br>
+	 * > type of triggering,</br>
+	 * > next trigger id,</br>
+	 * > simultaneous trigger id 
+	 */	
 	public Map<String, String> selectTrigger(int triggerId) {
 
 		Map<String, String> hm = new HashMap<String, String>();
@@ -602,7 +776,14 @@ public class DatabaseAccess {
 
 		return hm;
 	}
-	
+	/**
+	 * Finds information about an automatic move of the doll (not coming from player action, but from a trigger).
+	 * @param	toTriggerId	id of the move to trigger
+	 * @return	a hash map of strings with:</br>
+	 * > x position the doll should reach,</br>
+	 * > if doll is hidden (1=hidden/0=is not),</br>
+	 * > y velocity of the doll during this move,
+	 */	
 	public Map<String, String> selectDollTrigger(int toTriggerId) {
 
 		Map<String, String> hm = new HashMap<String, String>();
@@ -628,7 +809,15 @@ public class DatabaseAccess {
 
 		return hm;
 	}
-	
+	/**
+	 * Finds information about a modifier; a modifier automatically changes database and is launched by a trigger.
+	 * @param	modifierId	id of the modifier to launch
+	 * @return	a hash map of strings with:</br>
+	 * > new state that should be written in database,</br>
+	 * > type of modification (to select right table to modify),</br>
+	 * > id of the object that should be modified (a screen starting trigger, a look state, a take state, displaying of an item, etc...)
+	 * @see eu.clementime.rds.World#activateModifier
+	 */		
 	public Map<String, String> selectModifier(int modifierId) {
 
 		Map<String, String> hm = new HashMap<String, String>();
@@ -654,7 +843,11 @@ public class DatabaseAccess {
 
 		return hm;
 	}
-	
+	/**
+	 * Finds if an item is takeable or not.
+	 * @param	itemId	database id of item
+	 * @return	boolean
+	 */	
 	public boolean selectTakeable(int itemId) {
 		
 		boolean takeable = false;
@@ -679,7 +872,11 @@ public class DatabaseAccess {
 		
 		return takeable;
 	}	
-		
+	/**
+	 * Finds if an item is displayed on screen or not.
+	 * @param	itemId	database id of item
+	 * @return	0=not displayed/1=displayed
+	 */		
 	public int selectDisplayed(int itemId) {
 		
 		int displayed = 0;
@@ -704,7 +901,14 @@ public class DatabaseAccess {
 		
 		return displayed;
 	}
-	
+	/**
+	 * Updates a field with information coming from a modifier.
+	 * @param	tableName	table name for query
+	 * @param	fieldName	field to be updated in this table
+	 * @param	newState	new value of field
+	 * @param	where		where clause
+	 * @see eu.clementime.rds.World#activateModifier
+	 */		
 	public void updateWithModifier(String tableName, String fieldName, int newState, String where) {
 		
 		if (LOG_ON) Log.d("Clementime", "InventoryFrame/updateInventoryField()");
@@ -722,8 +926,13 @@ public class DatabaseAccess {
 
 	//***********************************
 	// GAME TOOLS
-	//***********************************  
-	// search if phone language is available (English is used if not)
+	//***********************************
+	
+	/**
+	 * Search if phone language is available (English is used if not).
+	 * @param	context	Android context, to retrieve files
+	 * @return	language isocode
+	 */	
 	public String selectLanguage(Context context) {
 
 		String locale = context.getResources().getConfiguration().locale.getLanguage(); //iso2 code	
@@ -753,7 +962,13 @@ public class DatabaseAccess {
 		
 		return language;
 	}
-
+	/**
+	 * Selects text from general text table, for menus, settings...
+	 * @param	reference	reference of searched text in text table
+	 * @param	language	isocode language
+	 * @return	text
+	 * @see #selectLanguage
+	 */	
 	public String selectText(String reference, String language) {
 		
 		String query;
@@ -780,7 +995,10 @@ public class DatabaseAccess {
 		
 		return text;
 	}
-
+	/**
+	 * Selects player hand (left or right handed player) in settings.
+	 * @param	reference	0=left; 1=right
+	 */	
 	public int selectPlayingHand() {
 
 		String query = " select value as playing_hand from player_saving where reference = 'playing_hand' ";
@@ -808,6 +1026,11 @@ public class DatabaseAccess {
 	//***********************************
 	// DOLL
 	//***********************************  
+	
+	/**
+	 * Selects y velocity of the doll in this screen (0=flat ground; <0=go up from left to right; >0=go down from left to right).
+	 * @param	screenId	id of the current screen
+	 */	
 	public float selectYVelocity(int screenId) {
 		
 		float yVelocity = 0;
@@ -833,7 +1056,10 @@ public class DatabaseAccess {
 		return yVelocity;
 	}
 
-	// find which screen the doll is in
+	/**
+	 * Finds which screen the doll is in.
+	 *  @return	 id of the screen
+	 */	
 	public int selectDollScreen() {
 
 		String query = "";
@@ -861,7 +1087,12 @@ public class DatabaseAccess {
 		return screenId;	
 	}
 	
-	// find where the doll is at launching time
+	/**
+	 * Finds where the doll is at launching time (x and y).
+	 * @return	tab with 2 entries:</br>
+	 * > [0] x position of doll,</br>
+	 * > [1] y position
+	 */	
 	public int[] selectDollPosition() {
 		
 		if (LOG_ON) Log.d("Clementime", "World/getDollPosition()");
@@ -908,6 +1139,14 @@ public class DatabaseAccess {
 	// WORLD
 	//*********************************** 
 	
+	/**
+	 * Returns information about a screen from exit table, when doll leaves a screen for another (also used for first screen, with exit 0).
+	 * @return	tab with 4 entries:</br>
+	 * > [0] screen id,</br>
+	 * > [1] x position of doll in this new screen,</br>
+	 * > [2] y position,</br>
+	 * > [3] trigger to launch when starting screen
+	 */	
 	public int[] selectFirstScreenFeatures() {
 		
 		if (LOG_ON) Log.i("Clementime", "World/getFirstScreenFeatures() ");
@@ -939,7 +1178,18 @@ public class DatabaseAccess {
 		
 		return features;
 	}
-
+	/**
+	 * Returns information about an animation.
+	 * @param	animId	database animation id
+	 * @return	tab with 7 entries:</br>
+	 * > [0] number of the first frame,</br>
+	 * > [1] number of the last frame,</br>
+	 * > [2] duration of each frame (in ms),</br>
+	 * > [3] number of loop of the animation,</br>
+	 * > [4] x velocity of this animation (=animation is playing AND moving on screen),</br>
+	 * > [5] y velocity of this animation (=animation is playing AND moving on screen),</br>
+	 * > [6] is the doll hidden or not (1=hidden/0=is not)
+	 */	
 	public Map<String, Integer> selectAnimFeatures(int animId) {
 		
 		Map<String, Integer> hm = new HashMap<String, Integer>();
@@ -971,7 +1221,12 @@ public class DatabaseAccess {
 		
 		return hm;		
 	}
-
+	/**
+	 * Updates doll position when leaving game.
+	 * @param	screenId	id of the current screen
+	 * @param	x			x position of doll in this screen
+	 * @param	y			y position of doll in this screen
+	 */	
 	public void updateWhenSaving(int screenId, float x, float y) {
 			
 		    ContentValues args = new ContentValues();
@@ -986,6 +1241,7 @@ public class DatabaseAccess {
 		    dbh.db.update("player_saving", args, " reference = 'y_doll' ", null);	
 	}
 
+	
 	//***********************************
 	// TALK
 	//***********************************

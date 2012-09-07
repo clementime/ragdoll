@@ -20,6 +20,11 @@ import android.util.Log;
 
 import static eu.clementime.rds.Constants.DEVELOPMENT;
 
+/**
+* This class allows access to database during the whole game; documentation about it isn't very clear at the moment, my deepest apologies.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class DatabaseHandler extends SQLiteOpenHelper {
  
 	private final String path;
@@ -32,8 +37,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	private final Context myContext;
 	public boolean newGame = false;
 	
+	/**
+	 * For logs only.
+	 */
 	private String className = "DatabaseHandler";
 	
+	/**
+	 * Stores the starting database to reset the game when needed.
+	 * @param	context	Android context, to retrieve files
+	 * @param	dbPath	database path
+	 * @param	dbFile	database file name
+	 * @param	data	starting game database file (to reset the game)
+	 */	
 	public DatabaseHandler(Context context, String dbPath, String dbFile, InputStream data) {
 		super(context, dbFile, null, 1);
 		
@@ -48,8 +63,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	    
 	    storeStartingDatabase(data);
 	}
-	
-	// only in development	
+	/**
+	 * Stores the starting database to reset the game when needed, and the current database for dev purposes; in dev only.
+	 * @param	context	Android context, to retrieve files
+	 * @param	dbPath	database path
+	 * @param	dbFile	database file name
+	 * @param	data		starting game database file (to reset the game)
+	 * @param	currentData	current game database file (to save/reload the game)  
+	 */
 	public DatabaseHandler(Context context, String dbPath, String dbFile, InputStream data, InputStream currentData) {
 		super(context, dbFile, null, 1);
 		
@@ -65,7 +86,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	    storeStartingDatabase(data);
 	    storeCurrentDatabase(currentData);    
 	}
-	
+	/**
+	 * Checks if database has been removed; if yes, set newGame variable to true in order to reload a new fresh database.
+	 */	
 	public void checkNewGame() {
 		
 		Log.i("Clementime", className + "/checkNewGame()");
@@ -88,7 +111,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 	}
-	 
+	/**
+	 * Checks if database has to be written in database directory (new game or, in dev, database is rewritten each time to take database field changes in consideration).
+	 */	
 	public boolean checkDatabase() {
 		
 		Log.i("Clementime", className + "/checkDatabase()");
@@ -131,7 +156,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		
 	    return checkedDatabaseFile;
 	}
-	
+	/**
+	 * Open database to allow queries; is open when starting game.
+	 */	
 	public DatabaseHandler open() throws SQLException {
 		
 		Log.i("Clementime", className + "/open()");
@@ -144,7 +171,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		
 		return this;
 	}
-
+	/**
+	 * Copy fresh starting database from game files to database directory, to store it.
+	 * @param	data	database file to be copied
+	 */	
 	private void storeStartingDatabase(InputStream data) {
 		
 		Log.i("Clementime", className + "/storeStartingDatabase()");
@@ -166,7 +196,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
   			Log.w("Clementime", className + "/storeStartingDatabase(): abort copying. Exception " + e.getMessage());
         }	
 	}
-	
+	/**
+	 * Copy current database from game files to database directory, in dev only (don't remember why, sorry... a bit tricky, sure).
+	 * @param	currentData	database file to be copied
+	 */		
 	private void storeCurrentDatabase(InputStream currentData) {
 		
 		Log.i("Clementime", className + "/storeCurrentDatabase()");
@@ -188,7 +221,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
   			Log.w("Clementime", className + "/storeCurrentDatabase(): abort copying. Exception " + e.getMessage());
         }	
 	}
-	
+	/**
+	 * Copy fresh starting database and erase all data, to start a new game.
+	 * @param	databaseFileName	name of the file to be copied
+	 */
 	private void copyDatabase(String databaseFileName) {
 		
 		Log.i("Clementime", className + "/copyDatabase()");
@@ -213,7 +249,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
 		
 	}
-	
+	/**
+	 * Delete database in order to reload a fresh new database when starting game next time.
+	 */	
 	public void deleteDatabase() {
 		
 		Log.i("Clementime", className + "/deleteDatabase()");
@@ -231,7 +269,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	  	}
 
 	}
-		
+	/**
+	 * Save database from database directory to SDCard, should be rewritten to add several backups, for dev purposes.
+	 */		
 	public void save(int SavingId) {
 		
 		Log.i("Clementime", className + "/save()");
@@ -245,7 +285,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
       	}
 			
 	}
-	
+	/**
+	 * Copy database from database directory to SDCard, for dev purposes.
+	 */		
 	private void copyDatabaseOnSDCard(String dbName) throws IOException {
 		
 		Log.i("Clementime", className + "/copyDatabaseOnSDCard()");
@@ -282,7 +324,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		  	}
 		}
 	}
-
+	/**
+	 * Close database at end of game.
+	 */	
 	@Override
 	public synchronized void close() {
 		

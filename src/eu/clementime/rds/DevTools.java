@@ -27,6 +27,12 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.Log;
 
+//TODO: write javadoc and enhance /update this class. But you know what it is... it's dev, not production... not so critical... I know it's bad... don't hit me!
+/**
+* Screen tools for dev.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class DevTools extends HUD implements IOnAreaTouchListener {
 
 	DatabaseHandler dbh;

@@ -30,6 +30,11 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.Log;
 
+/**
+* Game tools manage all tools that are used to play: pointers, moving arrows and action manager.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class GameTools extends Entity {
 		
 	private Context context;
@@ -237,7 +242,7 @@ public class GameTools extends Entity {
 	/**
 	 * Settings information: the player can choose either he/her wants items displayed at the
 	 * left of his/her finger or at the right when dragging it in or outside inventory. 
-	 * @return	playingHand	player left or right handed, chosen by him/her in the settings	
+	 * @return	hand used by player (left or right), chosen by him/her in the settings	
 	 */	
 	public int getPlayingHand() {
 		return db.selectPlayingHand();

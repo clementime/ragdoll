@@ -7,6 +7,12 @@ import static eu.clementime.rds.Constants.SCALE_POSITION;
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
+/**
+* Every animation: landscape animation or characters (=looping and not moving animation, called static animations)
+* and animation sequences, for story (=looping or not, moving or not).
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class Anim extends AnimatedSprite {
 
 	public int id;

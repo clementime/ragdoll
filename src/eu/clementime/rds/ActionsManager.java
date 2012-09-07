@@ -24,6 +24,11 @@ import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import android.content.Context;
 import android.util.Log;
 
+/**
+* Action manager manages the display of the 3 actions the doll can do during the game, when touching an item, animation, or area: take, look at or talk to.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class ActionsManager extends Entity {
 		
 	private TiledTextureRegion takeTR;

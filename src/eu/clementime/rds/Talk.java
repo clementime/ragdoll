@@ -17,9 +17,18 @@ import org.anddev.andengine.util.HorizontalAlign;
 
 import android.content.Context;
 
+/**
+* This class manages talking bubbles between doll and characters.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class Talk {
 	
 	private DatabaseAccess db;
+	
+	/**
+	 * For logs only.
+	 */	
 	private String className = "Talk";
 	//private Context context;
 	//public int screenId;
@@ -59,16 +68,22 @@ public class Talk {
 		scene.attachChild(background);
 		background.setZIndex(ZINDEX_TALK);
 	}
-	
+	/**
+	 * Displays bubble and picture in it.
+	 */
 	public void display(Scene scene, int pictureId, Font font) {
 		background.setVisible(true);
 		displayPicture(scene, pictureId, font);
 	}
-		
+	/**
+	 * Hides bubble and attached picture.
+	 */
 	public void hide() {
 		background.setVisible(false);
 	}
-	
+	/**
+	 * Displays picture that explained feelings of the doll, inside a bubble.
+	 */
 	private void displayPicture(Scene scene, int pictureId, Font font) {	
 		
 		background.detachChildren();

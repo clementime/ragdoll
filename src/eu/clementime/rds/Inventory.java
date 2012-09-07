@@ -50,6 +50,15 @@ import org.anddev.andengine.opengl.texture.region.TextureRegion;
 import android.content.Context;
 import android.util.Log;
 
+/**
+* Inventory manages items the doll has taken:</br>
+* > normal view is open when the doll is touched, showing all inventory items,</br>
+* > zoom view is open when clicking on an item,</br>
+* > drag and drop is allowed in normal view to combine inventory item with screen item,</br>
+* > and in zoom view to combine 2 items in inventory.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class Inventory {
 
 	public ArrayList<InventoryItem> items = new ArrayList<InventoryItem>();

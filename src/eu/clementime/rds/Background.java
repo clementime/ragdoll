@@ -34,7 +34,11 @@ import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import android.content.Context;
 import android.util.Log;
 
-public class Background {
+/**
+* Background class manages the whole background: background & foreground images but also screen items, animations and areas the doll is confronted with.
+* @author Cl&eacute;ment
+* @version 1.0
+*/public class Background {
 	
 	/**
 	 * Even if attached to scene, items are part of the background, and stored inside it (idem for areas, anims and exists).

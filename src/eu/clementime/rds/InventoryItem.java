@@ -3,6 +3,12 @@ package eu.clementime.rds;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
 
+/**
+* Item stored in doll inventory, with small sprite for normal view, big sprite for zoom or drag and drop,
+* and inventory item sprite itself for... uh? for what? oh, yes, for the box containing the item!! A bit tricky, I confess.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class InventoryItem  extends Sprite {
 	//public class InventoryItem extends Entity {
 

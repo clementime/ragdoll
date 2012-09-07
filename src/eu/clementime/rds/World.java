@@ -66,9 +66,18 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
+/**
+* This class contains playing rules (for actions, triggering, database modifiers, saving, settings, walking...) and controls database access.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class World {
 
 	private DatabaseAccess db;
+	
+	/**
+	 * For logs only.
+	 */	
 	private String className = "World";
 	
 	public World(DatabaseHandler dbh, Context context, int startingScreen) {
@@ -86,22 +95,22 @@ public class World {
 	public boolean isItemTakeable(int itemId) {
 		return db.selectTakeable(itemId);
 	}	
-	
+	/**
+	 * Triggers 6 kinds of actions: launch an animation, change database with a modifier, move or hide doll, show a bubble, hide/show an item or hide/show an animation.
+	 * @param	dbh		database handler is stored for upcoming database calls
+	 * @return	integer array with 10 entries:</br>
+	 * next trigger				- if there is another trigger launched following this one, id of the trigger, 0 if not,</br>
+	 * animation on screen		- if the trigger is to animate a screenAnim, id of the screeAnim,</br>
+	 * doll moving				- if the trigger is to animate the doll, x where the doll has to be moved,</br>
+	 * doll is hidden			- if doll is moving, it can be off screen,</br>
+	 * text activated			- if an animation text is activated, id of this text,</br>
+	 * take item from screen	- id of item to add in inventory,</br>
+	 * doll moving y velocity,</br>
+	 * hide/show screen item,</br>
+	 * hide/show animation,</br>
+	 * simultaneous trigger		- if there is another trigger to launch at the same time, id of the trigger
+	 */
 	public int[] activateTrigger(int triggerId) {
-		
-		//********************************************************************************************************
-		// results table:
-		// results[0]: next trigger				- if there is another trigger launched following this one, id of the trigger, 0 if not 		
-		// results[1]: animation on screen		- if the trigger is to animate a screenAnim, id of the screeAnim
-		// results[2]: doll moving				- if the trigger is to animate the doll, x where the doll has to be moved
-		// results[3]: doll is hidden			- if doll is moving, it can be off screen
-		// results[4]: text activated			- if an animation text is activated, id of this text
-		// results[5]: take item from screen	- id of item to add in inventory
-		// results[6]: doll moving y velocity
-		// results[7]: hide/show screen item
-		// results[8]: hide/show animation	
-		// results[9]: simultaneous trigger		- if there is another trigger to launch at the same time, id of the trigger
-		//********************************************************************************************************
 
 		int[] triggerResults = {0,0,0,0,0,0,0,0,0,0};
 		
@@ -169,7 +178,14 @@ public class World {
 		
 		return triggerResults;
 	}
-	
+	// TODO: this method should be seriously reworked
+	/**
+	 * Triggers +/-10 kinds of modifier, that is to say changes in database: combination (switch allowed/not allowed),
+	 * change item position (switch screen/inventory/nowhere), take, look, talk, takeable (yes/no),
+	 * exit (visible/not visible), modify starting trigger in screen table.
+	 * @param	toTriggerId	modifier to trigger
+	 * @return	id of item (for change item position only) 
+	 */
 	private int activateModifier(int toTriggerId) {
 		
 		int itemId = 0;
@@ -199,7 +215,7 @@ public class World {
 			    
 			    break;		    
 				
-			case DB_MODIFIER_TYPE_POS: // (change item position) 
+			case DB_MODIFIER_TYPE_POS: // (change item position, screen/inventory/nowhere) 
 
 				tableName = DB_TABLE_ITEM;
 				fieldName = DB_FIELD_DISPLAY;
@@ -248,7 +264,8 @@ public class World {
 				idField = "item_id";
 				
 			    break;
-								    
+
+			// TODO: description on combination doesn't exist anymore. Simply remove it. 
 			case DB_MODIFIER_TYPE_SWITCH_COMB: // switch description on combination
 
 				tableName = DB_TABLE_COMBINATION;
@@ -263,14 +280,16 @@ public class World {
 				
 			    break;
 			    
-			case DB_MODIFIER_TYPE_CHAR_LOOK: // (look area on screen) 
+			// TODO: character table doesn't exist anymore. Should switch to anim table    
+			case DB_MODIFIER_TYPE_CHAR_LOOK: // (look anim on screen) 
 
 				tableName = DB_TABLE_CHARACTER;
 				fieldName = DB_FIELD_LOOK_STATE;
 				idField = "_id";
 				
 			    break;
-			
+
+			// TODO: question table doesn't exist anymore. Should switch to bubble/talk table    
 			case DB_MODIFIER_TYPE_QUESTION_STATE: // (look area on screen) 
 
 				tableName = DB_TABLE_QUESTION;
@@ -294,7 +313,9 @@ public class World {
 		
 	    return itemId;
 	}
-	
+	/**
+	 * When saving, x and y doll position are saved as for larger allowed screen density.
+	 */	
 	public void save(int screenId, float x, float y) {
 		x = x / SCALE_POSITION;
 		y = (y + SET_BACKGROUND_POSITION_Y - MARGIN_Y) / SCALE_POSITION;
@@ -313,43 +334,20 @@ public class World {
 	public int[] getFirstScreenFeatures() {
 		return db.selectFirstScreenFeatures();
 	}
-//	
-//	public int[] getScreenFeatures(int screenId) {
-//		
-//		if (LOG_ON) Log.i("Clementime", className + "/getFirstScreenFeatures() ");
-//
-//		// features[0] = to trigger when arriving - features[1] = x - features[2] = y	
-//		int[] features = {0,0,0,0};
-//		
-//		String query = " select starting_x, starting_y, after_trigger_id ";
-//		query += " from exit e where to_screen_id = " + screenId;
-//		query += " order by starting_x ASC ";
-//		
-//		try {
-//			Cursor c = dbh.db.rawQuery(query, new String [] {});
-//			
-//			if (c.getCount() != 0) {
-//				c.moveToFirst();
-//				features[0] = c.getInt(c.getColumnIndex("after_trigger_id"));
-//				features[1] = c.getInt(c.getColumnIndex("starting_x"));
-//				features[2] = c.getInt(c.getColumnIndex("starting_y"));
-//				if (LOG_ON) Log.v("Clementime", className + "/getFirstScreenFeatures(): starting x: " + features[2] + " starting y: " + features[3] + " starting trigger: " + features[1]);
-//			}
-//
-//			c.close();
-//			
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		
-//		return features;
-//	}
+	// TODO: currently calculates only rectangular area, for flat walking. Has to be trapezoidal, for flat and inclined walking.
+	/**
+	 * Calculates a trapezoidal area where player activates walking when touching it.
+	 * @param	dollFeetPosition	y at start (why, I have no idea... oh yes, I remember: to calculate y max and min of walking area)
+	 */	
 	public void calculateWalkArea(float dollFeetPosition) {	
 			Constants.WALK_AREA_Y_POS = dollFeetPosition + Constants.WALK_AREA_UNDER_FEET;
 			if (LOG_ON) Log.i("Clementime", className + "/calculateWalkArea: walk area Y pos bottom " + Constants.WALK_AREA_Y_POS);
 			if (LOG_ON) Log.i("Clementime", className + "/calculateWalkArea: walk area Y pos top " + (Constants.WALK_AREA_Y_POS - Constants.WALK_AREA_SIZE));
 	}
-	
+	/**
+	 * Checks if the player touched inside walk area.
+	 * @see #calculateWalkArea(float)
+	 */
 	public boolean checkWalkArea(int xMin, int xMax, float touchedX, float touchedY) {
 		if (LOG_ON) Log.d("Clementime", className + "/checkWalkArea: touch y " + touchedY);
 		

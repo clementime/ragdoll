@@ -10,6 +10,11 @@ import org.anddev.andengine.opengl.texture.region.TextureRegion;
 
 import android.util.Log;
 
+/**
+* Items that are displayed on screen.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class ScreenItem extends Sprite {
 
 	public int id;

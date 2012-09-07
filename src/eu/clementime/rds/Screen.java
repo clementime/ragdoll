@@ -91,6 +91,11 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.widget.Toast;
 
+/**
+* Screen class is the main class of the game, and manages starting/closing game, player touch, loop game and running animations. 
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class Screen extends BaseGameActivity implements IOnAreaTouchListener,
 IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
@@ -544,7 +549,6 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		// stop doll when reaching borders - if not during an animation
     	if ((doll.image.getX() < currentBg.xMin || doll.image.getX() > currentBg.xMax) && mode != MODE_ANIM_RUNNING) {	
 			
-			doll.ph.setVelocity(0,0);
 	    	doll.stop();
 	    	gameTools.leftArrow.stopAnimation(4);
 	    	gameTools.rightArrow.stopAnimation(4);
@@ -576,7 +580,6 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			// stop doll if moving arrows aren't playing
 			if (doll.walkDirection == DIRECTION_RIGHT && doll.image.getX() >= stopX || doll.walkDirection == DIRECTION_LEFT && doll.image.getX() <= stopX) {   	
 
-				doll.ph.setVelocity(0,0);
 		    	doll.stop();
 		    	gameTools.leftArrow.stopAnimation(4);
 		    	gameTools.rightArrow.stopAnimation(4);
@@ -995,11 +998,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 								status = STATUS_ACTION;
 								mode = MODE_ACTION_WALK;						
 							}					
-						} else { // stop doll
-							doll.ph.setVelocityX(0);
-					    	doll.stop();				
-						}
-		
+						} else doll.stop();					
 					}
 				}
 			} catch (Exception e) {
@@ -1351,7 +1350,6 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		if (direction == DIRECTION_LEFT) {
 			
 			if (doll.ph.getVelocityX() != 0 && doll.walkDirection == DIRECTION_RIGHT) {
-				doll.ph.setVelocityX(0);
 		    	doll.stop();
 				gameTools.rightArrow.stopAnimation(4);
 			}
@@ -1361,7 +1359,6 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		} else {
 			
 			if (doll.ph.getVelocityX() != 0 && doll.walkDirection == DIRECTION_LEFT) {
-				doll.ph.setVelocityX(0);
 		    	doll.stop();
 				gameTools.leftArrow.stopAnimation(4);
 			}
@@ -1412,7 +1409,6 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	 */
 	private void openInventory() {
 		
-		doll.ph.setVelocity(0,0);
     	doll.stop();
     	gameTools.leftArrow.stopAnimation(4);
     	gameTools.rightArrow.stopAnimation(4);
@@ -1637,7 +1633,6 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 //			text = world.getDesc(touchedArea.id, OBJECT_TYPE_AREA, DB_DESCRIPTION_ACTION_AREA_LOOK);
 //		else if (touchedAnimation != null)
 //			text = world.getDesc(touchedAnimation.id, OBJECT_TYPE_CHAR, DB_DESCRIPTION_ACTION_CHAR_LOOK);
-		doll.ph.setVelocity(0,0);
     	doll.stop();
 		displayTalk(0);
 	}

@@ -17,6 +17,12 @@ import android.database.Cursor;
 import android.os.Environment;
 import android.util.Log;
 
+// TODO: write javadoc and enhance /update this class. But you know what it is... it's dev, not production... not so critical... I know it's bad... don't hit me!
+/**
+* Backup methods called by DevTools class.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class Backup {
 
 	DatabaseHandler dbh;

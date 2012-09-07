@@ -9,10 +9,14 @@ import android.util.Log;
 
 import eu.clementime.rds.R;
 
+/**
+* This class contains the database handler in order to have it during the whole game.
+* @author Cl&eacute;ment
+* @version 1.0
+*/
 public class RdsGame extends Application {
 
     public DatabaseHandler dbHandler;
-    //public int load;
 	
     // OnCreate is called only when phone is switched off/on (or when application is downloaded on phone)
     @Override
