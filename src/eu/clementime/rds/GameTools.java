@@ -6,7 +6,7 @@ import static eu.clementime.rds.Constants.MOVE_LEFT_ARROW_POSX;
 import static eu.clementime.rds.Constants.MOVE_RIGHT_ARROW_POSX;
 import static eu.clementime.rds.Constants.ZINDEX_ARROW;
 import static eu.clementime.rds.Constants.ZINDEX_CIRCLE;
-import static eu.clementime.rds.Constants.POINTER_CIRCLE;
+import static eu.clementime.rds.Constants.POINTER_DEFAULT;
 import static eu.clementime.rds.Constants.POINTER_DOLL;
 import static eu.clementime.rds.Constants.POINTER_WALK;
 import static eu.clementime.rds.Constants.CAMERA_WIDTH;
@@ -70,7 +70,7 @@ public class GameTools extends Entity {
 	public String language;
 	
 	public boolean rightHanded;
-	public int pointer = POINTER_CIRCLE;
+	public int pointer = POINTER_DEFAULT;
 	
 	/**
 	 * Game items, including action manager, and fonts are loaded and created directly in the constructor.
@@ -108,10 +108,10 @@ public class GameTools extends Entity {
 		BitmapTextureAtlas BTA = new BitmapTextureAtlas(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 
 		this.TR1 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.move_left, 0, 0, 5, 1);
-		this.TR2 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.move_right, 0, 30, 5, 1);
-		this.TR3 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.animated_circle, 0, 60, 4, 3);
-		this.TR4 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.walking_pointer, 0, 210, 4, 3);
-		this.TR5 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.doll_pointer, 150, 210, 4, 3);
+		this.TR2 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.move_right, 175, 0, 5, 1);
+		this.TR3 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.animated_circle, 0, 30, 4, 3);
+		this.TR4 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.walking_pointer, 200, 30, 4, 3);
+		this.TR5 = BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(BTA, context, R.drawable.doll_pointer, 0, 180, 4, 3);
 		
 		engine.getTextureManager().loadTexture(BTA);
 		
@@ -178,22 +178,24 @@ public class GameTools extends Entity {
 	 */	
 	public void showPointer(float x, float y) {
 		
-		if (LOG_ON) Log.i("Clementime", className + "/showdefaultPointer()");
+		if (LOG_ON) Log.i("Clementime", className + "/showPointer(): pointer id " + pointer);
+		
+		hidePointer();
 		
 		if (pointer == POINTER_WALK) {
-			walkingPointer.setPosition(x, y);
+			walkingPointer.setPosition(x - walkingPointer.getWidth()/2, y - walkingPointer.getHeight()/2);
 			walkingPointer.setVisible(true);
 			walkingPointer.animate(50, false);
 		} else if (pointer == POINTER_DOLL){
-			dollPointer.setPosition(x, y);
+			dollPointer.setPosition(x - dollPointer.getWidth()/2, y - dollPointer.getHeight()/2);
 			dollPointer.setVisible(true);
 			dollPointer.animate(50, false);
 		} else {
-			defaultPointer.setPosition(x, y);
+			defaultPointer.setPosition(x - defaultPointer.getWidth()/2, y - defaultPointer.getHeight()/2);
 			defaultPointer.setVisible(true);
 			defaultPointer.animate(50, false);
 		}
-		pointer = POINTER_CIRCLE; // set to default value after each use
+		pointer = POINTER_DEFAULT; // set to default value after each use
 	}
 	/**
 	 * When it isn't needed anymore, hides pointer and stops its animation. 
@@ -206,9 +208,9 @@ public class GameTools extends Entity {
 		dollPointer.setVisible(false);
 		defaultPointer.setVisible(false);
 		
-		walkingPointer.stopAnimation(11);
-		dollPointer.stopAnimation(11);
-		defaultPointer.stopAnimation(11);
+//		walkingPointer.stopAnimation(11);
+//		dollPointer.stopAnimation(11);
+//		defaultPointer.stopAnimation(11);
 	}
 	/**
 	 * When border of screen is reached, hides moving arrows; otherwise, displays them. 

@@ -47,7 +47,7 @@ public final class Constants  {
 	
 	public static int POINTER_WALK = 1;	
 	public static int POINTER_DOLL = 2;	
-	public static int POINTER_CIRCLE = 3;	
+	public static int POINTER_DEFAULT = 3;	
 	
 	/*                   */
 	/* RUNTIME CONSTANTS */

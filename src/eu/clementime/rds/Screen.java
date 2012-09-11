@@ -43,7 +43,6 @@ import static eu.clementime.rds.Constants.MODE_INVENTORY_OPEN;
 import static eu.clementime.rds.Constants.MODE_INVENTORY_ZOOM;
 import static eu.clementime.rds.Constants.NO_END_LOOP;
 import static eu.clementime.rds.Constants.PLAYING_HAND;
-import static eu.clementime.rds.Constants.POINTER_CIRCLE;
 import static eu.clementime.rds.Constants.POINTER_WALK;
 import static eu.clementime.rds.Constants.POINTER_DOLL;
 import static eu.clementime.rds.Constants.SCALE_POSITION;
@@ -443,7 +442,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 					}
 				}
 				
-				if (displayLog) Log.d("Clementime", className + "/setLoop(): status " + status + " - mode " + mode);
+				if (displayLog) Log.d("Clementime", className + "/onUpdate(): status " + status + " - mode " + mode);
 				
 	    		//************************************
 	    		//     PLAY ANIMATIONS IF NEEDED
@@ -459,20 +458,20 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 					if (runningAnim != null) {
 
 						if (phAnimRunning != null) {
-							if (displayLog) Log.d("Clementime", className + "/setLoop(): running animation " + runningAnim.id + " moving");
+							if (displayLog) Log.d("Clementime", className + "/onUpdate(): running animation " + runningAnim.id + " moving");
 
 							if (phAnimRunning.getVelocityX() != 0 || phAnimRunning.getVelocityY() != 0)
 								checkStopMovingAnimation(runningAnim);
 							
-						} else if (displayLog) Log.d("Clementime", className + "/setLoop(): running animation " + runningAnim.id + " stopped or static");
+						} else if (displayLog) Log.d("Clementime", className + "/onUpdate(): running animation " + runningAnim.id + " stopped or static");
 						
 						if (runningAnim.isAnimationRunning()) {
 							if (runningAnim.toChase) {
 								chaseAnim = true;
 								pointToChase = runningAnim.getX() + runningAnim.staticCenterX;
 								
-								if (displayLog) Log.d("Clementime", className + "/setLoop(): running animation is chased");
-							} else if (displayLog) Log.d("Clementime", className + "/setLoop(): running animation isn't chased");
+								if (displayLog) Log.d("Clementime", className + "/onUpdate(): running animation is chased");
+							} else if (displayLog) Log.d("Clementime", className + "/onUpdate(): running animation isn't chased");
 							
 						} else runningAnim = null;
 
@@ -544,11 +543,17 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			displayLog = false;					
 		}
 		
-		if (LOG_ON) Log.d("Clementime", className + "/checkStopDoll(): status " + status + " - mode " + mode + " - click " + clickCheck);
+		if (displayLog) Log.d("Clementime", className + "/checkStopDoll(): status " + status + " - mode " + mode + " - click " + clickCheck);
 
-		// stop doll when reaching borders - if not during an animation
+		//************************************
+		//    CHECK IF DOLL HAS TO STOP
+		//************************************
+		
+		// if moving arrows are playing, stop doll when reaching borders (if not during an animation that allows going outside borders)
     	if ((doll.image.getX() < currentBg.xMin || doll.image.getX() > currentBg.xMax) && mode != MODE_ANIM_RUNNING) {	
 			
+    		if (LOG_ON) Log.d("Clementime", className + "/checkStopDoll(): doll reached one border");
+    		
 	    	doll.stop();
 	    	gameTools.leftArrow.stopAnimation(4);
 	    	gameTools.rightArrow.stopAnimation(4);
@@ -556,16 +561,22 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	    	// avoid doll being stuck on one border
 	    	if (doll.image.getX() < currentBg.xMin) doll.image.setPosition(currentBg.xMin, doll.image.getY());
 	    	if (doll.image.getX() > currentBg.xMax) doll.image.setPosition(currentBg.xMax, doll.image.getY());
+
+	    	// avoid that an exit doesn't work because set a little bit outside borders (it happens, yes...)
+	    	if (touchedExit != null && touchedExit.beforeTrigger == 0) goToNextScreen();
 	    	
-	    // stop doll at touchedX if the moving arrows aren't playing
+	    // otherwise (>> moving arrows aren't playing)
 		} else if (!gameTools.leftArrow.isAnimationRunning() && !gameTools.rightArrow.isAnimationRunning()) {
-						
+						   		
 			stopX = touchedX - doll.staticCenterX;		
 
-			// if looking or talking to an item until which the doll can't move 
+			// if looking or talking to an item towards which doll can't move, do action anyway
 			if (mode == MODE_ANIM_ACTION && actionsManagerOutsideBorders) {
-				gameTools.hidePointer();
-				if (touchedAction == ACTION_TALK)	talk();
+
+	    		if (LOG_ON) Log.d("Clementime", className + "/checkStopDoll(): doll does action (look/talk) outside borders");
+				
+				//TODO: where is looking? Does it disappear in the big black hole?
+		    	else if (touchedAction == ACTION_TALK)	talk();
 				
 				gameTools.am.deactivate();
 								
@@ -577,26 +588,26 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				actionsManagerOutsideBorders = false;
 			}
 			
-			// stop doll if moving arrows aren't playing
+			//************************************
+			//    DOLL REACHED ACTION POINT
+			//************************************
+
+			// then stop it at touchedX and please do action
 			if (doll.walkDirection == DIRECTION_RIGHT && doll.image.getX() >= stopX || doll.walkDirection == DIRECTION_LEFT && doll.image.getX() <= stopX) {   	
 
+	    		if (LOG_ON) Log.d("Clementime", className + "/checkStopDoll(): doll reached action point and stops");
+	    		
 		    	doll.stop();
 		    	gameTools.leftArrow.stopAnimation(4);
 		    	gameTools.rightArrow.stopAnimation(4);
-
-	    		if (displayLog) Log.d("Clementime", className + "/checkStopDoll(): doll reached action point");
 	    		
 		    	// reasons why doll is stopping (other than simple moving on screen)
 		    	if (mode == MODE_ANIM_ACTION) {
 		    		
-		    		if (displayLog) Log.d("Clementime", className + "/checkStopDoll(): doll reached action point");
-
-					gameTools.hidePointer();
+		    		if (LOG_ON) Log.d("Clementime", className + "/checkStopDoll(): doll reached action point in mode anim/action, now does an action");
 					
-			    	if (touchedExit != null) {
-						if (touchedExit.beforeTrigger == 0) goToNextScreen();
-						
-			    	} else if (touchedAction == ACTION_TAKE) 	take();
+			    	if (touchedExit != null && touchedExit.beforeTrigger == 0) goToNextScreen();
+			    	else if (touchedAction == ACTION_TAKE) 	take();
 					else if (touchedAction == ACTION_TALK)	talk();
 					
 					gameTools.am.deactivate();
@@ -737,6 +748,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			/********************************************/	
 			doll.image.setPosition(startingPosition[0], startingPosition[1] - SET_BACKGROUND_POSITION_Y + MARGIN_Y);
 			doll.idle.setPosition(startingPosition[0], startingPosition[1] - SET_BACKGROUND_POSITION_Y + MARGIN_Y);
+			
+	    	// avoid doll starting outside borders if database information is not completely right
+	    	if (doll.image.getX() < currentBg.xMin) doll.image.setPosition(currentBg.xMin, doll.image.getY());
+	    	if (doll.image.getX() > currentBg.xMax) doll.image.setPosition(currentBg.xMax, doll.image.getY());
+			
 			world.calculateWalkArea(startingPosition[1] - SET_BACKGROUND_POSITION_Y + doll.image.getHeight() + MARGIN_Y);
 			
 			// set camera focus on doll at start
@@ -864,10 +880,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 							//************************************
 				    		//     DOLL		>> OPEN INVENTORY
 				    		//************************************
-							else if (pTouchArea == doll.image) {
-								gameTools.pointer = POINTER_DOLL;
-								openInventory();
-							}
+							else if (pTouchArea == doll.image) 	openInventory();
 
 							//***********************************
 							//		MOVING ARROWS
@@ -947,15 +960,6 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			if (LOG_ON) Log.d("Clementime", className + "/onSceneTouchEvent(): status " + status + " - mode " + mode + " - click " + clickCheck);
 			
 			try {
-				//************************************
-				//     ANIMATED CIRCLE
-				//************************************ 
-				// show animated circle when status is ACTION and not in walk area
-//				if (status == STATUS_ACTION) {
-//					float xCircle = pSceneTouchEvent.getX() - gameTools.defaultPointer.getWidth() / 2;
-//			    	float yCircle = pSceneTouchEvent.getY() - gameTools.defaultPointer.getHeight() / 2;
-//					gameTools.showAnimatedCircle(xCircle, yCircle);	
-//				}	
 				
 				//**********************************************
 				//     INVENTORY ITEM zooming and dropping
@@ -1070,7 +1074,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	 *  > freeze action manager and move doll towards item if doll is going to take an item, towards character if doll is going to talk to somebody, or towards exit,</br>
 	 *  > check if there is something to look in the background (screen area),</br>
 	 *  > let doll starting walking (to a point or continuously, it will be checked after by checkStopDoll() method),</br>
-	 *  > show animated circle or pointer.
+	 *  > show pointer.
 	 * @param	x	x touched by the player (on the whole AndEngine scene, which means on the whole background image, not local x on screen)
 	 * @param	y	y touched by the player (for this application = local y because there is no way to scroll vertically)
 	 * @see #onSceneTouchEvent
@@ -1106,7 +1110,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		//     SPECIAL AREAS ON SCREEN
 		//*********************************
 		// player touch the screen - check if an area is touched
-		} else if (clickCheck != CLICK_BAG) {
+		} else if (clickCheck != CLICK_DOLL) {
 
 			Area area = null;
 			
@@ -1138,25 +1142,23 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		if (mode == MODE_ACTION_WALK) {
 
 			gameTools.am.deactivate();
-
-			// avoid doll moving when closing inventory or frame
-			//TODO: remove click_bag
-			if (clickCheck != CLICK_BAG) {
 				
-				// avoid doll stopping if moving arrow just pressed
-				if (!movingArrowPressed) {
-			    	gameTools.leftArrow.stopAnimation(4);
-			    	gameTools.rightArrow.stopAnimation(4);
-					touchedX = x;
-					
-					// move doll until touched point if walk area touched
-					if (world.checkWalkArea(currentBg.xMin, currentBg.xMax, x, y)) {
-						gameTools.pointer = POINTER_WALK;
-						doll.move(status, touchedX);						
-					}
-				} else movingArrowPressed = false;
+			// avoid doll stopping if moving arrow just pressed
+			if (!movingArrowPressed) {
+		    	gameTools.leftArrow.stopAnimation(4);
+		    	gameTools.rightArrow.stopAnimation(4);
+				touchedX = x;
 				
-			} else clickCheck = CLICK_OFF;				
+				// avoid doll moving when touching it
+				if (clickCheck == CLICK_DOLL)	clickCheck = CLICK_OFF;
+				
+				// if not, check if walk area was touched and if yes, move doll until touched point
+				else if (world.checkWalkArea(currentBg.xMin, currentBg.xMax, x, y)) {
+					gameTools.pointer = POINTER_WALK;
+					doll.move(status, touchedX);						
+				}
+				
+			} else movingArrowPressed = false;		
 			
 		} else {
 	    	gameTools.leftArrow.stopAnimation(4);
@@ -1166,13 +1168,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		}	
 		
 		//************************************
-		//     ANIMATED CIRCLE
+		//     POINTER
 		//************************************ 
-		// show animated circle when status is ACTION and not in walk area
-
-		float xPointer = x - gameTools.defaultPointer.getWidth() / 2;
-    	float yPointer = y - gameTools.defaultPointer.getHeight() / 2;
-		gameTools.showPointer(xPointer, yPointer);
+		// show pointer when status is ACTION only, walking pointer in walking area, 
+		// doll pointer when touching doll, and default pointer in all other cases
+		gameTools.showPointer(x, y);
 	}
 	/**
 	 * SubMethod of onSceneTouchEvent() method, allows drag and drop of inventory items and combination with another inventory item or with a screen item. 
@@ -1409,6 +1409,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	 */
 	private void openInventory() {
 		
+		gameTools.pointer = POINTER_DOLL;
+		clickCheck = CLICK_DOLL;
     	doll.stop();
     	gameTools.leftArrow.stopAnimation(4);
     	gameTools.rightArrow.stopAnimation(4);
@@ -1418,11 +1420,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			status = STATUS_INVENTORY;
 			mode = MODE_INVENTORY_OPEN;
 			displayInventory();
-			clickCheck = CLICK_DOLL;
-		} else {
-			doll.sayNo();
-//			displayTalk(world.getGeneralText("empty_inventory"));
-		}	
+		} else doll.sayNo();
 	}
 	/**
 	 * Close inventory and come back to walk status and mode.
