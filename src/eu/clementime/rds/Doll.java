@@ -29,7 +29,7 @@ import android.util.Log;
 */
 public class Doll {
 	
-	public AnimatedSprite image;
+	public AnimatedSprite walking;
 	public AnimatedSprite idle;
 	private BitmapTextureAtlas dollBTA;
 	private BitmapTextureAtlas dollIdleBTA;
@@ -52,7 +52,7 @@ public class Doll {
 	public float YVelocity = 0;
 	
 	/**
-	 * x position of doll image centre from its own left side (not from left side of camera or background).
+	 * x position of doll walking centre from its own left side (not from left side of camera or background).
 	 */	
 	public float staticCenterX;
 	
@@ -61,6 +61,8 @@ public class Doll {
 	
 	private DatabaseAccess db;
 	private Context context;
+	
+	public boolean firstRun = true; // avoid a strange behaviour of AndEngine: latency when first setVisible(true) of walking image
 	
 	/**
 	 * For logs only.
@@ -87,24 +89,23 @@ public class Doll {
 		
 		engine.getTextureManager().loadTextures(dollBTA, dollIdleBTA);
 		
-		image = new AnimatedSprite(0, 0, dollTR);
+		walking = new AnimatedSprite(0, 0, dollTR);
 		idle = new AnimatedSprite(0, 0, dollIdleTR);
 
-		image.setVisible(false);
-		idle.stopAnimation(0);
+		//idle.stopAnimation(0);
 			
-		ph = new PhysicsHandler(image);
-		image.registerUpdateHandler(ph);
+		ph = new PhysicsHandler(walking);
+		walking.registerUpdateHandler(ph);
 		
-		scene.attachChild(image);
+		scene.attachChild(walking);
 		scene.attachChild(idle);
-		image.setZIndex(ZINDEX_DOLL);
+		walking.setZIndex(ZINDEX_DOLL);
 		idle.setZIndex(ZINDEX_DOLL);
 		
-		scene.registerTouchArea(image);
+		scene.registerTouchArea(walking);
 		scene.registerTouchArea(idle);
 		
-		this.staticCenterX = image.getWidth()/2;
+		this.staticCenterX = walking.getWidth()/2;	
 	}
 	/**
 	 * Launches doll sprite animation and move of doll until a point or item/area, etc...
@@ -116,20 +117,26 @@ public class Doll {
 		if (LOG_ON) Log.i("Clementime", className + "/move()");
 
 		idle.setVisible(false);
-		image.setVisible(true);
+		
+		// !!!! firstRun avoid a strange behaviour of AndEngine: latency when first setVisible(true) of walking image		
+		if (firstRun) {
+			firstRun = false;
+			walking.setPosition(idle); 
+		}
+		else walking.setVisible(true);
 		
 		// if doll wasn't previously walking, launch walking animation	
 		if (ph.getVelocityX() == 0) {
 			
-			if (touchedX > image.getX()) {
+			if (touchedX > walking.getX()) {
 				walkDirection = DIRECTION_RIGHT;
-				image.animate(new long[]{120, 120, 120, 120, 120, 120, 120, 120}, 0, 7, true);	
+				walking.animate(new long[]{120, 120, 120, 120, 120, 120, 120, 120}, 0, 7, true);	
 				if (status == STATUS_ACTION || YVelocity == -1000) ph.setVelocity(70, standardYVelocityRight);
 				else ph.setVelocity(70, YVelocity);
 			}
-			else if (touchedX < image.getX()) {
+			else if (touchedX < walking.getX()) {
 				walkDirection = DIRECTION_LEFT;
-				image.animate(new long[]{120, 120, 120, 120, 120, 120, 120, 120}, 8, 15, true);				
+				walking.animate(new long[]{120, 120, 120, 120, 120, 120, 120, 120}, 8, 15, true);				
 				if (status == STATUS_ACTION || YVelocity == -1000) ph.setVelocity(-70, standardYVelocityLeft);
 				else ph.setVelocity(-70, YVelocity);
 			}	
@@ -143,8 +150,8 @@ public class Doll {
 		if (LOG_ON) Log.i("Clementime", className + "/stop()");
 		
 		ph.setVelocity(0,0);
-		image.setVisible(false);
-		idle.setPosition(image);
+		walking.setVisible(false);
+		idle.setPosition(walking);
 		idle.setVisible(true);
 		idle.stopAnimation(0);
 	}
@@ -165,8 +172,22 @@ public class Doll {
 	 * Hides or displays walking skin and idle skin of doll, when an animation is running and doll disappears somewhere.
 	 */
 	public void setVisible(boolean choice) {
-		if (ph.getVelocityX() > 0) this.image.setVisible(choice);
-		else this.idle.setVisible(choice);
+		
+		if (LOG_ON) Log.i("Clementime", className + "/setVisible()");
+		
+		if (choice == true) {
+			if (ph.getVelocityX() > 0) {
+				this.walking.setVisible(true);
+				this.idle.setVisible(false);		
+			} else {
+				this.walking.setVisible(false);
+				this.idle.setVisible(true);					
+			}
+		} else {
+			this.walking.setVisible(false);
+			this.idle.setVisible(false);		
+		}
+		
 	}
 	/**
 	 * Finds in which screen doll is in.
@@ -192,5 +213,10 @@ public class Doll {
 		} else if (LOG_ON) Log.d("Clementime", className + "/changeSkin(): load skin " +  + skinId);
 		
 		BitmapTextureAtlasTextureRegionFactory.createTiledFromResource(dollBTA, context, bgFile, 0, 0, 4, 4);
+	}
+	
+	public void setPosition(float x, float y) {
+		walking.setPosition(x, y);
+		idle.setPosition(x, y);	
 	}
 }

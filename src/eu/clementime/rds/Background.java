@@ -155,7 +155,7 @@ import android.util.Log;
 			//bgImage.setVisible(false); // used to test if a zindex is not correctly set
 			
 		} catch (Exception e) {
-			Log.e("Clementime", className + "/loadBackground():failed to load screen " + screenId);		
+			Log.e("Clementime", className + "/loadBackground(): failed to load screen " + screenId);	
 		}
 	}
 	/**
@@ -200,7 +200,7 @@ import android.util.Log;
 						posOnAtlasY = posOnAtlasY + nextPosOnAtlasY;
 						nextPosOnAtlasY = 0;
 					}
-
+					
 					createItem(hm, itemsBTA, posOnAtlasX, posOnAtlasY);
 					
 					// manage position on AtlasBitmap
@@ -219,7 +219,8 @@ import android.util.Log;
 				spriteToAttach = itItems.next();
 				
 				scene.attachChild(spriteToAttach);
-				spriteToAttach.setPosition(spriteToAttach.x * SCALE_POSITION, (spriteToAttach.y - SET_BACKGROUND_POSITION_Y + MARGIN_Y) * SCALE_POSITION);	
+				//spriteToAttach.setPosition(spriteToAttach.x * SCALE_POSITION, (spriteToAttach.y - SET_BACKGROUND_POSITION_Y + MARGIN_Y) * SCALE_POSITION);	
+				spriteToAttach.setPosition(spriteToAttach.x, spriteToAttach.y);	
 				
 				// some items have to be placed beyond the doll, on the foreground
 				if (spriteToAttach.foreground) spriteToAttach.setZIndex(ZINDEX_FOREGROUND);
@@ -271,7 +272,7 @@ import android.util.Log;
 
 		take = Integer.parseInt(hm.get("take_state"));
 		look = Integer.parseInt(hm.get("look_state"));
-		talk = Integer.parseInt(hm.get("talkk_state"));
+		talk = Integer.parseInt(hm.get("talk_state"));
 		//exit = Integer.parseInt(hm.get("exit"));
 		if (Integer.parseInt(hm.get("foreground")) == 1) takeable = true;
 		else takeable = false;

@@ -46,15 +46,17 @@ public final class R {
         public static final int s1_menthos=0x7f020020;
         public static final int s1_menthos_packet=0x7f020021;
         public static final int s1_mentos=0x7f020022;
-        public static final int s1_mentos_packet=0x7f020023;
-        public static final int screen1_anim_flies=0x7f020024;
-        public static final int screen1_bg=0x7f020025;
-        public static final int screen2_bg=0x7f020026;
-        public static final int screen3_bg=0x7f020027;
-        public static final int settings=0x7f020028;
-        public static final int skin_anim_drunk=0x7f020029;
-        public static final int steph_zoom=0x7f02002a;
-        public static final int walking_pointer=0x7f02002b;
+        public static final int s1_mentos_inv=0x7f020023;
+        public static final int s1_mentos_packet=0x7f020024;
+        public static final int s1_mentos_zoom=0x7f020025;
+        public static final int screen1_anim_flies=0x7f020026;
+        public static final int screen1_bg=0x7f020027;
+        public static final int screen2_bg=0x7f020028;
+        public static final int screen3_bg=0x7f020029;
+        public static final int settings=0x7f02002a;
+        public static final int skin_anim_drunk=0x7f02002b;
+        public static final int steph_zoom=0x7f02002c;
+        public static final int walking_pointer=0x7f02002d;
     }
     public static final class layout {
         public static final int main=0x7f030000;

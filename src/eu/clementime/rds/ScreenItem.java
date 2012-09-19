@@ -44,13 +44,11 @@ public class ScreenItem extends Sprite {
 		this.takeable = takeable;
 		this.foreground = foreground;
 		
-		this.x = x;
-		this.y = y * SCALE_POSITION + MARGIN_Y;
+		// scale every position depending mdpi/hdpi with SCALE_POSITION 
+		// and then move on Y depending screen size using SET_BACKGROUND_POSITION_Y (background too big for screen) and MARGIN_Y (background smaller than screen)
+		this.x = x * SCALE_POSITION;
+		this.y = y * SCALE_POSITION - SET_BACKGROUND_POSITION_Y + MARGIN_Y;
 		
-		if (LOG_ON) Log.i("Clementime", className + "/Constructor(): x: " + x + " - y: " + y);
-		
-		this.y = (y + MARGIN_Y) * SCALE_POSITION;
-		
-		if (LOG_ON) Log.i("Clementime", className + "/Constructor(): x: " + x + " - y: " + y);
+		if (LOG_ON) Log.i("Clementime", className + "/Constructor(): x: " + this.x + " - y: " + this.y + " - scale: " + SCALE_POSITION + " - margin: " + MARGIN_Y + " y*scale: " + (y*SCALE_POSITION));
 	}
 }

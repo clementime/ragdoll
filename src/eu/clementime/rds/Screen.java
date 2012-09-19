@@ -324,7 +324,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
         //**********************	
 		// DOLL
         //**********************
-		doll = new Doll(dbh, context, mEngine, scene);		
+		doll = new Doll(dbh, context, mEngine, scene);	
 
         //**********************
 		// SCREEN
@@ -494,19 +494,21 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 //						else goToNextScreen();									
 //					}
 				}
-
+				
+				if (displayLog) Log.d("Clementime", className + "/onUpdate(): walking " + doll.walking.getX() + " - idle " + doll.idle.getX());
+				
 				//***************************************************************
 				//     CHASE ANIM or DOLL with camera, move everything needed
 				//***************************************************************
 				if ((doll.ph.getVelocityX() != 0 && !checkStopDoll(pSecondsElapsed)) || chaseAnim) {	
-
-					if (doll.isChased) pointToChase = doll.image.getX() + doll.staticCenterX; // chase doll
 					
+					if (doll.isChased) pointToChase = doll.walking.getX() + doll.staticCenterX; // chase doll
+						
 		    		//************************************
 		    		//    CHASE DOLL or ANIM
 		    		//************************************			
 					if (pointToChase != -1 && pointToChase > minChasingX && pointToChase < maxChasingX) {
-	
+					
 						camera.setCenter(pointToChase, CAMERA_HEIGHT / 2);
 						
 						//****************************************
@@ -550,7 +552,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		//************************************
 		
 		// if moving arrows are playing, stop doll when reaching borders (if not during an animation that allows going outside borders)
-    	if ((doll.image.getX() < currentBg.xMin || doll.image.getX() > currentBg.xMax) && mode != MODE_ANIM_RUNNING) {	
+    	if ((doll.walking.getX() < currentBg.xMin || doll.walking.getX() > currentBg.xMax) && mode != MODE_ANIM_RUNNING) {	
 			
     		if (LOG_ON) Log.d("Clementime", className + "/checkStopDoll(): doll reached one border");
     		
@@ -559,8 +561,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	    	gameTools.rightArrow.stopAnimation(4);
 	    	
 	    	// avoid doll being stuck on one border
-	    	if (doll.image.getX() < currentBg.xMin) doll.image.setPosition(currentBg.xMin, doll.image.getY());
-	    	if (doll.image.getX() > currentBg.xMax) doll.image.setPosition(currentBg.xMax, doll.image.getY());
+	    	if (doll.walking.getX() < currentBg.xMin)			doll.setPosition(currentBg.xMin, doll.walking.getY());
+	    	else if (doll.walking.getX() > currentBg.xMax)	doll.setPosition(currentBg.xMax, doll.walking.getY());
 
 	    	// avoid that an exit doesn't work because set a little bit outside borders (it happens, yes...)
 	    	if (touchedExit != null && touchedExit.beforeTrigger == 0) goToNextScreen();
@@ -593,7 +595,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			//************************************
 
 			// then stop it at touchedX and please do action
-			if (doll.walkDirection == DIRECTION_RIGHT && doll.image.getX() >= stopX || doll.walkDirection == DIRECTION_LEFT && doll.image.getX() <= stopX) {   	
+			if (doll.walkDirection == DIRECTION_RIGHT && doll.walking.getX() >= stopX || doll.walkDirection == DIRECTION_LEFT && doll.walking.getX() <= stopX) {   	
 
 	    		if (LOG_ON) Log.d("Clementime", className + "/checkStopDoll(): doll reached action point and stops");
 	    		
@@ -746,14 +748,13 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			/*
 			/* set persistent objects in position
 			/********************************************/	
-			doll.image.setPosition(startingPosition[0], startingPosition[1] - SET_BACKGROUND_POSITION_Y + MARGIN_Y);
-			doll.idle.setPosition(startingPosition[0], startingPosition[1] - SET_BACKGROUND_POSITION_Y + MARGIN_Y);
+			doll.setPosition(startingPosition[0], startingPosition[1] - SET_BACKGROUND_POSITION_Y + MARGIN_Y);
 			
 	    	// avoid doll starting outside borders if database information is not completely right
-	    	if (doll.image.getX() < currentBg.xMin) doll.image.setPosition(currentBg.xMin, doll.image.getY());
-	    	if (doll.image.getX() > currentBg.xMax) doll.image.setPosition(currentBg.xMax, doll.image.getY());
+	    	if (doll.walking.getX() < currentBg.xMin)			doll.setPosition(currentBg.xMin, doll.walking.getY());
+	    	else if (doll.walking.getX() > currentBg.xMax)		doll.setPosition(currentBg.xMax, doll.walking.getY());
 			
-			world.calculateWalkArea(startingPosition[1] - SET_BACKGROUND_POSITION_Y + doll.image.getHeight() + MARGIN_Y);
+			world.calculateWalkArea(startingPosition[1] - SET_BACKGROUND_POSITION_Y + doll.walking.getHeight() + MARGIN_Y);
 			
 			// set camera focus on doll at start
 			if (startingPosition[0] >= currentBg.bgImage.getWidth() - CAMERA_WIDTH/2)	camera.setCenter(currentBg.bgImage.getWidth() - CAMERA_WIDTH/2, CAMERA_HEIGHT/2);
@@ -780,6 +781,12 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 			// sort ZIndex in order to display sprites in back, middle, or foreground.
 			scene.sortChildren();	
+			
+			// !!!! these 3 lines avoid a strange behaviour of AndEngine: latency when first setVisible(true) of walking image		
+			doll.walking.setVisible(true);
+			doll.walking.setPosition(-500, -1000);
+			doll.firstRun = true;
+			// TODO: maybe better to change method showPersistentObjects() instead
 
 		} catch (Exception e) {
 			Log.e("Clementime", className + "/initNewScreen(): raise error: " + e.getMessage());
@@ -880,7 +887,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 							//************************************
 				    		//     DOLL		>> OPEN INVENTORY
 				    		//************************************
-							else if (pTouchArea == doll.image) 	openInventory();
+							else if (pTouchArea == doll.walking) 	openInventory();
 
 							//***********************************
 							//		MOVING ARROWS
@@ -1504,7 +1511,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	        scene.setChildScene(devTools);
 	        devTools.display();	    		
     	} else {
-			world.save(currentBg.screenId, doll.image.getX(), doll.image.getY());
+			world.save(currentBg.screenId, doll.walking.getX(), doll.walking.getY());
     		load = devTools.hide();
     		if (load > 0) {
     			backup.setLoad(load);
@@ -2011,7 +2018,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		super.onPause();
 		if(dbh.db.isOpen()) {
 			// if screen is loaded, don't change player savings info as it will cancel loading 
-			if (load == 0) world.save(currentBg.screenId, doll.image.getX(), doll.image.getY());
+			if (load == 0) world.save(currentBg.screenId, doll.walking.getX(), doll.walking.getY());
 			
 			if (DEVELOPMENT && load == 0 && touchedExit == null) {
 				backup.createStateFile("_current");
