@@ -785,7 +785,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			// !!!! these 3 lines avoid a strange behaviour of AndEngine: latency when first setVisible(true) of walking image		
 			doll.walking.setVisible(true);
 			doll.walking.setPosition(-500, -1000);
-			doll.firstRun = true;
+			doll.justStarted = true;
 			// TODO: maybe better to change method showPersistentObjects() instead
 
 		} catch (Exception e) {
@@ -887,7 +887,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 							//************************************
 				    		//     DOLL		>> OPEN INVENTORY
 				    		//************************************
-							else if (pTouchArea == doll.walking) 	openInventory();
+							else if (pTouchArea == doll.walking || pTouchArea == doll.idle)		openInventory();
 
 							//***********************************
 							//		MOVING ARROWS
@@ -1126,14 +1126,15 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			if (area != null) {
 				if (LOG_ON) Log.d("Clementime", className + "/onSceneTouchEvent(): activated area: " + area.id);
 				
-				mode = MODE_ACTION_WAIT;
+				// TODO: I removed this line without testing, test if I am right
+				// mode = MODE_ACTION_WAIT;
 				touchedX = area.x + area.width/2;
 				
 				int actions = gameTools.am.activate(area.x, area.y, area.width, area.height, currentBg.getAreaStates(area.id), true);
 				
 				if (actions == ACTION_TAKE) doSingleAction(ACTION_TAKE);
-				if (actions == ACTION_LOOK) doSingleAction(ACTION_LOOK);
-				if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
+				else if (actions == ACTION_LOOK) doSingleAction(ACTION_LOOK);
+				else if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
 				else if (actions > 0) mode = MODE_ACTION_WAIT;
 				
 				touchedItem = null;
@@ -1398,6 +1399,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			talk.hide();
 			talk.background.detachChildren();
 	        scene.unregisterTouchArea(talk.background);
+			status = STATUS_ACTION;
+			mode = MODE_ACTION_WALK;
 //			if (touchedZoomItem != null) inventory.displayZoomView(camera.getMinX(), touchedZoomItem, scene);
 //		}	
 		
@@ -1416,9 +1419,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	 */
 	private void openInventory() {
 		
+		if (LOG_ON) Log.d("Clementime", className + "/openInventory()"); 
+
 		gameTools.pointer = POINTER_DOLL;
 		clickCheck = CLICK_DOLL;
-    	doll.stop();
+		if (!doll.justStarted) doll.stop();
     	gameTools.leftArrow.stopAnimation(4);
     	gameTools.rightArrow.stopAnimation(4);
     	gameTools.am.deactivate();
@@ -1461,8 +1466,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		if (LOG_ON) Log.i("Clementime", className + "/activateActionOnAnim(): actions = " + actions);
 		
 		if (actions == ACTION_TAKE) doSingleAction(ACTION_TAKE);
-		if (actions == ACTION_LOOK) doSingleAction(ACTION_LOOK);
-		if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
+		else if (actions == ACTION_LOOK) doSingleAction(ACTION_LOOK);
+		else if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
 		else if (actions > 0) mode = MODE_ACTION_WAIT;
 	}
 	/**
@@ -1482,8 +1487,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		if (LOG_ON) Log.i("Clementime", className + "/activateActionOnItem(): actions = " + actions);
 		
 		if (actions == ACTION_TAKE) doSingleAction(ACTION_TAKE);
-		if (actions == ACTION_LOOK) doSingleAction(ACTION_LOOK);
-		if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
+		else if (actions == ACTION_LOOK) doSingleAction(ACTION_LOOK);
+		else if (actions == ACTION_TALK) doSingleAction(ACTION_TALK);
 		else if (actions > 0) mode = MODE_ACTION_WAIT;
 	}
 	/**
