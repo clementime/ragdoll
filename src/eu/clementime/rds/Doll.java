@@ -62,8 +62,6 @@ public class Doll {
 	private DatabaseAccess db;
 	private Context context;
 	
-	public boolean justStarted = true; // avoid a strange behaviour of AndEngine: latency when first setVisible(true) of walking image
-	
 	/**
 	 * For logs only.
 	 */	
@@ -118,11 +116,8 @@ public class Doll {
 
 		idle.setVisible(false);
 		
-		// !!!! justStarted avoid a strange behaviour of AndEngine: latency when first setVisible(true) of walking image		
-		if (justStarted) {
-			justStarted = false;
-			walking.setPosition(idle); 
-		}
+		// !!!! avoid a strange behaviour of AndEngine: latency when first setVisible(true) of walking image		
+		if (walking.getX() == -500) walking.setPosition(idle); 
 		else walking.setVisible(true);
 		
 		// if doll wasn't previously walking, launch walking animation	
@@ -151,7 +146,10 @@ public class Doll {
 		
 		ph.setVelocity(0,0);
 		walking.setVisible(false);
-		idle.setPosition(walking);
+		
+		// !!!! avoid a strange behaviour of AndEngine: latency when first setVisible(true) of walking image
+		if (walking.getX() != -500)	idle.setPosition(walking);
+		
 		idle.setVisible(true);
 		idle.stopAnimation(0);
 	}

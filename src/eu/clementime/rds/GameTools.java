@@ -249,6 +249,13 @@ public class GameTools extends Entity {
 	public int getPlayingHand() {
 		return db.selectPlayingHand();
 	}
+	/**
+	 * Stop moving arrows from playing
+	 */
+	public void stopMovingArrows() {
+    	leftArrow.stopAnimation(4);
+    	rightArrow.stopAnimation(4);
+	}
 }
 
 

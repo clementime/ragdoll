@@ -557,8 +557,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
     		if (LOG_ON) Log.d("Clementime", className + "/checkStopDoll(): doll reached one border");
     		
 	    	doll.stop();
-	    	gameTools.leftArrow.stopAnimation(4);
-	    	gameTools.rightArrow.stopAnimation(4);
+			gameTools.stopMovingArrows();
 	    	
 	    	// avoid doll being stuck on one border
 	    	if (doll.walking.getX() < currentBg.xMin)			doll.setPosition(currentBg.xMin, doll.walking.getY());
@@ -600,8 +599,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 	    		if (LOG_ON) Log.d("Clementime", className + "/checkStopDoll(): doll reached action point and stops");
 	    		
 		    	doll.stop();
-		    	gameTools.leftArrow.stopAnimation(4);
-		    	gameTools.rightArrow.stopAnimation(4);
+				gameTools.stopMovingArrows();
 	    		
 		    	// reasons why doll is stopping (other than simple moving on screen)
 		    	if (mode == MODE_ANIM_ACTION) {
@@ -782,10 +780,9 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			// sort ZIndex in order to display sprites in back, middle, or foreground.
 			scene.sortChildren();	
 			
-			// !!!! these 3 lines avoid a strange behaviour of AndEngine: latency when first setVisible(true) of walking image		
+			// !!!! these lines avoid a strange behaviour of AndEngine: latency when first setVisible(true) of walking image		
 			doll.walking.setVisible(true);
 			doll.walking.setPosition(-500, -1000);
-			doll.justStarted = true;
 			// TODO: maybe better to change method showPersistentObjects() instead
 
 		} catch (Exception e) {
@@ -892,8 +889,8 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 							//***********************************
 							//		MOVING ARROWS
 							//***********************************						
-							else if (pTouchArea == gameTools.leftArrow)		activateMovingArrow(DIRECTION_LEFT);
-							else if (pTouchArea == gameTools.rightArrow)	activateMovingArrow(DIRECTION_RIGHT);
+							else if (pTouchArea == gameTools.leftArrow && gameTools.leftArrow.isVisible())		activateMovingArrow(DIRECTION_LEFT);
+							else if (pTouchArea == gameTools.rightArrow && gameTools.rightArrow.isVisible())		activateMovingArrow(DIRECTION_RIGHT);
 							
 							//**********************************************
 				    		//     ACTION MANAGER on CHARACTER or ANIM
@@ -998,8 +995,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 //					}
 					else { 
 						gameTools.am.deactivate();
-				    	gameTools.leftArrow.stopAnimation(4);
-				    	gameTools.rightArrow.stopAnimation(4);
+						gameTools.stopMovingArrows();
 		
 						if (status == STATUS_ANIM) {
 					    	// --------------- IF an animation is not running ---------------
@@ -1104,8 +1100,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			else { // exit
 				
 				touchedExit.stopAnimation();
-		    	gameTools.leftArrow.stopAnimation(4);
-		    	gameTools.rightArrow.stopAnimation(4);
+				gameTools.stopMovingArrows();
 
 				if (touchedExit.beforeTrigger == 0) doll.move(status, touchedX); // no trigger on exit, move doll until 
 				else launchTrigger(touchedExit.beforeTrigger, false);
@@ -1153,8 +1148,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 				
 			// avoid doll stopping if moving arrow just pressed
 			if (!movingArrowPressed) {
-		    	gameTools.leftArrow.stopAnimation(4);
-		    	gameTools.rightArrow.stopAnimation(4);
+				gameTools.stopMovingArrows();
 				touchedX = x;
 				
 				// avoid doll moving when touching it
@@ -1169,8 +1163,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 			} else movingArrowPressed = false;		
 			
 		} else {
-	    	gameTools.leftArrow.stopAnimation(4);
-	    	gameTools.rightArrow.stopAnimation(4);
+			gameTools.stopMovingArrows();
 			
 			if (mode == MODE_ACTION_WAIT) mode = MODE_ACTION_WALK;					
 		}	
@@ -1423,9 +1416,11 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 
 		gameTools.pointer = POINTER_DOLL;
 		clickCheck = CLICK_DOLL;
-		if (!doll.justStarted) doll.stop();
-    	gameTools.leftArrow.stopAnimation(4);
-    	gameTools.rightArrow.stopAnimation(4);
+		
+		// !!!! avoid a strange behaviour of AndEngine: latency when first setVisible(true) of walking image
+		if (doll.walking.getX() != -500) doll.stop();
+		
+		gameTools.stopMovingArrows();
     	gameTools.am.deactivate();
 		
 		if (!inventory.items.isEmpty()) {
@@ -2023,7 +2018,7 @@ IOnSceneTouchListener, IClickDetectorListener, IAccelerometerListener {
 		super.onPause();
 		if(dbh.db.isOpen()) {
 			// if screen is loaded, don't change player savings info as it will cancel loading 
-			if (load == 0) world.save(currentBg.screenId, doll.walking.getX(), doll.walking.getY());
+			if (load == 0) world.save(currentBg.screenId, doll.idle.getX(), doll.idle.getY());
 			
 			if (DEVELOPMENT && load == 0 && touchedExit == null) {
 				backup.createStateFile("_current");
